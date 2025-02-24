@@ -30,11 +30,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A2E84B3A2D6D2C15007B44F7 /* TwoCents */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TwoCents;
-			sourceTree = "<group>";
-		};
 		A2E84B4B2D6D2C18007B44F7 /* TwoCentsTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TwoCentsTests;
@@ -43,6 +38,11 @@
 		A2E84B552D6D2C18007B44F7 /* TwoCentsUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TwoCentsUITests;
+			sourceTree = "<group>";
+		};
+		A2E84B7A2D6D2CEF007B44F7 /* TwoCents */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TwoCents;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,7 +75,7 @@
 		A2E84B2F2D6D2C15007B44F7 = {
 			isa = PBXGroup;
 			children = (
-				A2E84B3A2D6D2C15007B44F7 /* TwoCents */,
+				A2E84B7A2D6D2CEF007B44F7 /* TwoCents */,
 				A2E84B4B2D6D2C18007B44F7 /* TwoCentsTests */,
 				A2E84B552D6D2C18007B44F7 /* TwoCentsUITests */,
 				A2E84B392D6D2C15007B44F7 /* Products */,
@@ -108,7 +108,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A2E84B3A2D6D2C15007B44F7 /* TwoCents */,
+				A2E84B7A2D6D2CEF007B44F7 /* TwoCents */,
 			);
 			name = TwoCents;
 			packageProductDependencies = (
