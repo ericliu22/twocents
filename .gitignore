@@ -60,3 +60,33 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build cache, coverage
+*.test
+*.profdata
+/testdata/
+/vendor/
+go.sum
+
+# Dependency directories (remove if using Go modules)
+bin/
+pkg/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+
+# Go modules
+/vendor/
+go.sum
