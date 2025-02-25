@@ -14,18 +14,18 @@ import (
 
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
-  id, media, date_created, media_url
+    id, media, date_created, media_url
 ) VALUES (
-  $1, $2, $3, $4
+    $1, $2, $3, $4
 )
 RETURNING id, media, date_created, media_url
 `
 
 type CreatePostParams struct {
-	ID          uuid.UUID
-	Media       MediaType
-	DateCreated pgtype.Date
-	MediaUrl    pgtype.Text
+	ID          uuid.UUID   `json:"id"`
+	Media       MediaType   `json:"media"`
+	DateCreated pgtype.Date `json:"dateCreated"`
+	MediaUrl    *string     `json:"mediaUrl"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -45,6 +45,45 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 	return i, err
 }
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+    id, provider, date_created, username, hash, salt
+) VALUES (
+    $1, $2, $3, $4, $5, $6
+)
+RETURNING id, provider, date_created, username, hash, salt
+`
+
+type CreateUserParams struct {
+	ID          uuid.UUID    `json:"id"`
+	Provider    ProviderType `json:"provider"`
+	DateCreated pgtype.Date  `json:"dateCreated"`
+	Username    string       `json:"username"`
+	Hash        *string      `json:"hash"`
+	Salt        *string      `json:"salt"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.ID,
+		arg.Provider,
+		arg.DateCreated,
+		arg.Username,
+		arg.Hash,
+		arg.Salt,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.DateCreated,
+		&i.Username,
+		&i.Hash,
+		&i.Salt,
+	)
+	return i, err
+}
+
 const deletePost = `-- name: DeletePost :exec
 DELETE FROM posts
 WHERE id = $1
@@ -52,6 +91,16 @@ WHERE id = $1
 
 func (q *Queries) DeletePost(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deletePost, id)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -102,19 +151,70 @@ func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
 	return items, nil
 }
 
+const getUser = `-- name: GetUser :one
+SELECT id, provider, date_created, username, hash, salt FROM users
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Provider,
+		&i.DateCreated,
+		&i.Username,
+		&i.Hash,
+		&i.Salt,
+	)
+	return i, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT id, provider, date_created, username, hash, salt FROM users
+ORDER BY date_created
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Provider,
+			&i.DateCreated,
+			&i.Username,
+			&i.Hash,
+			&i.Salt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePost = `-- name: UpdatePost :exec
 UPDATE posts
-	set media = $2,
-	date_created = $3,
-	media_url = $4
+    set media = $2,
+    date_created = $3,
+    media_url = $4
 WHERE id = $1
 `
 
 type UpdatePostParams struct {
-	ID          uuid.UUID
-	Media       MediaType
-	DateCreated pgtype.Date
-	MediaUrl    pgtype.Text
+	ID          uuid.UUID   `json:"id"`
+	Media       MediaType   `json:"media"`
+	DateCreated pgtype.Date `json:"dateCreated"`
+	MediaUrl    *string     `json:"mediaUrl"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
@@ -123,6 +223,37 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.Media,
 		arg.DateCreated,
 		arg.MediaUrl,
+	)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+	set provider = $2,
+	date_created = $3,
+	username = $4,
+    hash = $5,
+    salt = $6
+WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID          uuid.UUID    `json:"id"`
+	Provider    ProviderType `json:"provider"`
+	DateCreated pgtype.Date  `json:"dateCreated"`
+	Username    string       `json:"username"`
+	Hash        *string      `json:"hash"`
+	Salt        *string      `json:"salt"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.ID,
+		arg.Provider,
+		arg.DateCreated,
+		arg.Username,
+		arg.Hash,
+		arg.Salt,
 	)
 	return err
 }

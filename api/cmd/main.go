@@ -31,6 +31,7 @@ func main() {
 	middleware.SetupMiddleware(router, logFile)
 	routes.SetupCoreRouter(router, queries)
 
+	router.SetTrustedProxies([]string{"reverse-proxy"})
 	router.Run()
 
 }

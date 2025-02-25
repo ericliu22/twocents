@@ -33,8 +33,8 @@ func (e *MediaType) Scan(src interface{}) error {
 }
 
 type NullMediaType struct {
-	MediaType MediaType
-	Valid     bool // Valid is true if MediaType is not NULL
+	MediaType MediaType `json:"mediaType"`
+	Valid     bool      `json:"valid"` // Valid is true if MediaType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -55,9 +55,62 @@ func (ns NullMediaType) Value() (driver.Value, error) {
 	return string(ns.MediaType), nil
 }
 
+type ProviderType string
+
+const (
+	ProviderTypeFACEBOOK ProviderType = "FACEBOOK"
+	ProviderTypeGOOGLE   ProviderType = "GOOGLE"
+	ProviderTypeAPPLE    ProviderType = "APPLE"
+	ProviderTypeTWOCENTS ProviderType = "TWOCENTS"
+)
+
+func (e *ProviderType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ProviderType(s)
+	case string:
+		*e = ProviderType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ProviderType: %T", src)
+	}
+	return nil
+}
+
+type NullProviderType struct {
+	ProviderType ProviderType `json:"providerType"`
+	Valid        bool         `json:"valid"` // Valid is true if ProviderType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullProviderType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ProviderType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ProviderType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullProviderType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ProviderType), nil
+}
+
 type Post struct {
-	ID          uuid.UUID
-	Media       MediaType
-	DateCreated pgtype.Date
-	MediaUrl    pgtype.Text
+	ID          uuid.UUID   `json:"id"`
+	Media       MediaType   `json:"media"`
+	DateCreated pgtype.Date `json:"dateCreated"`
+	MediaUrl    *string     `json:"mediaUrl"`
+}
+
+type User struct {
+	ID          uuid.UUID    `json:"id"`
+	Provider    ProviderType `json:"provider"`
+	DateCreated pgtype.Date  `json:"dateCreated"`
+	Username    string       `json:"username"`
+	Hash        *string      `json:"hash"`
+	Salt        *string      `json:"salt"`
 }
