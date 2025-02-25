@@ -1,0 +1,22 @@
+services:
+  database:
+    image: postgres:latest
+    env_file:
+      #Requires POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+      - database.env
+    restart: unless-stopped
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/initdb/:/docker-entrypoint-initdb.d:ro
+  server:
+    build: ./
+    env_file:
+      #Requires DATABASE_URL
+      - api.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    restart: unless-stopped
+
+

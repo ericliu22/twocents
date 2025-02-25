@@ -90,3 +90,7 @@ pkg/
 # Go modules
 /vendor/
 go.sum
+
+api/db/data
+*.env
+.env
