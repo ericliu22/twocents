@@ -90,7 +90,7 @@ struct TwoCentsEntryView: View {
 }
 
 struct TwoCentsWidget: Widget {
-    let kind: String = "MyWidget"
+    let kind: String = "TwoCentsWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: TwoCentsEntryProvider()) { entry in
