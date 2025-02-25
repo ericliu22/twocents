@@ -18,6 +18,8 @@ services:
     depends_on:
       - database
     restart: unless-stopped
+    volumes:
+      - "./logs:/root/logs"
   reverse-proxy:
     image: nginx:alpine
     restart: always

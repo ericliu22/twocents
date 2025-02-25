@@ -25,7 +25,9 @@ func main() {
 
 	queries := database.New(conn)
 
-	middleware.SetupMiddleware(router)
+	var logFile *os.File
+
+	middleware.SetupMiddleware(router, logFile)
 	routes.SetupCoreRouter(router, queries)
 
 	router.Run()
