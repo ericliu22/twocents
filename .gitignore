@@ -94,3 +94,4 @@ go.sum
 api/db/data
 *.env
 .env
+api/certbot
