@@ -6,7 +6,7 @@ services:
       - database.env
     restart: unless-stopped
     volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - ./db/data:/var/lib/postgresql/data:Z
       - ./db/initdb/:/docker-entrypoint-initdb.d:ro
   server:
     build: ./

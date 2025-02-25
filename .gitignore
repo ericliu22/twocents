@@ -95,3 +95,4 @@ api/db/data
 *.env
 .env
 api/certbot
+*.log
