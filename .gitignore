@@ -92,3 +92,5 @@ pkg/
 go.sum
 
 api/db/data
+*.env
+.env
