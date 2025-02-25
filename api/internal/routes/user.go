@@ -2,7 +2,7 @@ package routes
 
 import (
 	database "api/internal/core/db"
-	"api/internal/handlers"
+	"api/internal/handlers/user"
 
 	"github.com/gin-gonic/gin"
 )

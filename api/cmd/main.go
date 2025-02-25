@@ -26,6 +26,7 @@ func main() {
 	queries := database.New(conn)
 
 	var logFile *os.File
+	defer logFile.Close()
 
 	middleware.SetupMiddleware(router, logFile)
 	routes.SetupCoreRouter(router, queries)

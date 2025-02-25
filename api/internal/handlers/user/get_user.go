@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"net/http"
 	database "api/internal/core/db"
 	"github.com/gin-gonic/gin"
-
+	"net/http"
 )
 
 func GetUserHandler(queries *database.Queries) gin.HandlerFunc {

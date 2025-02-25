@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"os"
-	"time"
 	"fmt"
+	"os"
 	"runtime/debug"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
