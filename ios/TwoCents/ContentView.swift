@@ -10,10 +10,11 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            TwoCentsEntryView(entry: TwoCentsEntry(
+                date: Date(),
+                text: "Preview Text",
+                imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/1628369.png"
+            ))
         }
         .padding()
     }

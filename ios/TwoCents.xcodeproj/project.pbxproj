@@ -24,6 +24,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		855E2EC02D6D419900D79068 /* TwoCents.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TwoCents.xcodeproj; sourceTree = "<group>"; };
+		857AC9592D6D2D4500F58F09 /* TwoCents.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TwoCents.xcodeproj; sourceTree = "<group>"; };
 		A2E84B382D6D2C15007B44F7 /* TwoCents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TwoCents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B482D6D2C18007B44F7 /* TwoCentsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B522D6D2C18007B44F7 /* TwoCentsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +74,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		855E2EC22D6D419900D79068 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		857AC95B2D6D2D4500F58F09 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		A2E84B2F2D6D2C15007B44F7 = {
 			isa = PBXGroup;
 			children = (
@@ -198,6 +210,16 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A2E84B392D6D2C15007B44F7 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 855E2EC22D6D419900D79068 /* Products */;
+					ProjectRef = 855E2EC02D6D419900D79068 /* TwoCents.xcodeproj */;
+				},
+				{
+					ProductGroup = 857AC95B2D6D2D4500F58F09 /* Products */;
+					ProjectRef = 857AC9592D6D2D4500F58F09 /* TwoCents.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				A2E84B372D6D2C15007B44F7 /* TwoCents */,
