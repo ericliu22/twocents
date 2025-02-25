@@ -1,8 +1,8 @@
 package database
 
 import (
-	"context"
 	"api/internal/core/models"
+	"context"
 )
 
 const getPosts = `-- name: GetPosts :many
