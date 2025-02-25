@@ -1,7 +1,10 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"github.com/gin-gonic/gin"
+)
 
 func IndexHandler(ctx *gin.Context) {
-
+	ctx.String(http.StatusOK, "Coming Soon")
 }

@@ -1,13 +1,15 @@
 version: "2"
 sql:
-  - engine: "db/postgresql"
+  - engine: "postgresql"
     queries: "db/query.sql"
     schema: "db/schema.sql"
     gen:
       go:
-        package: "api"
-        out: "api"
+        package: "database"
+        out: "internal/core/db"
         sql_package: "pgx/v5"
         overrides:
-          - "column": "*.uuid",
-          - "go_type": "github.com/google/uuid.UUID"
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"

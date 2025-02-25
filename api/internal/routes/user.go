@@ -1,7 +1,12 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	database "api/internal/core/db"
+	"api/internal/handlers"
 
-func SetupUserRoutes(router *gin.Engine) {
+	"github.com/gin-gonic/gin"
+)
 
+func SetupUserRoutes(router *gin.Engine, queries *database.Queries) {
+	router.GET("/v1/user/get-user", handlers.GetUserHandler(queries))
 }

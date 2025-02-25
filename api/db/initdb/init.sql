@@ -10,7 +10,7 @@ CREATE TYPE IF NOT EXISTS media_type AS ENUM (
 )
 
 CREATE TABLE IF NOT EXISTS posts (
-    id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    id         UUID        PRIMARY KEY,
     media      media_type  NOT NULL,
     date       DATE        NOT NULL,
     media_url  TEXT

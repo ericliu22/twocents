@@ -9,6 +9,6 @@ import (
 
 func SetupCoreRouter(router *gin.Engine, queries *database.Queries) {
 	router.GET("/", handlers.IndexHandler)
-	SetupUserRoutes(router)
+	SetupUserRoutes(router, queries)
 	SetupPostRoutes(router, queries)
 }

@@ -8,17 +8,17 @@ ORDER BY date_created;
 
 -- name: CreatePost :one
 INSERT INTO posts (
-  media, date_created, media_url
+  id, media, date_created, media_url
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
 RETURNING *;
 
 -- name: UpdatePost :exec
 UPDATE posts
 	set media = $2,
-	date_created = $3
-	media_url = $4,
+	date_created = $3,
+	media_url = $4
 WHERE id = $1;
 
 -- name: DeletePost :exec

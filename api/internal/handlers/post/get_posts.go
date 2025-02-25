@@ -3,8 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"api/internal/core/db"
-
+	database "api/internal/core/db"
 	"github.com/gin-gonic/gin"
 )
 
