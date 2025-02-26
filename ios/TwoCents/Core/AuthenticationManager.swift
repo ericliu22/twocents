@@ -11,7 +11,7 @@ struct AuthDataResultModel{
     let email: String?
   
     
-    init (user: User){
+    init (user: FirebaseAuth.User){
         self.uid = user.uid
         self.email = user.email
     }
@@ -22,11 +22,11 @@ struct AuthenticationManager{
     private init() {}
 
     static func getAuthenticatedUser() throws -> AuthDataResultModel {
-        guard let user = Auth.auth().currentUser else {
+        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
        
-        return AuthDataResultModel(user:user)
+        return AuthDataResultModel(user: user)
     }
     
     #warning("Don't use this unless absolutely necessary. This shit is essentially the user's password")
@@ -49,6 +49,7 @@ struct AuthenticationManager{
     @discardableResult
     static func signInUser(email: String, password: String) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
+        
         return AuthDataResultModel(user: authDataResult.user)
     }
     
@@ -56,6 +57,7 @@ struct AuthenticationManager{
         guard await ((try? Auth.auth().currentUser?.delete()) != nil) else {
             return
         }
+        
         return
     }
     
@@ -64,7 +66,7 @@ struct AuthenticationManager{
     }
     
     static func updateEmail(email: String) async throws {
-        guard let user = Auth.auth().currentUser else {
+        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
         
@@ -72,7 +74,7 @@ struct AuthenticationManager{
     }
     
     static func updatePassword(password: String) async throws {
-        guard let user = Auth.auth().currentUser else {
+        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
         
