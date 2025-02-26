@@ -93,14 +93,17 @@ struct Request<T: Encodable> {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            print(data)
             throw APIError.invalidResponse
         }
         
         if httpResponse.statusCode != 200 {
+            print(data)
             throw APIError.unexpectedStatusCode(httpResponse.statusCode)
         }
         
         if data.isEmpty {
+            print(data)
             throw APIError.noData
         }
         

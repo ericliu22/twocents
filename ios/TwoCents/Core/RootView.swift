@@ -14,6 +14,15 @@ struct RootView: View {
         @Bindable var appModel = appModel
         VStack {
             Text("hello")
+            Button {
+                do {
+                    try AuthenticationManager.signOut()
+                } catch let error {
+                    print("Failed to sign out \(error.localizedDescription)")
+                }
+            } label: {
+                Text("Sign Out")
+            }
         }
         .padding()
         .onAppear{
