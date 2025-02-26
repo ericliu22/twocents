@@ -1,0 +1,64 @@
+package middleware
+
+import (
+	"fmt"
+	"os"
+	"runtime/debug"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+func setupLogging(logFile *os.File) {
+	// Format file name as "YYYY-MM-DD.log"
+	fileName := "logs/" + time.Now().Format("2006-01-02") + ".log"
+	var err error
+	logFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to open log file: %v", err))
+	}
+	// Set Gin's default writer to our file so any default logs go there.
+	gin.DefaultWriter = logFile
+}
+
+func customLogFormatter(param gin.LogFormatterParams) string {
+	timestamp := param.TimeStamp.Format("2006/01/02 15:04:05")
+	level := "[LOG]"
+	if param.StatusCode >= 400 {
+		level = "[ERROR]"
+	}
+	return fmt.Sprintf("%s %s %s %s %d %s %s\n",
+		timestamp,
+		level,
+		param.Method,
+		param.Path,
+		param.StatusCode,
+		param.Latency,
+		param.ClientIP,
+	)
+}
+
+/*
+func LogWarning(message string, args ...interface{}) gin.HandlerFunc {
+	timestamp := time.Now().Format("2006/01/02 15:04:05")
+	formatted := fmt.Sprintf(message, args...)
+
+	logFile.WriteString(fmt.Sprintf("%s [WARN] %s\n", timestamp, formatted))
+}
+*/
+
+func customRecovery(logFile *os.File) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				timestamp := time.Now().Format("2006/01/02 15:04:05")
+				panicMessage := fmt.Sprintf("%s [FATAL] Panic recovered: %v\n%s\n",
+					timestamp, rec, debug.Stack())
+				// Write the panic log directly to our log file.
+				logFile.WriteString(panicMessage)
+				ctx.AbortWithStatus(500)
+			}
+		}()
+		ctx.Next()
+	}
+}

@@ -5,6 +5,8 @@ services:
       #Requires POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
       - database.env
     restart: unless-stopped
+    networks:
+      - api-network
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/initdb/:/docker-entrypoint-initdb.d:ro
@@ -13,8 +15,8 @@ services:
     env_file:
       #Requires DATABASE_URL
       - api.env
-    ports:
-      - "8080:8080"
+    networks:
+      - api-network
     depends_on:
       - database
     restart: unless-stopped
@@ -27,6 +29,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - api-network
     volumes:
       - ./reverseproxy/conf.d/:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot:ro
@@ -41,3 +45,10 @@ services:
       - ./certbot/conf:/etc/letsencrypt:rw
 volumes:
   pgdata:
+
+networks:
+  api-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24  # Define your fixed subnet
