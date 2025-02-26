@@ -27,7 +27,7 @@ func main() {
 
 	queries := database.New(conn)
 
-	serviceAccountKeyPath := "./twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json"
+	serviceAccountKeyPath := "/root/twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json"
 
 	// Create the App with an options object containing the credentials.
 	ctx := context.Background()

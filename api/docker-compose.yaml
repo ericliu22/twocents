@@ -6,7 +6,7 @@ services:
       - database.env
     restart: unless-stopped
     volumes:
-      - ./db/data:/var/lib/postgresql/data:Z
+      - ./db/data:/var/lib/postgresql/data
       - ./db/initdb/:/docker-entrypoint-initdb.d:ro
   server:
     build: ./
@@ -19,7 +19,8 @@ services:
       - database
     restart: unless-stopped
     volumes:
-      - "./logs:/root/logs"
+      - ./logs:/root/logs
+      - ./twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json:/root/twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json:ro
   reverse-proxy:
     image: nginx:alpine
     restart: always
