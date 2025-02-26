@@ -9,6 +9,8 @@ import Foundation
 
 //We don't use shared
 struct UserManager {
+    
+    private init() {}
 
     static let USER_URL: URL = API_URL.appending(path: "user")
 

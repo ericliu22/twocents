@@ -19,6 +19,8 @@ struct AuthDataResultModel{
 
 struct AuthenticationManager{
     
+    private init() {}
+
     static func getAuthenticatedUser() throws -> AuthDataResultModel {
         guard let user = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
