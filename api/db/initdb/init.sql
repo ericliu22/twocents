@@ -1,20 +1,20 @@
 \connect api;
 
 -- 5. (Optional) Create extensions, e.g. for UUID generation
-CREATE TYPE IF EXISTS media_type AS ENUM (
+CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
     'OTHER'
 )
 
-CREATE TABLE IF EXISTS posts (
+CREATE TABLE posts (
     id                  UUID        PRIMARY KEY,
     media               media_type  NOT NULL,
     date_created        DATE        NOT NULL,
     media_url           TEXT
 );
 
-CREATE TYPE IF EXISTS provider_type as ENUM (
+CREATE TYPE provider_type as ENUM (
     'FACEBOOK',
     'GOOGLE',
     'APPLE',
@@ -22,7 +22,7 @@ CREATE TYPE IF EXISTS provider_type as ENUM (
     'TWOCENTS'
 );
 
-CREATE TABLE IF EXISTS users (
+CREATE TABLE users (
 	id         		UUID		    PRIMARY KEY,
 	provider		provider_type   NOT NULL,
 	date_created    DATE        	NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF EXISTS users (
 	salt	        TEXT
 );
 
-CREATE TABLE IF EXISTS user_profiles (
+CREATE TABLE user_profiles (
     user_id         UUID            PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
