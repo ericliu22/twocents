@@ -24,34 +24,40 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		value, keyExists := ctx.Get("user")
 		if !keyExists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 
 		token, ok = value.(auth.Token)
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read as token"})
+			gin.DefaultWriter.Write([]byte("Failed to read as token"))
 			return
 		}
 
 		uuid, parseErr := uuid.Parse(token.UID)
 		if parseErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
+			gin.DefaultWriter.Write([]byte("Failed to parse as UUID"))
 			return
 		}
 
 		userExists, queryErr := queries.CheckUser(ctx.Request.Context(), uuid)
 		if queryErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query"})
+			gin.DefaultWriter.Write([]byte("Failed to query"))
 			return
 		}
 		if userExists {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
+			gin.DefaultWriter.Write([]byte("User already exists"))
 			return
 		}
 
 		var registerRequest RegisterUserRequest
 		if bindErr := ctx.Bind(&registerRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
+			gin.DefaultWriter.Write([]byte("Request body not as specified"))
 			return
 		}
 
