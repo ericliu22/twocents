@@ -12,12 +12,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const checkUser = `-- name: CheckUser :one
+SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)
+`
+
+func (q *Queries) CheckUser(ctx context.Context, id uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUser, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
     id, media, date_created, media_url
 ) VALUES (
     $1, $2, $3, $4
 )
+ON CONFLICT (id) DO NOTHING
 RETURNING id, media, date_created, media_url
 `
 
@@ -51,6 +63,7 @@ INSERT INTO users (
 ) VALUES (
     $1, $2, $3, $4, $5, $6
 )
+ON CONFLICT (id) DO NOTHING
 RETURNING id, provider, date_created, username, hash, salt
 `
 
@@ -84,6 +97,42 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const createUserProfile = `-- name: CreateUserProfile :one
+INSERT INTO user_profiles (
+    user_id,
+    profile_pic,
+    username,
+    name
+)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (user_id) DO NOTHING
+RETURNING user_id, profile_pic, username, name
+`
+
+type CreateUserProfileParams struct {
+	UserID     uuid.UUID `json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+	Username   string    `json:"username"`
+	Name       *string   `json:"name"`
+}
+
+func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (UserProfile, error) {
+	row := q.db.QueryRow(ctx, createUserProfile,
+		arg.UserID,
+		arg.ProfilePic,
+		arg.Username,
+		arg.Name,
+	)
+	var i UserProfile
+	err := row.Scan(
+		&i.UserID,
+		&i.ProfilePic,
+		&i.Username,
+		&i.Name,
+	)
+	return i, err
+}
+
 const deletePost = `-- name: DeletePost :exec
 DELETE FROM posts
 WHERE id = $1
@@ -102,6 +151,46 @@ WHERE id = $1
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
+}
+
+const deleteUserProfile = `-- name: DeleteUserProfile :exec
+DELETE FROM user_profiles
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserProfile(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUserProfile, userID)
+	return err
+}
+
+const getEntireUser = `-- name: GetEntireUser :one
+SELECT users.id, users.provider, users.date_created, users.username, users.hash, users.salt, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+FROM users
+JOIN user_profiles ON users.id = user_profiles.user_id
+WHERE users.id = $1
+`
+
+type GetEntireUserRow struct {
+	User        User        `json:"user"`
+	UserProfile UserProfile `json:"userProfile"`
+}
+
+func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUserRow, error) {
+	row := q.db.QueryRow(ctx, getEntireUser, id)
+	var i GetEntireUserRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Provider,
+		&i.User.DateCreated,
+		&i.User.Username,
+		&i.User.Hash,
+		&i.User.Salt,
+		&i.UserProfile.UserID,
+		&i.UserProfile.ProfilePic,
+		&i.UserProfile.Username,
+		&i.UserProfile.Name,
+	)
+	return i, err
 }
 
 const getPost = `-- name: GetPost :one
@@ -166,6 +255,24 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Username,
 		&i.Hash,
 		&i.Salt,
+	)
+	return i, err
+}
+
+const getUserProfile = `-- name: GetUserProfile :one
+SELECT user_id, profile_pic, username, name
+FROM user_profiles
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserProfile(ctx context.Context, userID uuid.UUID) (UserProfile, error) {
+	row := q.db.QueryRow(ctx, getUserProfile, userID)
+	var i UserProfile
+	err := row.Scan(
+		&i.UserID,
+		&i.ProfilePic,
+		&i.Username,
+		&i.Name,
 	)
 	return i, err
 }
@@ -254,6 +361,32 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.Username,
 		arg.Hash,
 		arg.Salt,
+	)
+	return err
+}
+
+const updateUserProfile = `-- name: UpdateUserProfile :exec
+UPDATE user_profiles
+SET
+    profile_pic = $2,
+    username    = $3,
+    name        = $4
+WHERE user_id = $1
+`
+
+type UpdateUserProfileParams struct {
+	UserID     uuid.UUID `json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+	Username   string    `json:"username"`
+	Name       *string   `json:"name"`
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) error {
+	_, err := q.db.Exec(ctx, updateUserProfile,
+		arg.UserID,
+		arg.ProfilePic,
+		arg.Username,
+		arg.Name,
 	)
 	return err
 }

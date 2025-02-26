@@ -92,7 +92,10 @@ pkg/
 go.sum
 
 api/db/data
+api/certbot
+
 *.env
 .env
-api/certbot
+twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json
+
 *.log

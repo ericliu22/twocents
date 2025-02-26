@@ -12,6 +12,7 @@ INSERT INTO posts (
 ) VALUES (
     $1, $2, $3, $4
 )
+ON CONFLICT (id) DO NOTHING
 RETURNING *;
 
 -- name: UpdatePost :exec
@@ -39,6 +40,7 @@ INSERT INTO users (
 ) VALUES (
     $1, $2, $3, $4, $5, $6
 )
+ON CONFLICT (id) DO NOTHING
 RETURNING *;
 
 -- name: UpdateUser :exec
@@ -53,3 +55,41 @@ WHERE id = $1;
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
+
+-- name: CheckUser :one
+SELECT EXISTS(SELECT 1 FROM users WHERE id = $1);
+
+-- name: CreateUserProfile :one
+INSERT INTO user_profiles (
+    user_id,
+    profile_pic,
+    username,
+    name
+)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (user_id) DO NOTHING
+RETURNING *;
+
+-- name: GetUserProfile :one
+SELECT *
+FROM user_profiles
+WHERE user_id = $1;
+
+-- name: UpdateUserProfile :exec
+UPDATE user_profiles
+SET
+    profile_pic = $2,
+    username    = $3,
+    name        = $4
+WHERE user_id = $1;
+
+-- name: DeleteUserProfile :exec
+DELETE FROM user_profiles
+WHERE user_id = $1;
+
+
+-- name: GetEntireUser :one
+SELECT sqlc.embed(users), sqlc.embed(user_profiles)
+FROM users
+JOIN user_profiles ON users.id = user_profiles.user_id
+WHERE users.id = $1;

@@ -114,3 +114,10 @@ type User struct {
 	Hash        *string      `json:"hash"`
 	Salt        *string      `json:"salt"`
 }
+
+type UserProfile struct {
+	UserID     uuid.UUID `json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+	Username   string    `json:"username"`
+	Name       *string   `json:"name"`
+}
