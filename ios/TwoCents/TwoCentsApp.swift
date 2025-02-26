@@ -14,17 +14,22 @@ struct TwoCentsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(delegate.appModel!)
         }
     }
 }
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
+    
+    var appModel: AppModel?
+    
+    func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
+        FirebaseApp.configure()
+        appModel = AppModel()
 
-    return true
-  }
+        return true
+    }
 }

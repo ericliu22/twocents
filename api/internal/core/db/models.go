@@ -61,6 +61,7 @@ const (
 	ProviderTypeFACEBOOK ProviderType = "FACEBOOK"
 	ProviderTypeGOOGLE   ProviderType = "GOOGLE"
 	ProviderTypeAPPLE    ProviderType = "APPLE"
+	ProviderTypeEMAIL    ProviderType = "EMAIL"
 	ProviderTypeTWOCENTS ProviderType = "TWOCENTS"
 )
 

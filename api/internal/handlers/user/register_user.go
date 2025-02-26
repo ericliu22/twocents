@@ -63,7 +63,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		var newUser database.CreateUserParams
 		newUser = database.CreateUserParams {
 			ID: uuid,
-			Provider: database.ProviderTypeTWOCENTS,
+			Provider: database.ProviderTypeEMAIL,
 			DateCreated: currentDate,
 			Username: registerRequest.Username,
 		}

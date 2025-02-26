@@ -10,6 +10,6 @@ import (
 )
 
 func SetupPostRoutes(router *gin.RouterGroup, queries *database.Queries, authClient *auth.Client) {
-	r := router.Group("/post", middleware.FirebaseAuthMiddleware(authClient))
+	r := router.Group("/post", middleware.AuthMiddleware(authClient))
 	r.GET("/get-posts", handlers.GetPostsHandler(queries))
 }

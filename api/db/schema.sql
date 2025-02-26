@@ -17,6 +17,7 @@ CREATE TYPE provider_type as ENUM (
     'FACEBOOK',
     'GOOGLE',
     'APPLE',
+    'EMAIL',
     'TWOCENTS'
 );
 

@@ -14,14 +14,15 @@ struct UserManager {
 
     static let USER_URL: URL = API_URL.appending(path: "user")
 
-    static func registerUser(userId: String, username: String, email: String, password: String) async throws {
+    static func registerEmailUser(username: String, email: String, password: String) async throws {
         
         do {
-            try await AuthenticationManager.createEmailUser(email: email, password: password)
+            print("REACHED")
+            let authResult = try await AuthenticationManager.createEmailUser(email: email, password: password)
+            print("REACHED 2")
             try await AuthenticationManager.signInUser(email: email, password: password)
             
             let body = [
-                "userId": userId,
                 "username": username,
             ]
             let request = Request (
@@ -38,6 +39,7 @@ struct UserManager {
             We emergency delete the user incase it fails after creating Firebase account
             but before the account is sent to database
             */
+            print(error)
             await AuthenticationManager.deleteUser()
             throw error
         }

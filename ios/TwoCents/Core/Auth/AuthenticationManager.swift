@@ -11,7 +11,7 @@ struct AuthDataResultModel{
     let email: String?
   
     
-    init (user: FirebaseAuth.User){
+    init (user: User){
         self.uid = user.uid
         self.email = user.email
     }
@@ -22,7 +22,7 @@ struct AuthenticationManager{
     private init() {}
 
     static func getAuthenticatedUser() throws -> AuthDataResultModel {
-        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
+        guard let user: User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
        
@@ -66,7 +66,7 @@ struct AuthenticationManager{
     }
     
     static func updateEmail(email: String) async throws {
-        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
+        guard let user: User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
         
@@ -74,7 +74,7 @@ struct AuthenticationManager{
     }
     
     static func updatePassword(password: String) async throws {
-        guard let user: FirebaseAuth.User = Auth.auth().currentUser else {
+        guard let user: User = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser
         }
         

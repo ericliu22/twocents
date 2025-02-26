@@ -8,16 +8,17 @@ CREATE TYPE IF NOT EXISTS media_type AS ENUM (
 )
 
 CREATE TABLE IF NOT EXISTS posts (
-    id         UUID        PRIMARY KEY,
-    media      media_type  NOT NULL,
-    date       DATE        NOT NULL,
-    media_url  TEXT
+    id                  UUID        PRIMARY KEY,
+    media               media_type  NOT NULL,
+    date_created        DATE        NOT NULL,
+    media_url           TEXT
 );
 
 CREATE TYPE IF NOT EXISTS provider_type as ENUM (
     'FACEBOOK',
     'GOOGLE',
     'APPLE',
+    'EMAIL',
     'TWOCENTS'
 );
 
@@ -30,3 +31,9 @@ CREATE TABLE IF NOT EXISTS users (
 	salt	        TEXT
 );
 
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id         UUID            PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    profile_pic     TEXT,
+    username        TEXT            NOT NULL,
+    name            TEXT
+);

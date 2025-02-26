@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FirebaseAuthMiddleware creates a Gin middleware for Firebase authentication.
-func FirebaseAuthMiddleware(client *auth.Client) gin.HandlerFunc {
+// AuthMiddleware creates a Gin middleware for Firebase authentication.
+func AuthMiddleware(client *auth.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Retrieve the Authorization header.
 		authHeader := c.GetHeader("Authorization")
