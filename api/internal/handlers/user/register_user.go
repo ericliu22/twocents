@@ -60,6 +60,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		if bindErr := ctx.Bind(&registerRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified"))
+			log.Printf("Failed to insert user")
 			return
 		}
 
@@ -78,6 +79,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		_ , insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
+			gin.DefaultWriter.Write([]byte("Failed to insert user"))
 			log.Printf("Failed to insert user")
 			return
 		}
@@ -90,6 +92,8 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		userProfile, insertErr := queries.CreateUserProfile(ctx.Request.Context(), newUserProfile)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
+			gin.DefaultWriter.Write([]byte("Failed to insert user profile"))
+			log.Printf("Failed to insert user profile")
 			return
 		}
 
