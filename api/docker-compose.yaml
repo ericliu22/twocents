@@ -6,7 +6,7 @@ services:
       - database.env
     restart: unless-stopped
     volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./db/initdb/:/docker-entrypoint-initdb.d:ro
   server:
     build: ./
@@ -39,3 +39,5 @@ services:
     volumes:
       - ./certbot/www:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt:rw
+volumes:
+  pgdata:
