@@ -5,7 +5,7 @@ CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
     'OTHER'
-)
+);
 
 CREATE TABLE posts (
     id                  UUID        PRIMARY KEY,
