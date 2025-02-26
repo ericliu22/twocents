@@ -2,6 +2,7 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"log"
 	"net/http"
 	"time"
 
@@ -24,33 +25,34 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		value, keyExists := ctx.Get("user")
 		if !keyExists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			gin.DefaultWriter.Write([]byte("Unauthorized"))
+			log.Printf("Unauthorized")
 			return
 		}
 
 		token, ok = value.(auth.Token)
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read as token"})
-			gin.DefaultWriter.Write([]byte("Failed to read as token"))
+			log.Printf("Failed to read as token")
 			return
 		}
 
 		uuid, parseErr := uuid.Parse(token.UID)
 		if parseErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
-			gin.DefaultWriter.Write([]byte("Failed to parse as UUID"))
+			log.Printf("Failed to parse as UUID")
 			return
 		}
 
 		userExists, queryErr := queries.CheckUser(ctx.Request.Context(), uuid)
 		if queryErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query"})
-			gin.DefaultWriter.Write([]byte("Failed to query"))
+			log.Printf("Failed to query")
 			return
 		}
 		if userExists {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 			gin.DefaultWriter.Write([]byte("User already exists"))
+			log.Printf("User already exists")
 			return
 		}
 
@@ -76,6 +78,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		_ , insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
+			log.Printf("Failed to insert user")
 			return
 		}
 
