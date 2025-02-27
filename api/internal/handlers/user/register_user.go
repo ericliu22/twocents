@@ -60,6 +60,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		uuid := uuid.New()
 		newUser = database.CreateUserParams {
 			ID: uuid,
+			FirebaseUid: token.UID,
 			Provider: database.ProviderTypeEMAIL,
 			DateCreated: currentDate,
 			Username: registerRequest.Username,
