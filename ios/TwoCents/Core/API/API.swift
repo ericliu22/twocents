@@ -32,6 +32,8 @@ enum HTTPMethod: String, RawRepresentable, Equatable, Hashable {
 enum ContentType {
     case json
     case textPlain
+    case imgJpeg
+    case videoMp4
     case custom(String)
     
     var headerValue: String {
@@ -40,6 +42,10 @@ enum ContentType {
             return "application/json"
         case .textPlain:
             return "text/plain"
+        case .imgJpeg:
+            return "image/jpeg"
+        case .videoMp4:
+            return "video/mp4"
         case .custom(let value):
             return value
         }
@@ -110,4 +116,54 @@ struct Request<T: Encodable> {
         return data
     }
     
+    func uploadMedia(fileData: Data, fileName: String, mimeType: String, to url: URL) async throws -> Data {
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Start boundary
+        body.append("--\(boundary)\r\n")
+        // Content-Disposition header; "file" is the key expected by the server
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n")
+        // Content-Type header
+        body.append("Content-Type: \(mimeType)\r\n\r\n")
+        // Append the actual file data
+        body.append(fileData)
+        body.append("\r\n")
+        // End boundary
+        body.append("--\(boundary)--\r\n")
+        
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print(response)
+            print(data)
+            throw APIError.invalidResponse
+        }
+        
+        if httpResponse.statusCode != 200 {
+            print(response)
+            print(data)
+            throw APIError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+        
+        if data.isEmpty {
+            print(response)
+            print(data)
+            throw APIError.noData
+        }
+        return data
+    }
+}
+
+extension Data {
+    mutating func append(_ string: String) {
+        if let data = string.data(using: .utf8) {
+            append(data)
+        }
+    }
 }

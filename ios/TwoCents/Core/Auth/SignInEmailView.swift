@@ -47,13 +47,10 @@ struct SignInEmailView: View {
                 .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(10)
             
-                
-            
-            
             Button {
                 Task {
                     do {
-                        try await viewModel.signIn()
+                        appModel.currentUser = try await viewModel.signIn()
                         appModel.activeSheet = nil
                     } catch {
                         viewModel.errorMessage = error.localizedDescription
@@ -65,9 +62,6 @@ struct SignInEmailView: View {
                     .foregroundColor(Color(UIColor.systemBackground))
                     .frame(height: 55)
                     .frame(maxWidth: .infinity)
-//                    .background(Color(UIColor.label))
-//                    .cornerRadius(10)
-                   
             }
             .buttonStyle(.borderedProminent)
             .tint(Color(UIColor.label))

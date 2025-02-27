@@ -26,11 +26,12 @@ final class SignInEmailViewModel {
     var password: String = ""
     var errorMessage: String = ""
     
-    func signIn() async throws {
+    func signIn() async throws -> User? {
         guard !email.isEmpty, !password.isEmpty else {
             throw SignInError.emptyField
         }
         
-        try await AuthenticationManager.signInUser(email: email, password: password)
+        let authData = try await AuthenticationManager.signInUser(email: email, password: password)
+        return await UserManager.fetchCurrentUser()
     }
 }

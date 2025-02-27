@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"runtime/debug"
 	"time"
-	"bytes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,6 @@ func (w *responseBodyWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
 }
-
 
 func setupLogging(logFile *os.File) {
 	// Format file name as "YYYY-MM-DD.log"

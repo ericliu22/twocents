@@ -19,6 +19,6 @@ enum AppSheet: String, Hashable, Equatable, Identifiable {
 
 @Observable @MainActor
 final class AppModel {
-    var user: DBUser?
+    var currentUser: User?
     var activeSheet: AppSheet?
 }

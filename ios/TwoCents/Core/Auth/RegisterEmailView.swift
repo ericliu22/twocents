@@ -78,8 +78,6 @@ struct RegisterEmailView: View {
                 .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(10)
             
-//
-            
             Button {
                 //signUp
                 Task {

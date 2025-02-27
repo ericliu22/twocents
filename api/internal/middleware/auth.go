@@ -44,14 +44,14 @@ func AuthMiddleware(client *auth.Client) gin.HandlerFunc {
 }
 
 func GetAuthToken(ctx *gin.Context) (*auth.Token, error) {
-		value, keyExists := ctx.Get("user")
-		if !keyExists {
-			return nil, errors.New("Unauthorized")
-		}
-		token, ok := value.(*auth.Token)
-		if !ok {
-			return nil, errors.New("Failed to parse token")
-		}
+	value, keyExists := ctx.Get("user")
+	if !keyExists {
+		return nil, errors.New("Unauthorized")
+	}
+	token, ok := value.(*auth.Token)
+	if !ok {
+		return nil, errors.New("Failed to parse token")
+	}
 
-		return token, nil
+	return token, nil
 }

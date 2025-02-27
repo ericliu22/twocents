@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"api/internal/core/db"
 	"api/internal/middleware"

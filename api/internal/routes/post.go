@@ -12,4 +12,5 @@ import (
 func SetupPostRoutes(router *gin.RouterGroup, queries *database.Queries, authClient *auth.Client) {
 	r := router.Group("/post", middleware.AuthMiddleware(authClient))
 	r.GET("/get-posts", handlers.GetPostsHandler(queries))
+	r.POST("/create-post", handlers.CreatePostHandler(queries))
 }

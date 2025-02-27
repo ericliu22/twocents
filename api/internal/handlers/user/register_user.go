@@ -22,7 +22,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
-		
+
 		userExists, queryErr := queries.CheckFirebaseId(ctx.Request.Context(), token.UID)
 		if queryErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query"})
@@ -40,29 +40,29 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentDate := pgtype.Date {
-			Time: time.Now(),
+		currentDate := pgtype.Date{
+			Time:             time.Now(),
 			InfinityModifier: pgtype.Finite,
-			Valid: true,
+			Valid:            true,
 		}
 		var newUser database.CreateUserParams
 		uuid := uuid.New()
-		newUser = database.CreateUserParams {
-			ID: uuid,
+		newUser = database.CreateUserParams{
+			ID:          uuid,
 			FirebaseUid: token.UID,
-			Provider: database.ProviderTypeEMAIL,
+			Provider:    database.ProviderTypeEMAIL,
 			DateCreated: currentDate,
-			Username: registerRequest.Username,
+			Username:    registerRequest.Username,
 		}
-		_ , insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
+		_, insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
 			return
 		}
 
 		var newUserProfile database.CreateUserProfileParams
-		newUserProfile = database.CreateUserProfileParams {
-			UserID: uuid,
+		newUserProfile = database.CreateUserProfileParams{
+			UserID:   uuid,
 			Username: registerRequest.Username,
 		}
 		userProfile, insertErr := queries.CreateUserProfile(ctx.Request.Context(), newUserProfile)

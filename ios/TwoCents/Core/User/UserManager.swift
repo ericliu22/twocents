@@ -14,7 +14,7 @@ struct UserManager {
 
     static let USER_URL: URL = API_URL.appending(path: "user")
 
-    static func registerEmailUser(username: String, email: String, password: String) async throws {
+    static func registerEmailUser(username: String, email: String, password: String) async throws -> User {
         do {
             let authResult = try await AuthenticationManager.createEmailUser(email: email, password: password)
             try await AuthenticationManager.signInUser(email: email, password: password)
@@ -28,8 +28,10 @@ struct UserManager {
                 url: USER_URL.appending(path: "register-user"),
                 body: body
             )
-            //@TODO: Add user type
-            _ = try await request.sendRequest()
+            
+            let userData = try await request.sendRequest()
+            let user = try JSONDecoder().decode(User.self, from: userData)
+            return user
             
         } catch let error {
             /*
@@ -43,7 +45,11 @@ struct UserManager {
     }
     
     static func fetchCurrentUser() async -> User? {
-        let request = Request<String>(method: .GET, contentType: .textPlain, url: USER_URL.appending(path: "get-current-user"))
+        let request = Request<String>(
+            method: .GET,
+            contentType: .textPlain,
+            url: USER_URL.appending(path: "get-current-user")
+        )
         
         guard let userData = try? await request.sendRequest() else {
             print("Failed to send request")

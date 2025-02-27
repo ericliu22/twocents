@@ -12,4 +12,3 @@ func SetupMiddleware(router *gin.Engine, logFile *os.File) {
 	router.Use(customRecovery(logFile))
 	router.Use(ErrorResponseLoggerMiddleware(logFile))
 }
-
