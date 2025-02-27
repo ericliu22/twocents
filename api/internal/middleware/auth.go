@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -40,4 +41,17 @@ func AuthMiddleware(client *auth.Client) gin.HandlerFunc {
 		c.Set("user", token)
 		c.Next()
 	}
+}
+
+func GetAuthToken(ctx *gin.Context) (*auth.Token, error) {
+		value, keyExists := ctx.Get("user")
+		if !keyExists {
+			return nil, errors.New("Unauthorized")
+		}
+		token, ok := value.(*auth.Token)
+		if !ok {
+			return nil, errors.New("Failed to parse token")
+		}
+
+		return token, nil
 }

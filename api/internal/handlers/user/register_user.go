@@ -2,10 +2,10 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/middleware"
 	"net/http"
 	"time"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -17,22 +17,11 @@ type RegisterUserRequest struct {
 
 func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
-		var token *auth.Token
-		var ok bool
-
-		value, keyExists := ctx.Get("user")
-		if !keyExists {
+		token, tokenErr := middleware.GetAuthToken(ctx)
+		if tokenErr != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
-
-		token, ok = value.(*auth.Token)
-		if !ok {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read as token"})
-			return
-		}
-
 		
 		userExists, queryErr := queries.CheckFirebaseId(ctx.Request.Context(), token.UID)
 		if queryErr != nil {

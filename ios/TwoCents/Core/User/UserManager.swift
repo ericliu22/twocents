@@ -15,11 +15,8 @@ struct UserManager {
     static let USER_URL: URL = API_URL.appending(path: "user")
 
     static func registerEmailUser(username: String, email: String, password: String) async throws {
-        
         do {
-            print("REACHED")
             let authResult = try await AuthenticationManager.createEmailUser(email: email, password: password)
-            print("REACHED 2")
             try await AuthenticationManager.signInUser(email: email, password: password)
             
             let body = [
@@ -43,5 +40,21 @@ struct UserManager {
             await AuthenticationManager.deleteUser()
             throw error
         }
+    }
+    
+    static func fetchCurrentUser() async -> User? {
+        let request = Request<String>(method: .GET, contentType: .textPlain, url: USER_URL.appending(path: "get-current-user"))
+        
+        guard let userData = try? await request.sendRequest() else {
+            print("Failed to send request")
+            return nil
+        }
+        
+        guard let user = try? JSONDecoder().decode(User.self, from: userData) else {
+            print("Failed to decode user")
+            return nil
+        }
+        
+        return user
     }
 }

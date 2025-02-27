@@ -12,5 +12,6 @@ import (
 func SetupUserRoutes(router *gin.RouterGroup, queries *database.Queries, authClient *auth.Client) {
 	r := router.Group("/user", middleware.AuthMiddleware(authClient))
 	r.GET("/get-user", handlers.GetUserHandler(queries))
+	r.GET("/get-current-user", handlers.GetCurrentUserHandler(queries))
 	r.POST("/register-user", handlers.RegisterUserHandler(queries))
 }
