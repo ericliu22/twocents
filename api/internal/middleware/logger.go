@@ -5,9 +5,23 @@ import (
 	"os"
 	"runtime/debug"
 	"time"
+	"bytes"
 
 	"github.com/gin-gonic/gin"
 )
+
+// responseBodyWriter wraps gin.ResponseWriter to capture the response body.
+type responseBodyWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+// Write intercepts writes to capture the response body.
+func (w *responseBodyWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
 
 func setupLogging(logFile *os.File) {
 	// Format file name as "YYYY-MM-DD.log"
@@ -36,6 +50,25 @@ func customLogFormatter(param gin.LogFormatterParams) string {
 		param.Latency,
 		param.ClientIP,
 	)
+}
+
+// ErrorResponseLoggerMiddleware wraps the response writer to capture the body.
+// After processing the request, if the status code indicates an error,
+// it logs the response body.
+func ErrorResponseLoggerMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Replace the ResponseWriter with our custom one
+		w := &responseBodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = w
+
+		c.Next()
+
+		if c.Writer.Status() >= 400 {
+			timestamp := time.Now().Format("2006/01/02 15:04:05")
+			errorLog := fmt.Sprintf("%s [ERROR] Response body: %s\n", timestamp, w.body.String())
+			logFile.WriteString(errorLog)
+		}
+	}
 }
 
 /*
