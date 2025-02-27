@@ -55,7 +55,7 @@ func customLogFormatter(param gin.LogFormatterParams) string {
 // ErrorResponseLoggerMiddleware wraps the response writer to capture the body.
 // After processing the request, if the status code indicates an error,
 // it logs the response body.
-func ErrorResponseLoggerMiddleware() gin.HandlerFunc {
+func ErrorResponseLoggerMiddleware(logFile *os.File) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Replace the ResponseWriter with our custom one
 		w := &responseBodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
