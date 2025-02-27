@@ -19,7 +19,7 @@ type RegisterUserRequest struct {
 func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		var token auth.Token
+		var token *auth.Token
 		var ok bool
 
 		value, keyExists := ctx.Get("user")
@@ -29,7 +29,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		token, ok = value.(auth.Token)
+		token, ok = value.(*auth.Token)
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read as token"})
 			log.Printf("Failed to read as token")
