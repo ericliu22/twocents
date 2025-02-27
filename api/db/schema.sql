@@ -23,6 +23,7 @@ CREATE TYPE provider_type as ENUM (
 
 CREATE TABLE users (
 	id         		UUID		    PRIMARY KEY,
+    firebase_uid    TEXT            UNIQUE NOT NULL,
 	provider		provider_type   NOT NULL,
 	date_created    DATE            NOT NULL,
 	username  		TEXT	        NOT NULL,

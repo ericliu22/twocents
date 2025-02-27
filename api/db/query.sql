@@ -30,15 +30,22 @@ WHERE id = $1;
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
 
+-- name: GetFirebaseId :one
+SELECT * FROM users
+WHERE firebase_uid = $1 LIMIT 1;
+
+-- name: CheckFirebaseId :one
+SELECT EXISTS(SELECT 1 FROM users WHERE firebase_uid = $1);
+
 -- name: GetUsers :many
 SELECT * FROM users
 ORDER BY date_created;
 
 -- name: CreateUser :one
 INSERT INTO users (
-    id, provider, date_created, username, hash, salt
+    id, firebase_uid, provider, date_created, username, hash, salt
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 ON CONFLICT (id) DO NOTHING
 RETURNING *;

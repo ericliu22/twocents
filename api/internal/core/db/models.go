@@ -109,6 +109,7 @@ type Post struct {
 
 type User struct {
 	ID          uuid.UUID    `json:"id"`
+	FirebaseUid string       `json:"firebaseUid"`
 	Provider    ProviderType `json:"provider"`
 	DateCreated pgtype.Date  `json:"dateCreated"`
 	Username    string       `json:"username"`

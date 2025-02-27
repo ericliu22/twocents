@@ -12,6 +12,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const checkFirebaseId = `-- name: CheckFirebaseId :one
+SELECT EXISTS(SELECT 1 FROM users WHERE firebase_uid = $1)
+`
+
+func (q *Queries) CheckFirebaseId(ctx context.Context, firebaseUid string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkFirebaseId, firebaseUid)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const checkUser = `-- name: CheckUser :one
 SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)
 `
@@ -59,16 +70,17 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    id, provider, date_created, username, hash, salt
+    id, firebase_uid, provider, date_created, username, hash, salt
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 ON CONFLICT (id) DO NOTHING
-RETURNING id, provider, date_created, username, hash, salt
+RETURNING id, firebase_uid, provider, date_created, username, hash, salt
 `
 
 type CreateUserParams struct {
 	ID          uuid.UUID    `json:"id"`
+	FirebaseUid string       `json:"firebaseUid"`
 	Provider    ProviderType `json:"provider"`
 	DateCreated pgtype.Date  `json:"dateCreated"`
 	Username    string       `json:"username"`
@@ -79,6 +91,7 @@ type CreateUserParams struct {
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.ID,
+		arg.FirebaseUid,
 		arg.Provider,
 		arg.DateCreated,
 		arg.Username,
@@ -88,6 +101,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.FirebaseUid,
 		&i.Provider,
 		&i.DateCreated,
 		&i.Username,
@@ -164,7 +178,7 @@ func (q *Queries) DeleteUserProfile(ctx context.Context, userID uuid.UUID) error
 }
 
 const getEntireUser = `-- name: GetEntireUser :one
-SELECT users.id, users.provider, users.date_created, users.username, users.hash, users.salt, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+SELECT users.id, users.firebase_uid, users.provider, users.date_created, users.username, users.hash, users.salt, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
 FROM users
 JOIN user_profiles ON users.id = user_profiles.user_id
 WHERE users.id = $1
@@ -180,6 +194,7 @@ func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUse
 	var i GetEntireUserRow
 	err := row.Scan(
 		&i.User.ID,
+		&i.User.FirebaseUid,
 		&i.User.Provider,
 		&i.User.DateCreated,
 		&i.User.Username,
@@ -189,6 +204,26 @@ func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUse
 		&i.UserProfile.ProfilePic,
 		&i.UserProfile.Username,
 		&i.UserProfile.Name,
+	)
+	return i, err
+}
+
+const getFirebaseId = `-- name: GetFirebaseId :one
+SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
+WHERE firebase_uid = $1 LIMIT 1
+`
+
+func (q *Queries) GetFirebaseId(ctx context.Context, firebaseUid string) (User, error) {
+	row := q.db.QueryRow(ctx, getFirebaseId, firebaseUid)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirebaseUid,
+		&i.Provider,
+		&i.DateCreated,
+		&i.Username,
+		&i.Hash,
+		&i.Salt,
 	)
 	return i, err
 }
@@ -241,7 +276,7 @@ func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, provider, date_created, username, hash, salt FROM users
+SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -250,6 +285,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.FirebaseUid,
 		&i.Provider,
 		&i.DateCreated,
 		&i.Username,
@@ -278,7 +314,7 @@ func (q *Queries) GetUserProfile(ctx context.Context, userID uuid.UUID) (UserPro
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, provider, date_created, username, hash, salt FROM users
+SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
 ORDER BY date_created
 `
 
@@ -293,6 +329,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.ID,
+			&i.FirebaseUid,
 			&i.Provider,
 			&i.DateCreated,
 			&i.Username,

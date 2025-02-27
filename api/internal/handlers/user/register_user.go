@@ -2,7 +2,6 @@ package handlers
 
 import (
 	database "api/internal/core/db"
-	"log"
 	"net/http"
 	"time"
 
@@ -25,42 +24,30 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		value, keyExists := ctx.Get("user")
 		if !keyExists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			log.Printf("Unauthorized")
 			return
 		}
 
 		token, ok = value.(*auth.Token)
 		if !ok {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read as token"})
-			log.Printf("Failed to read as token")
 			return
 		}
 
-		uuid, parseErr := uuid.Parse(token.UID)
-		if parseErr != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
-			log.Printf("Failed to parse as UUID")
-			return
-		}
-
-		userExists, queryErr := queries.CheckUser(ctx.Request.Context(), uuid)
+		
+		userExists, queryErr := queries.CheckFirebaseId(ctx.Request.Context(), token.UID)
 		if queryErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query"})
-			log.Printf("Failed to query")
 			return
 		}
 		if userExists {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 			gin.DefaultWriter.Write([]byte("User already exists"))
-			log.Printf("User already exists")
 			return
 		}
 
 		var registerRequest RegisterUserRequest
 		if bindErr := ctx.Bind(&registerRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified"))
-			log.Printf("Failed to insert user")
 			return
 		}
 
@@ -70,6 +57,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			Valid: true,
 		}
 		var newUser database.CreateUserParams
+		uuid := uuid.New()
 		newUser = database.CreateUserParams {
 			ID: uuid,
 			Provider: database.ProviderTypeEMAIL,
@@ -79,8 +67,6 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		_ , insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
-			gin.DefaultWriter.Write([]byte("Failed to insert user"))
-			log.Printf("Failed to insert user")
 			return
 		}
 
@@ -92,8 +78,6 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		userProfile, insertErr := queries.CreateUserProfile(ctx.Request.Context(), newUserProfile)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
-			gin.DefaultWriter.Write([]byte("Failed to insert user profile"))
-			log.Printf("Failed to insert user profile")
 			return
 		}
 
