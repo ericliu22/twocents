@@ -14,12 +14,11 @@ struct TwoCentsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView()
+            HomePageView()
                 .environment(delegate.appModel!)
         }
     }
 }
-
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     

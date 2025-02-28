@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct HomePageView: View {
+    @Environment(AppModel.self) var appModel
+    
     var body: some View {
         VStack{
             TabView{
@@ -16,15 +19,19 @@ struct HomePageView: View {
                         Image(systemName: "house.fill")
                     }
                 //placeholder for upload page
-                Text("upload soon")
+                CameraPickerView()
+                //Text("placeholder")
                     .tabItem{
                         Image(systemName: "plus.app")
                     }
                 ProfilePage()
                     .tabItem{
-                        Image(
-                            systemName: "person"
-                        )
+                        Image(systemName: "person")
+                    }
+                //change later
+                SignOutView()
+                    .tabItem{
+                        Image(systemName: "person.fill.badge.minus")
                     }
             }.accentColor(.black)
         }

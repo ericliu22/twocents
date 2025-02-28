@@ -18,10 +18,16 @@ struct RootView: View {
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
+                //.tag(Tab.defaulthome)
             
             ExploreView()
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
+                }
+            CameraPickerView()
+            //Text("placeholder")
+                .tabItem{
+                    Image(systemName: "plus.app")
                 }
             
             ProfileView()
