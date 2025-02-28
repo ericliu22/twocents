@@ -14,8 +14,7 @@ struct TwoCentsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(delegate.appModel!)
+            HomePageView()
         }
     }
 }
