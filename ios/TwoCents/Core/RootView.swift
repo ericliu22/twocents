@@ -12,20 +12,24 @@ struct RootView: View {
     
     var body: some View {
         @Bindable var appModel = appModel
-        VStack {
-            Text("hello")
-            Button {
-                do {
-                    try AuthenticationManager.signOut()
-                } catch let error {
-                    print("Failed to sign out \(error.localizedDescription)")
+        
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
                 }
-            } label: {
-                Text("Sign Out")
-            }
+            
+            ExploreView()
+                .tabItem {
+                    Label("Explore", systemImage: "magnifyingglass")
+                }
+            
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
         }
-        .padding()
-        .onAppear{
+        .onAppear {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
             
             if authUser == nil {
@@ -46,4 +50,31 @@ struct RootView: View {
 #Preview {
     RootView()
         .environment(AppModel())
+}
+
+// Example placeholder views
+struct HomeView: View {
+    var body: some View {
+        VStack {
+            Text("Home Screen")
+            Button {
+                do {
+                    try AuthenticationManager.signOut()
+                } catch let error {
+                    print("Failed to sign out \(error.localizedDescription)")
+                }
+            } label: {
+                Text("Sign Out")
+            }
+        }
+        .padding()
+    }
+}
+
+
+struct ProfileView: View {
+    var body: some View {
+        Text("Profile Screen")
+            .padding()
+    }
 }
