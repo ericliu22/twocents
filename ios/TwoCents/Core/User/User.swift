@@ -6,9 +6,9 @@
 //
 import Foundation
 
-class User: Codable {
+class User: Identifiable, Codable {
     
-    let id: UUID
+    let userId: UUID
     var username: String
     var profilePic: String?
     var name: String?

@@ -116,8 +116,7 @@ struct Request<T: Encodable> {
         return data
     }
     
-    func uploadMedia(fileData: Data, fileName: String, mimeType: String, to url: URL) async throws -> Data {
-        let boundary = UUID().uuidString
+    static func uploadMedia(fileData: Data, fileName: String, mimeType: String, url: URL, boundary: UUID) async throws -> Data {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")

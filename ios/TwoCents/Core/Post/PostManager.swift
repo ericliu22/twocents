@@ -7,13 +7,11 @@
 
 import Foundation
 
-fileprivate struct CreateImagePostRequest: Encodable {
-    let id: UUID
-    let media: Media = .IMAGE
+fileprivate struct CreatePostRequest: Encodable {
     
-    init(id: UUID = UUID()) {
-        self.id = id
-    }
+    let id: UUID
+    let media: Media
+    
 }
 
 struct PostManager {
@@ -22,14 +20,22 @@ struct PostManager {
     
     static let POST_URL: URL = API_URL.appending(path: "post")
     
-    static func createImagePost(media: Media, imageData: Data) {
+    static func createImagePost(media: Media, imageData: Data, fileName: String) async throws {
         let boundary: UUID = UUID()
+        
         let request = Request (
             method: .POST,
             contentType: .json,
-            url: POST_URL,
-            body: CreateImagePostRequest(id: boundary)
+            url: POST_URL.appending(path: "create-post"),
+            body: CreatePostRequest(id: boundary, media: .IMAGE)
         )
+        do {
+            try await request.sendRequest()
+            try await Request<String>.uploadMedia(fileData: imageData, fileName: fileName, mimeType: "image/jpeg", url: POST_URL.appending(path: "upload-image-post"), boundary: boundary)
+        } catch let error {
+            
+            throw error
+        }
+        
     }
-    
 }
