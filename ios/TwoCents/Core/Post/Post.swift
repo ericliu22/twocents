@@ -10,6 +10,7 @@ import SwiftUI
 enum Media: String, Codable {
     case IMAGE
     case VIDEO
+    case LINK
     case OTHER
 }
 
@@ -40,6 +41,10 @@ func makeUploadable(post: Post, data: Data) -> any Uploadable {
     switch post.media {
     case .IMAGE:
         return ImageUpload(post: post, data: data)
+    case .VIDEO:
+        return VideoUpload(post: post, data: data)
+    case .LINK:
+        return LinkUpload(post: post, data: data)
     default:
         return ImageUpload(post: post, data: data)
     }
@@ -54,6 +59,18 @@ func makePostView(post: Post, postMedia: any Downloadable) -> some View {
         } else {
             EmptyPostView(post: post)
         }
+    case .VIDEO:
+        if let videoDownload = postMedia as? VideoDownload {
+            VideoView(post: post, video: videoDownload)
+        } else {
+            EmptyPostView(post: post)
+        }
+    case .LINK:
+        if let linkDownload = postMedia as? LinkDownload {
+            LinkView(post: post, link: linkDownload)
+         } else {
+             EmptyPostView(post: post)
+         }
     default:
         EmptyPostView(post: post)
     }

@@ -88,7 +88,11 @@ struct Request<T: Encodable> {
         }
         
         // Attach body if present
-        let bodyData = try? JSONEncoder().encode(body)
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        let bodyData = try? encoder.encode(body)
         request.httpBody = bodyData
         
         return request
@@ -139,7 +143,6 @@ struct Request<T: Encodable> {
         body.append(postData)
         body.append("\r\n")
         
-        print("FILEDATA")
         body.append("--\(boundary)\r\n")
         body.append("Content-Disposition: form-data; name=\"file\"; filename=\"myimage.jpg\"\r\n")
         body.append("Content-Type: \(mimeType)\r\n\r\n")

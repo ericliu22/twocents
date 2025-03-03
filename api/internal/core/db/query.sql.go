@@ -56,6 +56,28 @@ func (q *Queries) CreateImage(ctx context.Context, arg CreateImageParams) (Image
 	return i, err
 }
 
+const createLink = `-- name: CreateLink :one
+INSERT INTO links (
+    id,
+    media_url
+)
+VALUES ($1, $2)
+ON CONFLICT (id) DO NOTHING
+RETURNING id, media_url
+`
+
+type CreateLinkParams struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
+}
+
+func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, error) {
+	row := q.db.QueryRow(ctx, createLink, arg.ID, arg.MediaUrl)
+	var i Link
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
     id, user_id, media, date_created, caption
@@ -172,6 +194,28 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 	return i, err
 }
 
+const createVideo = `-- name: CreateVideo :one
+INSERT INTO videos (
+    id,
+    media_url
+)
+VALUES ($1, $2)
+ON CONFLICT (id) DO NOTHING
+RETURNING id, media_url
+`
+
+type CreateVideoParams struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
+}
+
+func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video, error) {
+	row := q.db.QueryRow(ctx, createVideo, arg.ID, arg.MediaUrl)
+	var i Video
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
+}
+
 const deletePost = `-- name: DeletePost :exec
 DELETE FROM posts
 WHERE id = $1
@@ -262,6 +306,19 @@ WHERE id = $1
 func (q *Queries) GetImage(ctx context.Context, id uuid.UUID) (Image, error) {
 	row := q.db.QueryRow(ctx, getImage, id)
 	var i Image
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
+}
+
+const getLink = `-- name: GetLink :one
+SELECT id, media_url
+FROM links
+WHERE id = $1
+`
+
+func (q *Queries) GetLink(ctx context.Context, id uuid.UUID) (Link, error) {
+	row := q.db.QueryRow(ctx, getLink, id)
+	var i Link
 	err := row.Scan(&i.ID, &i.MediaUrl)
 	return i, err
 }
@@ -384,6 +441,19 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getVideo = `-- name: GetVideo :one
+SELECT id, media_url
+FROM videos
+WHERE id = $1
+`
+
+func (q *Queries) GetVideo(ctx context.Context, id uuid.UUID) (Video, error) {
+	row := q.db.QueryRow(ctx, getVideo, id)
+	var i Video
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
 }
 
 const updatePost = `-- name: UpdatePost :exec

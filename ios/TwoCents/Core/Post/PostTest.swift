@@ -68,6 +68,9 @@ struct PostTest: View {
                     )
                     .clipShape(
                         RoundedRectangle(cornerRadius: 20))
+                if let caption {
+                    Text(caption)
+                }
             }
                 
 
@@ -78,12 +81,13 @@ struct PostTest: View {
                         guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
                         
                         //Some Video/Image -> data
-                        let imageData = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
+                        let (imagePost, imageData) = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
                         
                         //Decode return into any Downloadable
                         let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)
                         
                         mediaUrl = URL(string: image.mediaUrl)
+                        caption = imagePost.caption
                     } catch let error {
                         print(error)
                     }

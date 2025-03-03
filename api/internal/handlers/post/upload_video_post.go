@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
+func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
@@ -57,24 +57,24 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String() + ".jpeg", &file, "image/jpeg")
+		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String() + ".mp4", &file, "video/mp4")
 		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
 			return
 		}
 
-		imageParams := database.CreateImageParams{
+		videoParams := database.CreateVideoParams{
 			ID:       post.ID,
 			MediaUrl: *mediaURL,
 		}
 
-		image, createErr := queries.CreateImage(ctx.Request.Context(), imageParams)
+		video, createErr := queries.CreateVideo(ctx.Request.Context(), videoParams)
 		if createErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to create image on db")
-			gin.DefaultWriter.Write([]byte("Failed to create image" + createErr.Error()))
+			ctx.String(http.StatusInternalServerError, "Failed to create video on db")
+			gin.DefaultWriter.Write([]byte("Failed to create video" + createErr.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, image)
+		ctx.JSON(http.StatusOK, video)
 	}
 }

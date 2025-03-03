@@ -105,6 +105,11 @@ type Image struct {
 	MediaUrl string    `json:"mediaUrl"`
 }
 
+type Link struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
+}
+
 type Post struct {
 	ID          uuid.UUID   `json:"id"`
 	UserID      uuid.UUID   `json:"userId"`
@@ -128,4 +133,9 @@ type UserProfile struct {
 	ProfilePic *string   `json:"profilePic"`
 	Username   string    `json:"username"`
 	Name       *string   `json:"name"`
+}
+
+type Video struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
 }

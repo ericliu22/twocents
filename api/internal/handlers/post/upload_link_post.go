@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"api/internal/core/aws"
 	database "api/internal/core/db"
 	"api/internal/middleware"
 	"encoding/json"
@@ -10,7 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
+type Link struct {
+	MediaUrl string `json:"mediaUrl"`
+}
+
+func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
@@ -24,7 +27,6 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
 			return
 		}
-
 		postJSON := ctx.PostForm("post")
 		if postJSON == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "post part of form is empty"})
@@ -44,37 +46,31 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		fileHeader, formErr := ctx.FormFile("file")
-		if formErr != nil {
+		linkJSON := ctx.PostForm("link")
+		if linkJSON == "" {
 			ctx.String(http.StatusBadRequest, "Failed to get form file")
 			gin.DefaultWriter.Write([]byte("File form is empty"))
 			return
 		}
-		file, fileErr := fileHeader.Open()
-		if fileErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to open file header as file")
-			gin.DefaultWriter.Write([]byte("Failed to open file header as file" + fileErr.Error()))
+
+		var linkRequest Link
+		if err := json.Unmarshal([]byte(postJSON), &linkRequest); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing JSON: " + err.Error()})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String() + ".jpeg", &file, "image/jpeg")
-		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
-			return
-		}
-
-		imageParams := database.CreateImageParams{
+		linkParams := database.CreateLinkParams {
 			ID:       post.ID,
-			MediaUrl: *mediaURL,
+			MediaUrl: linkRequest.MediaUrl,
 		}
 
-		image, createErr := queries.CreateImage(ctx.Request.Context(), imageParams)
+		link, createErr := queries.CreateLink(ctx.Request.Context(), linkParams)
 		if createErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to create image on db")
-			gin.DefaultWriter.Write([]byte("Failed to create image" + createErr.Error()))
+			ctx.String(http.StatusInternalServerError, "Failed to create video on db")
+			gin.DefaultWriter.Write([]byte("Failed to create video" + createErr.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, image)
+		ctx.JSON(http.StatusOK, link)
 	}
 }
