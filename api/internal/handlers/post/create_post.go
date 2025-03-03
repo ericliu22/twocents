@@ -12,7 +12,7 @@ import (
 )
 
 type CreatePostRequest struct {
-	Media   string  `json:"media"`
+	Media   string  `json:"media" binding:"required"`
 	Caption *string `json:"caption"`
 }
 
@@ -33,6 +33,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		var createRequest CreatePostRequest
+		gin.DefaultWriter.Write([]byte("Request body: " ))
 		if bindErr := ctx.Bind(&createRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified"+bindErr.Error()))

@@ -21,7 +21,10 @@ struct PostManager {
     static func uploadPost(media: Media, caption: String? = nil) async throws -> Data {
         let requestBody: PostRequest = PostRequest(media: media, caption: caption)
         let body = try JSONEncoder().encode(requestBody)
-        print(body)
+        
+        if let jsonString = String(data: body, encoding: .utf8) {
+            print("JSON being sent: \(jsonString)")
+        }
         let request: Request = Request(
             method: .POST,
             contentType: .json,
