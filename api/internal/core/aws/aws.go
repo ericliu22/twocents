@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func ObjectUpload(filename string, file *multipart.File, contentType string) (*string, error) {
@@ -30,7 +29,6 @@ func ObjectUpload(filename string, file *multipart.File, contentType string) (*s
 		Key:         aws.String(filename),
 		Body:        *file,
 		ContentType: aws.String(contentType),
-		ACL:         types.ObjectCannedACLPublicRead, // Adjust as needed for your security requirements
 	})
 	if putErr != nil {
 		return nil, putErr
