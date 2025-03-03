@@ -4,8 +4,8 @@ import (
 	"api/internal/core/aws"
 	database "api/internal/core/db"
 	"api/internal/middleware"
-	"net/http"
 	"encoding/json"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,13 +29,12 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-
 		var post database.Post
 		if err := json.Unmarshal([]byte(postJSON), &post); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing JSON: " + err.Error()})
 			return
 		}
-		if user.ID != post.ID {
+		if user.ID != post.UserID {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			return
 		}
@@ -53,12 +52,12 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 
 		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String(), &file, "image/jpeg")
 		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3" + uploadErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
 			return
 		}
 
-		imageParams := database.CreateImageParams {
-			ID: post.ID,
+		imageParams := database.CreateImageParams{
+			ID:       post.ID,
 			MediaUrl: *mediaURL,
 		}
 

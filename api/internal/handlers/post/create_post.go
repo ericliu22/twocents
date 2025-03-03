@@ -10,8 +10,8 @@ import (
 )
 
 type CreatePostRequest struct {
-	Media    string `json:"media"`
-	Caption  *string `json:"caption"`
+	Media   string  `json:"media"`
+	Caption *string `json:"caption"`
 }
 
 func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
@@ -24,13 +24,18 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user")
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user"+userErr.Error())
 			return
 		}
 
-		post := database.Post {
-			ID: uuid.New(),
+		postParams := database.CreatePostParams{
+			ID:     uuid.New(),
 			UserID: user.ID,
+		}
+
+		post, createErr := queries.CreatePost(ctx.Request.Context(), postParams)
+		if createErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to create post"+createErr.Error())
 		}
 		ctx.JSON(http.StatusOK, post)
 	}
