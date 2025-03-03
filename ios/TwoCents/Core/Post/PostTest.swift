@@ -69,10 +69,14 @@ struct PostTest: View {
 
             Button {
                 Task {
-                    guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
-                    let imageData = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
-                    let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)
-                    mediaUrl = URL(string: image.mediaUrl)
+                    do {
+                        guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
+                        let imageData = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
+                        let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)
+                        mediaUrl = URL(string: image.mediaUrl)
+                    } catch let error {
+                        print(error)
+                    }
                 }
             } label: {
                 Text("Upload")

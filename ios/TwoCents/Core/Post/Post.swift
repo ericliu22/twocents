@@ -16,6 +16,7 @@ enum Media: String, Codable {
 class Post: Codable {
     
     let id: UUID
+    let userId: UUID
     var media: Media
     var dateCreated: Date
     var caption: String
