@@ -34,10 +34,11 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 
 		var createRequest CreatePostRequest
 		gin.DefaultWriter.Write([]byte("Request body: " ))
-		if bindErr := ctx.Bind(&createRequest); bindErr != nil {
+		
+		if bindErr := ctx.ShouldBindJSON(&createRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified"+bindErr.Error()))
-			gin.DefaultWriter.Write([]byte("Request body not as specified: "+ctx.ContentType()))
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + ctx.ContentType()))
 			return
 		}
 
