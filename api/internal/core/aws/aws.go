@@ -35,7 +35,7 @@ func ObjectUpload(filename string, file *multipart.File, contentType string) (*s
 	}
 
 	// 7. Generate CloudFront URL
-	cloudFrontURL := fmt.Sprintf("%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
+	cloudFrontURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
 
 	return &cloudFrontURL, nil
 }
