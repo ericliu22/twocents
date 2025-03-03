@@ -24,7 +24,7 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user")
-			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
+			gin.DefaultWriter.Write([]byte("Failed to fetch user" + userErr.Error()))
 			return
 		}
 		postJSON := ctx.PostForm("post")
@@ -60,7 +60,7 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		linkParams := database.CreateLinkParams {
+		linkParams := database.CreateLinkParams{
 			ID:       post.ID,
 			MediaUrl: linkRequest.MediaUrl,
 		}

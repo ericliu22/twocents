@@ -47,7 +47,7 @@ CREATE TABLE images (
 );
 
 CREATE TABLE videos (
-    id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASECADE,
+    id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASCADE,
     media_url       TEXT            NOT NULL
 );
 

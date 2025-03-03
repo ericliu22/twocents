@@ -2,9 +2,9 @@ package aws
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 	"os"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -24,7 +24,7 @@ func ObjectUpload(filename string, file *multipart.File, contentType string) (*s
 
 	// 6. Upload the file to S3
 	//@TODO: Set a timer for context timeout
-	_, putErr := s3Client.PutObject(context.Background(), &s3.PutObjectInput {
+	_, putErr := s3Client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket:      aws.String(os.Getenv("BUCKET_NAME")),
 		Key:         aws.String(filename),
 		Body:        *file,
@@ -53,9 +53,9 @@ func ObjectGet(filename string) (*s3.GetObjectOutput, error) {
 
 	// 6. Upload the file to S3
 	//@TODO: Set a timer for context timeout
-	out, getErr := s3Client.GetObject(context.Background(), &s3.GetObjectInput {
-		Bucket:      aws.String(os.Getenv("BUCKET_NAME")),
-		Key:         aws.String(filename),
+	out, getErr := s3Client.GetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(os.Getenv("BUCKET_NAME")),
+		Key:    aws.String(filename),
 	})
 	if getErr != nil {
 		return nil, getErr

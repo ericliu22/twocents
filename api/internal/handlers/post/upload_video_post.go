@@ -21,7 +21,7 @@ func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user")
-			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
+			gin.DefaultWriter.Write([]byte("Failed to fetch user" + userErr.Error()))
 			return
 		}
 
@@ -57,7 +57,7 @@ func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String() + ".mp4", &file, "video/mp4")
+		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String()+".mp4", &file, "video/mp4")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))

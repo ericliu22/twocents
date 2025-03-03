@@ -28,12 +28,12 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user"+userErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
+			gin.DefaultWriter.Write([]byte("Failed to fetch user" + userErr.Error()))
 			return
 		}
 
 		var createRequest CreatePostRequest
-		
+
 		if bindErr := ctx.ShouldBindJSON(&createRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
@@ -57,17 +57,17 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		gin.DefaultWriter.Write([]byte("USERID: " + user.ID.String()))
 		postParams := database.CreatePostParams{
-			ID:     uuid.New(),
-			UserID: user.ID,
-			Media: media,
+			ID:          uuid.New(),
+			UserID:      user.ID,
+			Media:       media,
 			DateCreated: currentDate,
-			Caption: createRequest.Caption,
+			Caption:     createRequest.Caption,
 		}
 
 		post, createErr := queries.CreatePost(ctx.Request.Context(), postParams)
 		if createErr != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to create post: "+createErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to create post: "+createErr.Error()))
+			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
 		}
 		ctx.JSON(http.StatusOK, post)
 	}

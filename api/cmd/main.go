@@ -44,7 +44,6 @@ func main() {
 		log.Fatalf("error initializing Auth client: %v", err)
 	}
 
-
 	var logFile *os.File
 	defer logFile.Close()
 
