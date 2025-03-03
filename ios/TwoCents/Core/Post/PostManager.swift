@@ -12,6 +12,9 @@ struct PostRequest: Encodable {
     let caption: String?
 }
 
+//CanvasWidget: Post
+//Media: Image
+
 struct PostManager {
     
     private init() {}
@@ -31,6 +34,7 @@ struct PostManager {
     }
     
     static func uploadMediaPost(media: Media, data: Data, caption: String? = nil) async throws -> Data {
+        //The DBPost
         let postData: Data = try await uploadPost(media: media, caption: caption)
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
@@ -39,7 +43,9 @@ struct PostManager {
         
         let post: Post = try decoder.decode(Post.self, from: postData)
 
+        //The media
         let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
+        //The downloadable
         let data: Data = try await uploadPost.uploadPost()
         return data
     }

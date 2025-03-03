@@ -16,17 +16,21 @@ struct PostTest: View {
 
     var body: some View {
         VStack {
-
+            Text("PhotosPicker:")
             Group {
                 if loading {
                     ProgressView()
                         .progressViewStyle(
                             CircularProgressViewStyle(tint: .primary)
                         )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fit)
                         .background(.thinMaterial)
                         .cornerRadius(20)
+                        .frame(
+                            width: 250,
+                            height: 250
+                        )
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 20))
 
                 } else {
                     PhotosPicker(
@@ -39,10 +43,6 @@ struct PostTest: View {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(
-                                        width: 250,
-                                        height: 250
-                                    )
                                     .clipShape(
                                         RoundedRectangle(cornerRadius: 20))
                             } else {
@@ -51,12 +51,16 @@ struct PostTest: View {
                                     .aspectRatio(1, contentMode: .fit)
                             }
                         }
+                        .frame(
+                            width: 250,
+                            height: 250
+                        )
                     }
                 }
             }
             
             if let mediaUrl {
-                AsyncImage(url: mediaUrl)
+                CachedImage(imageUrl: mediaUrl)
                     .scaledToFill()
                     .frame(
                         width: 250,
@@ -70,9 +74,15 @@ struct PostTest: View {
             Button {
                 Task {
                     do {
+                        
                         guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
+                        
+                        //Some Video/Image -> data
                         let imageData = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
+                        
+                        //Decode return into any Downloadable
                         let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)
+                        
                         mediaUrl = URL(string: image.mediaUrl)
                     } catch let error {
                         print(error)

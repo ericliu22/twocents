@@ -19,7 +19,7 @@ class Post: Codable {
     let userId: UUID
     var media: Media
     var dateCreated: Date
-    var caption: String
+    var caption: String?
     
 }
 
