@@ -17,6 +17,7 @@ type MediaType string
 const (
 	MediaTypeIMAGE MediaType = "IMAGE"
 	MediaTypeVIDEO MediaType = "VIDEO"
+	MediaTypeLINK  MediaType = "LINK"
 	MediaTypeOTHER MediaType = "OTHER"
 )
 

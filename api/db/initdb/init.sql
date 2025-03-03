@@ -4,6 +4,7 @@
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
+    'LINK',
     'OTHER'
 );
 
