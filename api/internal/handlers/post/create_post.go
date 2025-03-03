@@ -56,6 +56,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}
+		gin.DefaultWriter.Write([]byte("USERID: " + user.ID.String()))
 		postParams := database.CreatePostParams{
 			ID:     uuid.New(),
 			UserID: user.ID,
@@ -66,8 +67,8 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 
 		post, createErr := queries.CreatePost(ctx.Request.Context(), postParams)
 		if createErr != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to create post"+createErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to create post"+createErr.Error()))
+			ctx.String(http.StatusInternalServerError, "Error: Failed to create post: "+createErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to create post: "+createErr.Error()))
 		}
 		ctx.JSON(http.StatusOK, post)
 	}
