@@ -34,36 +34,61 @@ func (q *Queries) CheckUser(ctx context.Context, id uuid.UUID) (bool, error) {
 	return exists, err
 }
 
+const createImage = `-- name: CreateImage :one
+INSERT INTO images (
+    id,
+    media_url
+)
+VALUES ($1, $2)
+ON CONFLICT (id) DO NOTHING
+RETURNING id, media_url
+`
+
+type CreateImageParams struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
+}
+
+func (q *Queries) CreateImage(ctx context.Context, arg CreateImageParams) (Image, error) {
+	row := q.db.QueryRow(ctx, createImage, arg.ID, arg.MediaUrl)
+	var i Image
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
-    id, media, date_created, media_url
+    id, user_id, media, date_created, caption
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 )
 ON CONFLICT (id) DO NOTHING
-RETURNING id, media, date_created, media_url
+RETURNING id, user_id, media, date_created, caption
 `
 
 type CreatePostParams struct {
 	ID          uuid.UUID   `json:"id"`
+	UserID      uuid.UUID   `json:"userId"`
 	Media       MediaType   `json:"media"`
 	DateCreated pgtype.Date `json:"dateCreated"`
-	MediaUrl    *string     `json:"mediaUrl"`
+	Caption     *string     `json:"caption"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRow(ctx, createPost,
 		arg.ID,
+		arg.UserID,
 		arg.Media,
 		arg.DateCreated,
-		arg.MediaUrl,
+		arg.Caption,
 	)
 	var i Post
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Media,
 		&i.DateCreated,
-		&i.MediaUrl,
+		&i.Caption,
 	)
 	return i, err
 }
@@ -228,8 +253,21 @@ func (q *Queries) GetFirebaseId(ctx context.Context, firebaseUid string) (User, 
 	return i, err
 }
 
+const getImage = `-- name: GetImage :one
+SELECT id, media_url
+FROM images
+WHERE id = $1
+`
+
+func (q *Queries) GetImage(ctx context.Context, id uuid.UUID) (Image, error) {
+	row := q.db.QueryRow(ctx, getImage, id)
+	var i Image
+	err := row.Scan(&i.ID, &i.MediaUrl)
+	return i, err
+}
+
 const getPost = `-- name: GetPost :one
-SELECT id, media, date_created, media_url FROM posts
+SELECT id, user_id, media, date_created, caption FROM posts
 WHERE id = $1 LIMIT 1
 `
 
@@ -238,15 +276,16 @@ func (q *Queries) GetPost(ctx context.Context, id uuid.UUID) (Post, error) {
 	var i Post
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Media,
 		&i.DateCreated,
-		&i.MediaUrl,
+		&i.Caption,
 	)
 	return i, err
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, media, date_created, media_url FROM posts
+SELECT id, user_id, media, date_created, caption FROM posts
 ORDER BY date_created
 `
 
@@ -261,9 +300,10 @@ func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
 		var i Post
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
 			&i.Media,
 			&i.DateCreated,
-			&i.MediaUrl,
+			&i.Caption,
 		); err != nil {
 			return nil, err
 		}
@@ -348,9 +388,9 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 
 const updatePost = `-- name: UpdatePost :exec
 UPDATE posts
-    set media = $2,
+SET media = $2,
     date_created = $3,
-    media_url = $4
+    caption = $4
 WHERE id = $1
 `
 
@@ -358,7 +398,7 @@ type UpdatePostParams struct {
 	ID          uuid.UUID   `json:"id"`
 	Media       MediaType   `json:"media"`
 	DateCreated pgtype.Date `json:"dateCreated"`
-	MediaUrl    *string     `json:"mediaUrl"`
+	Caption     *string     `json:"caption"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
@@ -366,16 +406,16 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.ID,
 		arg.Media,
 		arg.DateCreated,
-		arg.MediaUrl,
+		arg.Caption,
 	)
 	return err
 }
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
-	set provider = $2,
-	date_created = $3,
-	username = $4,
+SET provider = $2,
+    date_created = $3,
+    username = $4,
     hash = $5,
     salt = $6
 WHERE id = $1
@@ -404,8 +444,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 
 const updateUserProfile = `-- name: UpdateUserProfile :exec
 UPDATE user_profiles
-SET
-    profile_pic = $2,
+SET profile_pic = $2,
     username    = $3,
     name        = $4
 WHERE user_id = $1

@@ -116,23 +116,28 @@ struct Request<T: Encodable> {
         return data
     }
     
-    static func uploadMedia(fileData: Data, fileName: String, mimeType: String, url: URL, boundary: UUID) async throws -> Data {
+    static func uploadMedia(post: Post, fileData: Data, mimeType: String, url: URL) async throws -> Data {
+        //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes
+        let boundary: UUID = UUID()
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         var body = Data()
+        let postData = try JSONEncoder().encode(post)
         
-        // Start boundary
         body.append("--\(boundary)\r\n")
-        // Content-Disposition header; "file" is the key expected by the server
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n")
-        // Content-Type header
+        body.append("Content-Disposition: form-data; name=\"post\"\r\n")
+        body.append("Content-Type: application/json\r\n\r\n")
+        body.append(postData)
+        body.append("\r\n")
+        
+        body.append("--\(boundary)\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"\r\n")
         body.append("Content-Type: \(mimeType)\r\n\r\n")
-        // Append the actual file data
         body.append(fileData)
         body.append("\r\n")
-        // End boundary
         body.append("--\(boundary)--\r\n")
         
         request.httpBody = body

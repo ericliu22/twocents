@@ -100,11 +100,17 @@ func (ns NullProviderType) Value() (driver.Value, error) {
 	return string(ns.ProviderType), nil
 }
 
+type Image struct {
+	ID       uuid.UUID `json:"id"`
+	MediaUrl string    `json:"mediaUrl"`
+}
+
 type Post struct {
 	ID          uuid.UUID   `json:"id"`
+	UserID      uuid.UUID   `json:"userId"`
 	Media       MediaType   `json:"media"`
 	DateCreated pgtype.Date `json:"dateCreated"`
-	MediaUrl    *string     `json:"mediaUrl"`
+	Caption     *string     `json:"caption"`
 }
 
 type User struct {

@@ -16,7 +16,20 @@ class Post: Codable {
     
     let id: UUID
     var media: Media
-    var mediaUrl: URL
     var dateCreated: Date
     
+}
+
+protocol Uploadable: Identifiable, Codable {
+    
+    func uploadPost() async throws -> Data
+}
+
+func makeUploadable(post: Post, data: Data, caption: String?) -> any Uploadable {
+    switch post.media {
+    case .IMAGE:
+        return ImageUpload(post: post, data: data, caption: caption)
+    default:
+        return ImageUpload(post: post, data: data, caption: caption)
+    }
 }

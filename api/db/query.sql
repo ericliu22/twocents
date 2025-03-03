@@ -8,18 +8,18 @@ ORDER BY date_created;
 
 -- name: CreatePost :one
 INSERT INTO posts (
-    id, media, date_created, media_url
+    id, user_id, media, date_created, caption
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 )
 ON CONFLICT (id) DO NOTHING
 RETURNING *;
 
 -- name: UpdatePost :exec
 UPDATE posts
-    set media = $2,
+SET media = $2,
     date_created = $3,
-    media_url = $4
+    caption = $4
 WHERE id = $1;
 
 -- name: DeletePost :exec
@@ -52,9 +52,9 @@ RETURNING *;
 
 -- name: UpdateUser :exec
 UPDATE users
-	set provider = $2,
-	date_created = $3,
-	username = $4,
+SET provider = $2,
+    date_created = $3,
+    username = $4,
     hash = $5,
     salt = $6
 WHERE id = $1;
@@ -84,8 +84,7 @@ WHERE user_id = $1;
 
 -- name: UpdateUserProfile :exec
 UPDATE user_profiles
-SET
-    profile_pic = $2,
+SET profile_pic = $2,
     username    = $3,
     name        = $4
 WHERE user_id = $1;
@@ -94,9 +93,22 @@ WHERE user_id = $1;
 DELETE FROM user_profiles
 WHERE user_id = $1;
 
-
 -- name: GetEntireUser :one
 SELECT sqlc.embed(users), sqlc.embed(user_profiles)
 FROM users
 JOIN user_profiles ON users.id = user_profiles.user_id
 WHERE users.id = $1;
+
+-- name: GetImage :one
+SELECT *
+FROM images
+WHERE id = $1;
+
+-- name: CreateImage :one
+INSERT INTO images (
+    id,
+    media_url
+)
+VALUES ($1, $2)
+ON CONFLICT (id) DO NOTHING
+RETURNING *;
