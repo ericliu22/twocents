@@ -15,44 +15,52 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user")
+			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
 			return
 		}
 
 		postJSON := ctx.PostForm("post")
 		if postJSON == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "post part of form is empty"})
+			gin.DefaultWriter.Write([]byte("Post form is empty"))
 			return
 		}
 
 		var post database.Post
 		if err := json.Unmarshal([]byte(postJSON), &post); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing JSON: " + err.Error()})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
 		}
 		if user.ID != post.UserID {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 
 		fileHeader, formErr := ctx.FormFile("file")
 		if formErr != nil {
 			ctx.String(http.StatusBadRequest, "Failed to get form file")
+			gin.DefaultWriter.Write([]byte("File form is empty"))
 			return
 		}
 		file, fileErr := fileHeader.Open()
 		if fileErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to open file header as file")
+			gin.DefaultWriter.Write([]byte("Failed to open file header as file" + fileErr.Error()))
 			return
 		}
 
 		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String(), &file, "image/jpeg")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to upload image S3" + uploadErr.Error())
 			return
 		}
 
