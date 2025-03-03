@@ -22,17 +22,20 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user"+userErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch user"+userErr.Error()))
 			return
 		}
 
 		var createRequest CreatePostRequest
 		if bindErr := ctx.Bind(&createRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
+			gin.DefaultWriter.Write([]byte("Request body not as specified"+bindErr.Error()))
 			return
 		}
 
@@ -61,6 +64,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		post, createErr := queries.CreatePost(ctx.Request.Context(), postParams)
 		if createErr != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to create post"+createErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to create post"+createErr.Error()))
 		}
 		ctx.JSON(http.StatusOK, post)
 	}

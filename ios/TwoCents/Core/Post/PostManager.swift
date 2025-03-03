@@ -20,11 +20,13 @@ struct PostManager {
     
     static func uploadPost(media: Media, caption: String? = nil) async throws -> Data {
         let requestBody: PostRequest = PostRequest(media: media, caption: caption)
+        let body = try JSONEncoder().encode(requestBody)
+        print(body)
         let request: Request = Request(
             method: .POST,
             contentType: .json,
             url: POST_URL.appending(path: "create-post"),
-            body: try JSONEncoder().encode(requestBody)
+            body: body
         )
         return try await request.sendRequest()
     }
