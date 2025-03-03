@@ -11,9 +11,9 @@ import FirebaseCore
 struct ForUsPage: View {
         var body: some View{
             List{
-                PostView()
-                PostView()
-                PostView()
+                MockPost()
+                MockPost()
+                MockPost()
             }
     }
 }

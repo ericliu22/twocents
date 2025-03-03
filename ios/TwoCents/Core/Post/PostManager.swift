@@ -33,7 +33,7 @@ struct PostManager {
         let postData: Data = try await uploadPost(media: media)
         let post: Post = try JSONDecoder().decode(Post.self, from: postData)
         
-        let uploadPost: any Uploadable = makeUploadable(post: post, data: data, caption: caption)
+        let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
         let data: Data = try await uploadPost.uploadPost()
         return data
     }

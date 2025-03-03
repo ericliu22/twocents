@@ -33,6 +33,10 @@ struct HomePageView: View {
                     .tabItem{
                         Image(systemName: "person.fill.badge.minus")
                     }
+                PostTest()
+                    .tabItem{
+                        Image(systemName: "person.fill.badge.minus")
+                    }
             }.accentColor(.black)
         }
     }

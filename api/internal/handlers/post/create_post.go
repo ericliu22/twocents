@@ -4,9 +4,11 @@ import (
 	database "api/internal/core/db"
 	"api/internal/middleware"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type CreatePostRequest struct {
@@ -28,9 +30,32 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
+		var createRequest CreatePostRequest
+		if bindErr := ctx.Bind(&createRequest); bindErr != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
+			return
+		}
+
+		var media database.MediaType
+		switch createRequest.Media {
+		case "IMAGE":
+			media = database.MediaTypeIMAGE
+		case "VIDEO":
+			media = database.MediaTypeVIDEO
+		case "OTHER":
+			media = database.MediaTypeOTHER
+		}
+		currentDate := pgtype.Date{
+			Time:             time.Now(),
+			InfinityModifier: pgtype.Finite,
+			Valid:            true,
+		}
 		postParams := database.CreatePostParams{
 			ID:     uuid.New(),
 			UserID: user.ID,
+			Media: media,
+			DateCreated: currentDate,
+			Caption: createRequest.Caption,
 		}
 
 		post, createErr := queries.CreatePost(ctx.Request.Context(), postParams)

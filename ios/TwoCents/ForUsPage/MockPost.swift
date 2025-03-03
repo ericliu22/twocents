@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseCore
 
-struct PostView: View {
+struct MockPost: View {
     var body: some View {
         VStack{
             Text("Mock Post")

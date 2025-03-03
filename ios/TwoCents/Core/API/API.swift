@@ -117,7 +117,7 @@ struct Request<T: Encodable> {
     }
     
     static func uploadMedia(post: Post, fileData: Data, mimeType: String, url: URL) async throws -> Data {
-        //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes
+        //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes early -Eric
         let boundary: UUID = UUID()
         
         var request = URLRequest(url: url)

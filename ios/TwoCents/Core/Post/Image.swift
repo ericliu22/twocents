@@ -10,13 +10,11 @@ import SwiftUI
 class ImageUpload: Uploadable {
     
     let post: Post
-    let caption: String?
     let data: Data
 
-    init(post: Post, data: Data, caption: String?) {
+    init(post: Post, data: Data) {
         self.post = post
         self.data = data
-        self.caption = caption
     }
     
     func uploadPost() async throws -> Data{
@@ -28,4 +26,24 @@ class ImageUpload: Uploadable {
     }
     
     
+}
+
+struct ImageDownload: Downloadable {
+    let id: UUID
+    let mediaUrl: String
+}
+
+struct ImageView: PostView {
+    
+    let post: Post
+    let image: ImageDownload
+    
+    init(post: Post, image: ImageDownload) {
+        self.post = post
+        self.image = image
+    }
+    
+    var body: some View {
+        EmptyView()
+    }
 }
