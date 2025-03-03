@@ -35,7 +35,7 @@ struct PostManager {
     }
     
     static func uploadMediaPost(media: Media, data: Data, caption: String? = nil) async throws -> Data {
-        let postData: Data = try await uploadPost(media: media)
+        let postData: Data = try await uploadPost(media: media, caption: caption)
         let post: Post = try JSONDecoder().decode(Post.self, from: postData)
         
         let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
