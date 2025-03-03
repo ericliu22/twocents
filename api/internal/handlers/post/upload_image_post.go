@@ -60,7 +60,7 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String(), &file, "image/jpeg")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3" + uploadErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
 			return
 		}
 
@@ -72,6 +72,7 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 		image, createErr := queries.CreateImage(ctx.Request.Context(), imageParams)
 		if createErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to create image on db")
+			gin.DefaultWriter.Write([]byte("Failed to create image" + createErr.Error()))
 			return
 		}
 		ctx.JSON(http.StatusOK, image)

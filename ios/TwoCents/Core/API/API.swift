@@ -123,9 +123,15 @@ struct Request<T: Encodable> {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
+        let firebaseToken = try await AuthenticationManager.getJwtToken()
+        request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
+
         var body = Data()
-        let postData = try JSONEncoder().encode(post)
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        let postData = try encoder.encode(post)
         
         body.append("--\(boundary)\r\n")
         body.append("Content-Disposition: form-data; name=\"post\"\r\n")
@@ -133,8 +139,9 @@ struct Request<T: Encodable> {
         body.append(postData)
         body.append("\r\n")
         
+        print("FILEDATA")
         body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"myimage.jpg\"\r\n")
         body.append("Content-Type: \(mimeType)\r\n\r\n")
         body.append(fileData)
         body.append("\r\n")

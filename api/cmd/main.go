@@ -18,6 +18,7 @@ import (
 
 func main() {
 	router := gin.Default()
+	router.MaxMultipartMemory = 500 << 20 // 500 MB
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
