@@ -38,6 +38,7 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
 		}
+		//@TODO: This is stupid fix this -Eric
 		if user.ID != post.UserID {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			gin.DefaultWriter.Write([]byte("Unauthorized"))

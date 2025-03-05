@@ -31,6 +31,22 @@ func (q *Queries) AddPostToFriendGroup(ctx context.Context, arg AddPostToFriendG
 	return err
 }
 
+const checkPostOwner = `-- name: CheckPostOwner :one
+SELECT EXISTS(SELECT 1 FROM posts WHERE user_id = $1 and id = $2)
+`
+
+type CheckPostOwnerParams struct {
+	UserID uuid.UUID `json:"userId"`
+	ID     uuid.UUID `json:"id"`
+}
+
+func (q *Queries) CheckPostOwner(ctx context.Context, arg CheckPostOwnerParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkPostOwner, arg.UserID, arg.ID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
     id, user_id, media, date_created, caption

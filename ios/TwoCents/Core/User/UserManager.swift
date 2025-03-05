@@ -16,8 +16,8 @@ struct UserManager {
 
     static func registerEmailUser(username: String, email: String, password: String) async throws -> User {
         do {
-            let authResult = try await AuthenticationManager.createEmailUser(email: email, password: password)
-            try await AuthenticationManager.signInUser(email: email, password: password)
+            let _ = try await AuthenticationManager.createEmailUser(email: email, password: password)
+            _ = try await AuthenticationManager.signInUser(email: email, password: password)
             
             let body = [
                 "username": username,

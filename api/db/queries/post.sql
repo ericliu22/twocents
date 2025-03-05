@@ -44,3 +44,6 @@ SELECT sqlc.embed(posts)
 FROM friend_group_posts
 JOIN posts ON friend_group_posts.post_id = posts.id
 WHERE friend_group_posts.group_id = $1;
+
+-- name: CheckPostOwner :one
+SELECT EXISTS(SELECT 1 FROM posts WHERE user_id = $1 and id = $2);

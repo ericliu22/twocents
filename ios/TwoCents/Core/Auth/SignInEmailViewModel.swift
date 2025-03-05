@@ -31,7 +31,7 @@ final class SignInEmailViewModel {
             throw SignInError.emptyField
         }
         
-        let authData = try await AuthenticationManager.signInUser(email: email, password: password)
+        _ = try await AuthenticationManager.signInUser(email: email, password: password)
         return await UserManager.fetchCurrentUser()
     }
 }

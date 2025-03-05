@@ -81,7 +81,10 @@ struct PostTest: View {
                         guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
                         
                         //Some Video/Image -> data
-                        let (imagePost, imageData) = try await PostManager.uploadMediaPost(media: .IMAGE, data: data, caption: "Hello World")
+                        #warning("Don't press this button it will crash -Eric")
+                        //@TODO: Change groups with actual id of groups
+                        let postRequest = PostRequest(media: .IMAGE, caption: "My Image", groups: [UUID(uuidString: "asdfasdf")!])
+                        let (imagePost, imageData) = try await PostManager.uploadMediaPost(postRequest: postRequest, data: data)
                         
                         //Decode return into any Downloadable
                         let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)

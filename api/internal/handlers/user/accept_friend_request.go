@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func AcceptFriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
@@ -32,19 +31,34 @@ func AcceptFriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		friendUUID, parseErr := uuid.Parse(friendRequest.FriendId)
-		if parseErr != nil {
-			ctx.String(http.StatusBadRequest, "Error: Failed to parse UUID")
-			gin.DefaultWriter.Write([]byte("Failed to parse UUID:" + parseErr.Error()))
+		getFriendship := database.GetFriendshipParams {
+			UserID: user.ID,
+			FriendID: friendRequest.FriendId,
+		}
+		friendship, friendshipErr := queries.GetFriendship(ctx.Request.Context(), getFriendship)
+		if friendshipErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve friendship")
+			gin.DefaultWriter.Write([]byte("Failed to fetch friendship:" + userErr.Error()))
+			return
+		}
+		if friendship.FriendID != user.ID {
+			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 
 		updateFriendship := database.UpdateFriendshipStatusParams{
 			UserID:   user.ID,
-			FriendID: friendUUID,
+			FriendID: friendRequest.FriendId,
 			Status:   database.FriendshipStatusACCEPTED,
 		}
-		queries.UpdateFriendshipStatus(ctx.Request.Context(), updateFriendship)
+		_, acceptErr := queries.UpdateFriendshipStatus(ctx.Request.Context(), updateFriendship)
+		if acceptErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to accept friendship")
+			gin.DefaultWriter.Write([]byte("Failed to accept friendship:" + acceptErr.Error()))
+			return
+		}
+
 		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully updated friendship"})
 	}
 }

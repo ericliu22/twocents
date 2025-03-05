@@ -12,8 +12,8 @@ import (
 )
 
 type AddMemberRequest struct {
-	FriendId string `json:"friendId"`
-	GroupId  string `json:"groupId"`
+	FriendId uuid.UUID `json:"friendId"`
+	GroupId  uuid.UUID `json:"groupId"`
 }
 
 func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
@@ -39,16 +39,9 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		friendUUID, parseErr := uuid.Parse(addRequest.FriendId)
-		if parseErr != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + parseErr.Error()))
-			return
-		}
-
 		getFriendship := database.GetFriendshipParams{
 			UserID:   user.ID,
-			FriendID: friendUUID,
+			FriendID: addRequest.FriendId,
 		}
 		friendship, friendErr := queries.GetFriendship(ctx.Request.Context(), getFriendship)
 		if friendErr != nil {
@@ -68,16 +61,10 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}
-		groupUUID, parseErr := uuid.Parse(addRequest.GroupId)
-		if parseErr != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + parseErr.Error()))
-			return
-		}
 
 		addMember := database.AddUserToGroupParams{
-			GroupID:  groupUUID,
-			UserID:   friendUUID,
+			GroupID:  addRequest.GroupId,
+			UserID:   addRequest.FriendId,
 			JoinedAt: currentDate,
 			Role:     database.GroupRoleMEMBER,
 		}

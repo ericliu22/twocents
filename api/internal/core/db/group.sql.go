@@ -48,6 +48,50 @@ func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) 
 	return i, err
 }
 
+const checkUserMembershipForGroups = `-- name: CheckUserMembershipForGroups :many
+WITH input_groups AS (
+    SELECT UNNEST($2::uuid[]) AS group_id
+)
+SELECT
+    ig.group_id::uuid         AS "group_id",
+    (fgm.group_id IS NOT NULL)::boolean AS "is_member"
+FROM input_groups ig
+LEFT JOIN friend_group_members fgm
+       ON ig.group_id = fgm.group_id
+      AND fgm.user_id = $1
+ORDER BY ig.group_id
+`
+
+type CheckUserMembershipForGroupsParams struct {
+	UserID  uuid.UUID   `json:"userId"`
+	Column2 []uuid.UUID `json:"column2"`
+}
+
+type CheckUserMembershipForGroupsRow struct {
+	GroupID  uuid.UUID `json:"groupId"`
+	IsMember bool      `json:"isMember"`
+}
+
+func (q *Queries) CheckUserMembershipForGroups(ctx context.Context, arg CheckUserMembershipForGroupsParams) ([]CheckUserMembershipForGroupsRow, error) {
+	rows, err := q.db.Query(ctx, checkUserMembershipForGroups, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CheckUserMembershipForGroupsRow
+	for rows.Next() {
+		var i CheckUserMembershipForGroupsRow
+		if err := rows.Scan(&i.GroupID, &i.IsMember); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const createFriendGroup = `-- name: CreateFriendGroup :one
 INSERT INTO friend_groups (
     id,
@@ -114,6 +158,42 @@ func (q *Queries) GetFriendGroup(ctx context.Context, id uuid.UUID) (FriendGroup
 		&i.OwnerID,
 	)
 	return i, err
+}
+
+const getFriendGroupsByIDs = `-- name: GetFriendGroupsByIDs :many
+SELECT
+    id,
+    name,
+    date_created,
+    owner_id
+FROM friend_groups
+WHERE id = ANY($1::uuid[])
+ORDER BY name
+`
+
+func (q *Queries) GetFriendGroupsByIDs(ctx context.Context, dollar_1 []uuid.UUID) ([]FriendGroup, error) {
+	rows, err := q.db.Query(ctx, getFriendGroupsByIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FriendGroup
+	for rows.Next() {
+		var i FriendGroup
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.DateCreated,
+			&i.OwnerID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listFriendGroups = `-- name: ListFriendGroups :many

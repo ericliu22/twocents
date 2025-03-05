@@ -10,7 +10,7 @@ import (
 )
 
 type GetPostRequest struct {
-	PostId string `form:"postId"`
+	PostId uuid.UUID `form:"postId"`
 }
 
 func GetPostHandler(queries *database.Queries) gin.HandlerFunc {
@@ -27,13 +27,7 @@ func GetPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		uuid, parseErr := uuid.Parse(postRequest.PostId)
-		if parseErr != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse as UUID"})
-			return
-		}
-
-		post, err := queries.GetPost(ctx.Request.Context(), uuid)
+		post, err := queries.GetPost(ctx.Request.Context(), postRequest.PostId)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts")
 			return

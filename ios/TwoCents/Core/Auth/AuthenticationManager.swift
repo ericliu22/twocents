@@ -28,9 +28,7 @@ struct AuthenticationManager {
         return AuthDataResultModel(user: user)
     }
 
-    #warning(
-        "Don't use this unless absolutely necessary. This shit is essentially the user's password"
-    )
+    //Don't use this unless absolutely necessary. This shit is essentially the user's password
     static func getJwtToken() async throws -> String {
         guard let user = Auth.auth().currentUser else {
             throw AuthErrorCode.nullUser

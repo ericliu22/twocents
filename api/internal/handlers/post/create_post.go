@@ -12,8 +12,9 @@ import (
 )
 
 type CreatePostRequest struct {
-	Media   string  `json:"media" binding:"required"`
-	Caption *string `json:"caption"`
+	Media   string      `json:"media" binding:"required"`
+	Caption *string     `json:"caption"`
+	Groups  []uuid.UUID `json:"groups"`
 }
 
 func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
@@ -33,7 +34,6 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		var createRequest CreatePostRequest
-
 		if bindErr := ctx.ShouldBindJSON(&createRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
@@ -72,6 +72,34 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
 			return
 		}
+
+		checkMembership := database.CheckUserMembershipForGroupsParams{
+			UserID:  user.ID,
+			Column2: createRequest.Groups,
+		}
+		memberships, checkErr := queries.CheckUserMembershipForGroups(ctx.Request.Context(), checkMembership)
+		if checkErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to check membership: "+checkErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
+			return
+		}
+
+		for _, membership := range memberships {
+			if !membership.IsMember {
+				continue
+			}
+			addPost := database.AddPostToFriendGroupParams{
+				GroupID: membership.GroupID,
+				PostID:  post.ID,
+			}
+			addErr := queries.AddPostToFriendGroup(ctx.Request.Context(), addPost)
+			if addErr != nil {
+				ctx.String(http.StatusInternalServerError, "Error: Failed to add to friend group: "+addErr.Error())
+				gin.DefaultWriter.Write([]byte("Failed to add to friend group: " + addErr.Error()))
+				return
+			}
+		}
+
 		ctx.JSON(http.StatusOK, post)
 	}
 }

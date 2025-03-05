@@ -10,6 +10,7 @@ import Foundation
 struct PostRequest: Encodable {
     let media: Media
     let caption: String?
+    let groups: [UUID]
 }
 
 //CanvasWidget: Post
@@ -21,21 +22,19 @@ struct PostManager {
     
     static let POST_URL: URL = API_URL.appending(path: "post")
     
-    static func uploadPost(media: Media, caption: String? = nil) async throws -> Data {
-        let requestBody: PostRequest = PostRequest(media: media, caption: caption)
-        
+    static func uploadPost(postRequest: PostRequest) async throws -> Data {
         let request: Request = Request(
             method: .POST,
             contentType: .json,
             url: POST_URL.appending(path: "create-post"),
-            body: requestBody
+            body: postRequest
         )
         return try await request.sendRequest()
     }
     
-    static func uploadMediaPost(media: Media, data: Data, caption: String? = nil) async throws -> (Post, Data) {
+    static func uploadMediaPost(postRequest: PostRequest, data: Data) async throws -> (Post, Data) {
         //The DBPost
-        let postData: Data = try await uploadPost(media: media, caption: caption)
+        let postData: Data = try await uploadPost(postRequest: postRequest)
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format

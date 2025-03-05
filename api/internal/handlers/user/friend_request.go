@@ -10,7 +10,7 @@ import (
 )
 
 type FriendRequest struct {
-	FriendId string `json:"friendId"`
+	FriendId uuid.UUID `json:"friendId"`
 }
 
 func FriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
@@ -36,16 +36,9 @@ func FriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		friendUUID, parseErr := uuid.Parse(friendRequest.FriendId)
-		if parseErr != nil {
-			ctx.String(http.StatusBadRequest, "Error: Failed to parse UUID")
-			gin.DefaultWriter.Write([]byte("Failed to parse UUID:" + parseErr.Error()))
-			return
-		}
-
 		createFriendship := database.CreateFriendshipParams{
 			UserID:   user.ID,
-			FriendID: friendUUID,
+			FriendID: friendRequest.FriendId,
 			Status:   database.FriendshipStatusPENDING,
 		}
 		_, createErr := queries.CreateFriendship(ctx.Request.Context(), createFriendship)
