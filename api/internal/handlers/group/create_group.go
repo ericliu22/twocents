@@ -42,11 +42,11 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}
-		createGroup := database.CreateFriendGroupParams {
-			ID: uuid.New(),
-			Name: createRequest.Name,
+		createGroup := database.CreateFriendGroupParams{
+			ID:          uuid.New(),
+			Name:        createRequest.Name,
 			DateCreated: currentDate,
-			OwnerID: user.ID,
+			OwnerID:     user.ID,
 		}
 
 		friendGroup, createErr := queries.CreateFriendGroup(ctx.Request.Context(), createGroup)

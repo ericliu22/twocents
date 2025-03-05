@@ -43,10 +43,10 @@ func FriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		createFriendship := database.CreateFriendshipParams {
-			UserID: user.ID,
+		createFriendship := database.CreateFriendshipParams{
+			UserID:   user.ID,
 			FriendID: friendUUID,
-			Status: database.FriendshipStatusPENDING,
+			Status:   database.FriendshipStatusPENDING,
 		}
 		_, createErr := queries.CreateFriendship(ctx.Request.Context(), createFriendship)
 		if createErr != nil {

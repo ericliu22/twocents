@@ -39,10 +39,10 @@ func AcceptFriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		updateFriendship := database.UpdateFriendshipStatusParams {
-			UserID: user.ID,
+		updateFriendship := database.UpdateFriendshipStatusParams{
+			UserID:   user.ID,
 			FriendID: friendUUID,
-			Status: database.FriendshipStatusACCEPTED,
+			Status:   database.FriendshipStatusACCEPTED,
 		}
 		queries.UpdateFriendshipStatus(ctx.Request.Context(), updateFriendship)
 		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully updated friendship"})

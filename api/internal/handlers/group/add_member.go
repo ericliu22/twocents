@@ -13,7 +13,7 @@ import (
 
 type AddMemberRequest struct {
 	FriendId string `json:"friendId"`
-	GroupId string `json:"groupId"`
+	GroupId  string `json:"groupId"`
 }
 
 func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
@@ -46,8 +46,8 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		getFriendship := database.GetFriendshipParams {
-			UserID: user.ID,
+		getFriendship := database.GetFriendshipParams{
+			UserID:   user.ID,
 			FriendID: friendUUID,
 		}
 		friendship, friendErr := queries.GetFriendship(ctx.Request.Context(), getFriendship)
@@ -75,11 +75,11 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		addMember := database.AddUserToGroupParams {
-			GroupID: groupUUID,
-			UserID: friendUUID,
+		addMember := database.AddUserToGroupParams{
+			GroupID:  groupUUID,
+			UserID:   friendUUID,
 			JoinedAt: currentDate,
-			Role: database.GroupRoleMEMBER,
+			Role:     database.GroupRoleMEMBER,
 		}
 
 		friendGroup, addErr := queries.AddUserToGroup(ctx.Request.Context(), addMember)
