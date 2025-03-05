@@ -54,3 +54,44 @@ CREATE TABLE links (
     id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASCADE,
     media_url       TEXT            NOT NULL
 );
+
+CREATE TYPE friendship_status AS ENUM (
+    'PENDING',
+    'ACCEPTED',
+    'BLOCKED'
+);
+
+CREATE TABLE friendships (
+    user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    friend_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status         friendship_status NOT NULL,
+    date_created   DATE NOT NULL,
+    PRIMARY KEY (user_id, friend_id)
+);
+
+CREATE TABLE friend_groups (
+    id              UUID PRIMARY KEY,
+    name            TEXT NOT NULL,
+    date_created    DATE NOT NULL,
+    owner_id        UUID NOT NULL REFERENCES users(id)
+    -- Possibly an "owner_id" if you want to track a user who owns/created the group
+);
+
+CREATE TYPE group_role AS ENUM (
+    'ADMIN',
+    'MEMBER'
+);
+
+CREATE TABLE friend_group_members (
+    group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
+    user_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    joined_at DATE NOT NULL,
+    role     group_role NOT NULL,
+    PRIMARY KEY (group_id, user_id)
+);
+
+CREATE TABLE friend_group_posts (
+    group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
+    post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    PRIMARY KEY (group_id, post_id)
+);

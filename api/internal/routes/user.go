@@ -14,4 +14,6 @@ func SetupUserRoutes(router *gin.RouterGroup, queries *database.Queries, authCli
 	r.GET("/get-user", handlers.GetUserHandler(queries))
 	r.GET("/get-current-user", handlers.GetCurrentUserHandler(queries))
 	r.POST("/register-user", handlers.RegisterUserHandler(queries))
+	r.POST("/friend-request", handlers.FriendRequestHandler(queries))
+	r.POST("/accept-friend-request", handlers.AcceptFriendRequestHandler(queries))
 }

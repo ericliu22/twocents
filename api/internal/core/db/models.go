@@ -12,6 +12,91 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type FriendshipStatus string
+
+const (
+	FriendshipStatusPENDING  FriendshipStatus = "PENDING"
+	FriendshipStatusACCEPTED FriendshipStatus = "ACCEPTED"
+	FriendshipStatusBLOCKED  FriendshipStatus = "BLOCKED"
+)
+
+func (e *FriendshipStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = FriendshipStatus(s)
+	case string:
+		*e = FriendshipStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for FriendshipStatus: %T", src)
+	}
+	return nil
+}
+
+type NullFriendshipStatus struct {
+	FriendshipStatus FriendshipStatus `json:"friendshipStatus"`
+	Valid            bool             `json:"valid"` // Valid is true if FriendshipStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullFriendshipStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.FriendshipStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.FriendshipStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullFriendshipStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.FriendshipStatus), nil
+}
+
+type GroupRole string
+
+const (
+	GroupRoleADMIN  GroupRole = "ADMIN"
+	GroupRoleMEMBER GroupRole = "MEMBER"
+)
+
+func (e *GroupRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GroupRole(s)
+	case string:
+		*e = GroupRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GroupRole: %T", src)
+	}
+	return nil
+}
+
+type NullGroupRole struct {
+	GroupRole GroupRole `json:"groupRole"`
+	Valid     bool      `json:"valid"` // Valid is true if GroupRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGroupRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.GroupRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GroupRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGroupRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GroupRole), nil
+}
+
 type MediaType string
 
 const (
@@ -99,6 +184,32 @@ func (ns NullProviderType) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.ProviderType), nil
+}
+
+type FriendGroup struct {
+	ID          uuid.UUID   `json:"id"`
+	Name        string      `json:"name"`
+	DateCreated pgtype.Date `json:"dateCreated"`
+	OwnerID     uuid.UUID   `json:"ownerId"`
+}
+
+type FriendGroupMember struct {
+	GroupID  uuid.UUID   `json:"groupId"`
+	UserID   uuid.UUID   `json:"userId"`
+	JoinedAt pgtype.Date `json:"joinedAt"`
+	Role     GroupRole   `json:"role"`
+}
+
+type FriendGroupPost struct {
+	GroupID uuid.UUID `json:"groupId"`
+	PostID  uuid.UUID `json:"postId"`
+}
+
+type Friendship struct {
+	UserID      uuid.UUID        `json:"userId"`
+	FriendID    uuid.UUID        `json:"friendId"`
+	Status      FriendshipStatus `json:"status"`
+	DateCreated pgtype.Date      `json:"dateCreated"`
 }
 
 type Image struct {

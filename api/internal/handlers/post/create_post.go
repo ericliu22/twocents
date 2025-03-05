@@ -70,6 +70,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		if createErr != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to create post: "+createErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
+			return
 		}
 		ctx.JSON(http.StatusOK, post)
 	}

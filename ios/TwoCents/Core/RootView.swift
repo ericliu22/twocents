@@ -35,11 +35,13 @@ struct RootView: View {
                     Label("Profile", systemImage: "person.fill")
                 }
         }
-        .onAppear {
+        .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
             
             if authUser == nil {
                 appModel.activeSheet = .signIn
+            } else if appModel.currentUser == nil {
+                appModel.currentUser = await UserManager.fetchCurrentUser()
             }
         }
         .fullScreenCover(item: $appModel.activeSheet) { item in

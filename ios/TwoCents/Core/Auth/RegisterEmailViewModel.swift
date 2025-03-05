@@ -32,7 +32,7 @@ final class RegisterEmailViewModel {
     var errorMessage = ""
   
     
-    func signUp() async throws {
+    func signUp() async throws -> User? {
         guard !email.isEmpty, !password.isEmpty, !name.isEmpty, /*!username.isEmpty,*/ !confirmPassword.isEmpty else {
             throw RegisterEmailError.emptyField
         }
@@ -42,7 +42,7 @@ final class RegisterEmailViewModel {
         }
         
         do {
-            try await UserManager.registerEmailUser(username: username, email: email, password: password)
+            return try await UserManager.registerEmailUser(username: username, email: email, password: password)
         } catch let error {
             print(error.localizedDescription)
             throw error

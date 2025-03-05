@@ -12,19 +12,20 @@ import (
 
 	"firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/api/option"
 )
 
 func main() {
 	router := gin.Default()
 	router.MaxMultipartMemory = 500 << 20 // 500 MB
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	conn, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	conn.Config().MaxConns = 100
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
 	queries := database.New(conn)
 

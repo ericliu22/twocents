@@ -82,7 +82,7 @@ struct RegisterEmailView: View {
                 //signUp
                 Task {
                     do {
-                        try await viewModel.signUp()
+                        appModel.currentUser = try await viewModel.signUp()
                         appModel.activeSheet  = nil
                         doneRegistering = true
                     } catch {

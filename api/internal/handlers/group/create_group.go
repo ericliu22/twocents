@@ -1,0 +1,61 @@
+package handlers
+
+import (
+	database "api/internal/core/db"
+	"api/internal/middleware"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type CreateGroupRequest struct {
+	Name string `json:"name"`
+}
+
+func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token, tokenErr := middleware.GetAuthToken(ctx)
+		if tokenErr != nil {
+			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
+			return
+		}
+		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
+		if userErr != nil {
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
+			return
+		}
+		var createRequest CreateGroupRequest
+		if bindErr := ctx.Bind(&createRequest); bindErr != nil {
+
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
+			return
+		}
+
+		currentDate := pgtype.Date{
+			Time:             time.Now(),
+			InfinityModifier: pgtype.Finite,
+			Valid:            true,
+		}
+		createGroup := database.CreateFriendGroupParams {
+			ID: uuid.New(),
+			Name: createRequest.Name,
+			DateCreated: currentDate,
+			OwnerID: user.ID,
+		}
+
+		friendGroup, createErr := queries.CreateFriendGroup(ctx.Request.Context(), createGroup)
+		if createErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to create post: "+createErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, friendGroup)
+	}
+}

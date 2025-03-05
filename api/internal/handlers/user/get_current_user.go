@@ -16,9 +16,14 @@ func GetCurrentUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		userProfile, err := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
-		if err != nil {
+		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
+		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve user")
+			return
+		}
+		userProfile, profileErr := queries.GetUserProfile(ctx.Request.Context(), user.ID)
+		if profileErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve user profile")
 			return
 		}
 		ctx.JSON(http.StatusOK, userProfile)
