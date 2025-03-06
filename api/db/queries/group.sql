@@ -72,7 +72,7 @@ FROM friend_group_members
 WHERE group_id = $1;
 
 -- name: ListUserGroups :many
-SELECT sqlc.embed(friend_group_members), sqlc.embed(friend_groups)
+SELECT sqlc.embed(friend_groups)
 FROM friend_group_members
 JOIN friend_groups ON friend_group_members.group_id = friend_groups.id
 WHERE friend_group_members.user_id = $1;
@@ -90,3 +90,13 @@ LEFT JOIN friend_group_members fgm
       AND fgm.user_id = $1
 ORDER BY ig.group_id;
 
+
+-- name: ListGroupMembersWithProfiles :many
+SELECT sqlc.embed(friend_group_members), sqlc.embed(user_profiles)
+FROM friend_group_members
+JOIN user_profiles ON user_profiles.user_id = friend_group_members.user_id
+WHERE friend_group_members.group_id = $1
+ORDER BY user_profiles.username;  -- optional
+
+-- name: CheckUserMembership :one
+SELECT EXISTS(SELECT 1 FROM friend_group_members WHERE group_id = $1 and user_id = $2);

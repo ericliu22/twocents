@@ -48,6 +48,24 @@ func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) 
 	return i, err
 }
 
+const checkUserMembership = `-- name: CheckUserMembership :one
+
+SELECT EXISTS(SELECT 1 FROM friend_group_members WHERE group_id = $1 and user_id = $2)
+`
+
+type CheckUserMembershipParams struct {
+	GroupID uuid.UUID `json:"groupId"`
+	UserID  uuid.UUID `json:"userId"`
+}
+
+// optional
+func (q *Queries) CheckUserMembership(ctx context.Context, arg CheckUserMembershipParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserMembership, arg.GroupID, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const checkUserMembershipForGroups = `-- name: CheckUserMembershipForGroups :many
 WITH input_groups AS (
     SELECT UNNEST($2::uuid[]) AS group_id
@@ -265,16 +283,57 @@ func (q *Queries) ListGroupMembers(ctx context.Context, groupID uuid.UUID) ([]Fr
 	return items, nil
 }
 
+const listGroupMembersWithProfiles = `-- name: ListGroupMembersWithProfiles :many
+SELECT friend_group_members.group_id, friend_group_members.user_id, friend_group_members.joined_at, friend_group_members.role, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+FROM friend_group_members
+JOIN user_profiles ON user_profiles.user_id = friend_group_members.user_id
+WHERE friend_group_members.group_id = $1
+ORDER BY user_profiles.username
+`
+
+type ListGroupMembersWithProfilesRow struct {
+	FriendGroupMember FriendGroupMember `json:"friendGroupMember"`
+	UserProfile       UserProfile       `json:"userProfile"`
+}
+
+func (q *Queries) ListGroupMembersWithProfiles(ctx context.Context, groupID uuid.UUID) ([]ListGroupMembersWithProfilesRow, error) {
+	rows, err := q.db.Query(ctx, listGroupMembersWithProfiles, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListGroupMembersWithProfilesRow
+	for rows.Next() {
+		var i ListGroupMembersWithProfilesRow
+		if err := rows.Scan(
+			&i.FriendGroupMember.GroupID,
+			&i.FriendGroupMember.UserID,
+			&i.FriendGroupMember.JoinedAt,
+			&i.FriendGroupMember.Role,
+			&i.UserProfile.UserID,
+			&i.UserProfile.ProfilePic,
+			&i.UserProfile.Username,
+			&i.UserProfile.Name,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUserGroups = `-- name: ListUserGroups :many
-SELECT friend_group_members.group_id, friend_group_members.user_id, friend_group_members.joined_at, friend_group_members.role, friend_groups.id, friend_groups.name, friend_groups.date_created, friend_groups.owner_id
+SELECT friend_groups.id, friend_groups.name, friend_groups.date_created, friend_groups.owner_id
 FROM friend_group_members
 JOIN friend_groups ON friend_group_members.group_id = friend_groups.id
 WHERE friend_group_members.user_id = $1
 `
 
 type ListUserGroupsRow struct {
-	FriendGroupMember FriendGroupMember `json:"friendGroupMember"`
-	FriendGroup       FriendGroup       `json:"friendGroup"`
+	FriendGroup FriendGroup `json:"friendGroup"`
 }
 
 func (q *Queries) ListUserGroups(ctx context.Context, userID uuid.UUID) ([]ListUserGroupsRow, error) {
@@ -287,10 +346,6 @@ func (q *Queries) ListUserGroups(ctx context.Context, userID uuid.UUID) ([]ListU
 	for rows.Next() {
 		var i ListUserGroupsRow
 		if err := rows.Scan(
-			&i.FriendGroupMember.GroupID,
-			&i.FriendGroupMember.UserID,
-			&i.FriendGroupMember.JoinedAt,
-			&i.FriendGroupMember.Role,
 			&i.FriendGroup.ID,
 			&i.FriendGroup.Name,
 			&i.FriendGroup.DateCreated,

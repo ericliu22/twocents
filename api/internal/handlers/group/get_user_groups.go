@@ -8,26 +8,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetCurrentUserHandler(queries *database.Queries) gin.HandlerFunc {
+func GetUserGroupsHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
-
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
-		userProfile, profileErr := queries.GetUserProfile(ctx.Request.Context(), user.ID)
-		if profileErr != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve user profile")
-			gin.DefaultWriter.Write([]byte("Failed to retrieve user profile: " + profileErr.Error()))
-			return
+
+		userGroups, groupErr := queries.ListUserGroups(ctx.Request.Context(), user.ID)
+		if groupErr != nil {
+			ctx.String(http.StatusInternalServerError, "Failed to fetch groups: " + groupErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch groups: " + groupErr.Error()))
 		}
-		ctx.JSON(http.StatusOK, userProfile)
+
+		//DOGSHIT PLEASE FIX
+		var groups []database.FriendGroup
+		for _, group := range userGroups {
+			groups = append(groups, group.FriendGroup)
+		}
+		ctx.JSON(http.StatusOK, groups)
 	}
 }

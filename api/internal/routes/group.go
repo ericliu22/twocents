@@ -14,4 +14,5 @@ func SetupGroupRoutes(router *gin.RouterGroup, queries *database.Queries, authCl
 	r.POST("/create-group", handlers.CreateGroupHandler(queries))
 	r.POST("/add-member", handlers.AddMemberHandler(queries))
 	r.POST("/add-post", handlers.AddPostHandler(queries))
+	r.GET("/get-members", handlers.GetMembersHandler(queries))
 }

@@ -58,7 +58,6 @@ func AcceptFriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to accept friendship:" + acceptErr.Error()))
 			return
 		}
-
 		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully updated friendship"})
 	}
 }

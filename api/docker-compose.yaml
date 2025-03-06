@@ -43,6 +43,32 @@ services:
     volumes:
       - ./certbot/www:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt:rw
+  zookeeper:
+    image: apache/zookeeper:latest
+    restart: unless-stopped
+    networks:
+      - api-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: apache/kafka:latest
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    networks:
+      - api-network
+      #ports:
+      #- "9092:9092"
+    environment:
+      AFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      # For a single-broker dev setup, replication factor is 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 volumes:
   pgdata:
 
