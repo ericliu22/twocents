@@ -48,7 +48,7 @@ services:
     image: rabbitmq:management-alpine
     env_file:
       #Requires RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS
-      - message.api
+      - message.env
     ports:
       - "5672:5672"     # AMQP port
       - "15672:15672"   # Management UI (use http://localhost:15672)
