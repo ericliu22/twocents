@@ -5,11 +5,11 @@ struct ExploreView: View {
     @State private var isLoading = false
     @State private var selectedItem: ExploreItem? = nil
     @Namespace private var namespace
-
+    
     let columns = [
         GridItem(.adaptive(minimum: 150), spacing: 5)
     ]
-
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -62,7 +62,7 @@ struct ExploreView: View {
 struct ExploreCard: View {
     let item: ExploreItem
     let namespace: Namespace.ID
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             AsyncImage(url: URL(string: item.imageUrl)) { phase in
@@ -121,7 +121,6 @@ struct ExploreCard: View {
     }
 }
 
-
 struct ExploreDetailView: View {
     let item: ExploreItem
     let namespace: Namespace.ID
@@ -131,40 +130,20 @@ struct ExploreDetailView: View {
     @State private var dragOffset: CGFloat = 0
     
     // Compute a scale factor that reduces as the user drags down.
-    // This will shrink the entire page.
     private var scale: CGFloat {
-        // Drag offset capped to 150 points for scaling calculations
         let cappedOffset = min(dragOffset, 150)
-        // Reduce the scale by up to 15%
         return 1 - (cappedOffset / 150 * 0.15)
     }
     
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            // Background to capture gestures
-            Color.black.opacity(0.001)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                AsyncImage(url: URL(string: item.imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                    } else {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                    }
-                }
-                .frame(maxHeight: 400)
+        NavigationView {
+            ZStack {
+                // Background to capture gestures
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(item.caption)
-                        .font(.title)
-                        .padding(.horizontal)
-                    
+                VStack(alignment: .leading, spacing: 0) {
+                    // Header with profile image and name
                     HStack {
                         AsyncImage(url: URL(string: item.profileImageUrl)) { phase in
                             if let image = phase.image {
@@ -181,58 +160,78 @@ struct ExploreDetailView: View {
                                     .matchedGeometryEffect(id: "profile-\(item.id)", in: namespace)
                             }
                         }
-                        VStack(alignment: .leading) {
-                            Text("Likes: \(item.likes)")
-                            Text("Comments: \(item.comments)")
+                        
+                        Text("Firstname Lastname")
+                            .font(.title3)
+                    }
+                    .padding()
+                    
+                    // Main image
+                    AsyncImage(url: URL(string: item.imageUrl)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
+                        } else {
+                            Rectangle()
+                                .fill(Color.yellow.gradient.opacity(0.3))
+                                .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
                         }
                     }
-                    .padding(.horizontal)
+                    .aspectRatio(3/4, contentMode: .fill)
+                    
+                    // Likes, comments, and caption
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Likes: \(item.likes)")
+                        Text("Comments: \(item.comments)")
+                        Text(item.caption)
+                            .font(.headline)
+                            .fontWeight(.regular)
+                    }
+                    .padding()
                     
                     Spacer()
                 }
-            }
-            // Apply the scale and vertical offset to the entire content.
-            .background(Color.white)
-            .cornerRadius(12)
-            .scaleEffect(scale)
-            .offset(y: dragOffset)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: dragOffset)
-            // Attach a drag gesture to the whole container
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        // Only track downward drags
-                        if value.translation.height > 0 {
-                            dragOffset = value.translation.height
-                        }
-                    }
-                    .onEnded { _ in
-                        // If dragged enough, dismiss the view; otherwise, animate back
-                        if dragOffset > 150 {
-                            onDismiss()
-                        } else {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                dragOffset = 0
+                // Use UIScreen.main.bounds.width for the default width
+                .frame(width: UIScreen.main.bounds.width)
+                .background(Color.white)
+                .cornerRadius(12)
+                .scaleEffect(scale)
+                .offset(y: dragOffset)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: dragOffset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                dragOffset = value.translation.height
                             }
                         }
+                        .onEnded { _ in
+                            if dragOffset > 150 {
+                                onDismiss()
+                            } else {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    dragOffset = 0
+                                }
+                            }
+                        }
+                )
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
                     }
-            )
-            
-            // A close button at the top right
-            Button(action: {
-                onDismiss()
-            }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.largeTitle)
-                    .padding()
+                }
             }
         }
         .ignoresSafeArea()
     }
 }
 
-
-// MARK: - ExploreItem Model
 struct ExploreItem: Identifiable, Equatable {
     let id = UUID()
     let imageUrl: String
@@ -240,7 +239,7 @@ struct ExploreItem: Identifiable, Equatable {
     let caption: String
     let likes: Int
     let comments: Int
-
+    
     static let sampleData: [ExploreItem] = [
         ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?nature",
                     profileImageUrl: "https://source.unsplash.com/100x100/?face",
@@ -255,7 +254,7 @@ struct ExploreItem: Identifiable, Equatable {
                     caption: "Delicious homemade ramen with extra toppings.",
                     likes: 200, comments: 60),
     ]
-
+    
     static func generateMoreData() -> [ExploreItem] {
         return [
             ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?technology",
