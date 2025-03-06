@@ -28,7 +28,7 @@ struct CreatePostView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
                         ForEach(mediaOptions, id: \ .label) { option in
-                            mediaButton(icon: option.icon, label: option.label) {
+                            mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
                                 mediaType = option.type
                                 if mediaType == .IMAGE { showMediaPicker.toggle() }
                             }
@@ -38,13 +38,25 @@ struct CreatePostView: View {
                 }
                 
                 if mediaType == .LINK {
-                    TextField("Enter URL", text: $mediaURL)
+                    HStack {
+                        TextField("Enter URL", text: $mediaURL)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                            .keyboardType(.URL)
+                            .autocapitalization(.none)
+                        
+                        Button("Paste") {
+                            if let clipboard = UIPasteboard.general.string {
+                                mediaURL = clipboard
+                            }
+                        }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.blue)
+                        .foregroundColor(.white)
                         .cornerRadius(10)
-                        .keyboardType(.URL)
-                        .autocapitalization(.none)
-                        .padding(.horizontal)
+                    }
+                    .padding(.horizontal)
                 } else if mediaType == .IMAGE {
                     if let selectedMedia = selectedMedia {
                         mediaPreview(selectedMedia: selectedMedia)
@@ -86,14 +98,14 @@ struct CreatePostView: View {
         }
     }
     
-    private func mediaButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
+    private func mediaButton(icon: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack {
                 Image(systemName: icon)
                     .font(.title)
-                    .foregroundColor(.blue)
+                    .foregroundColor(isSelected ? .white : .blue)
                     .frame(width: 64, height: 64)
-                    .background(Circle().fill(Color(.systemGray5)))
+                    .background(Circle().fill(isSelected ? Color.blue : Color(.systemGray5)))
                 Text(label)
                     .font(.caption)
                     .foregroundColor(.primary)
