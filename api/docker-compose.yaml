@@ -44,7 +44,7 @@ services:
       - ./certbot/www:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt:rw
   zookeeper:
-    image: apache/zookeeper:latest
+    image: zookeeper:latest
     restart: unless-stopped
     networks:
       - api-network

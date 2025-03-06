@@ -31,8 +31,8 @@ func AcceptFriendRequestHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		getFriendship := database.GetFriendshipParams {
-			UserID: user.ID,
+		getFriendship := database.GetFriendshipParams{
+			UserID:   user.ID,
 			FriendID: friendRequest.FriendId,
 		}
 		friendship, friendshipErr := queries.GetFriendship(ctx.Request.Context(), getFriendship)
