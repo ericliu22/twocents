@@ -27,20 +27,20 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
-
+		
 		var getRequest GetMembersRequest
 		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			return
 		}
 
-		checkMembership := database.CheckUserMembershipParams{
+		checkMembership := database.CheckUserMembershipParams {
 			GroupID: getRequest.GroupId,
-			UserID:  user.ID,
+			UserID: user.ID,
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to check membership: " + checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
 			return
 		}
@@ -52,7 +52,7 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		membersList, getErr := queries.ListGroupMembersWithProfiles(ctx.Request.Context(), checkMembership.GroupID)
 		if getErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to get members: "+getErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to get members: " + getErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to get members: " + getErr.Error()))
 			return
 		}

@@ -25,7 +25,7 @@ func GetUserGroupsHandler(queries *database.Queries) gin.HandlerFunc {
 
 		userGroups, groupErr := queries.ListUserGroups(ctx.Request.Context(), user.ID)
 		if groupErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch groups: "+groupErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch groups: " + groupErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch groups: " + groupErr.Error()))
 		}
 
