@@ -36,14 +36,25 @@ struct ImageDownload: Downloadable {
 struct ImageView: PostView {
     
     let post: Post
-    let image: ImageDownload
+    @State var image: ImageDownload?
     
-    init(post: Post, image: ImageDownload) {
+    init(post: Post) {
         self.post = post
-        self.image = image
     }
     
     var body: some View {
-        EmptyView()
+        ZStack {
+            if let image {
+                if let url = URL(string: image.mediaUrl) {
+                    CachedImage(imageUrl: url)
+                }
+            }
+        }
+        .task {
+            guard let data = try? await PostManager.getMedia(post: post) else {
+                return
+            }
+            image = try? JSONDecoder().decode(ImageDownload.self, from: data)
+        }
     }
 }

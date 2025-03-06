@@ -36,14 +36,25 @@ struct VideoDownload: Downloadable {
 struct VideoView: PostView {
     
     let post: Post
-    let video: VideoDownload
+    @State var video: VideoDownload?
     
-    init(post: Post, video: VideoDownload) {
+    init(post: Post) {
         self.post = post
-        self.video = video
     }
     
     var body: some View {
-        EmptyView()
+        ZStack {
+            if let video {
+                if let url = URL(string: video.mediaUrl) {
+                    CachedVideo(videoUrl: url)
+                }
+            }
+        }
+        .task {
+            guard let data = try? await PostManager.getMedia(post: post) else {
+                return
+            }
+            video = try? JSONDecoder().decode(VideoDownload.self, from: data)
+        }
     }
 }

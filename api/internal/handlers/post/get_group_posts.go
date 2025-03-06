@@ -9,35 +9,33 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetMembersRequest struct {
+type GetGroupPostsRequest struct {
 	GroupId uuid.UUID `form:"groupId"`
 }
 
-func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
+func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
-			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: " + userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
 
-		var getRequest GetMembersRequest
+		var getRequest GetGroupPostsRequest
 		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
 			return
 		}
-
-		checkMembership := database.CheckUserMembershipParams{
+		checkMembership := database.CheckUserMembershipParams {
 			GroupID: getRequest.GroupId,
-			UserID:  user.ID,
+			UserID: user.ID,
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
@@ -51,13 +49,17 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
-		membersList, getErr := queries.ListGroupMembersWithProfiles(ctx.Request.Context(), checkMembership.GroupID)
-		if getErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to get members: "+getErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to get members: " + getErr.Error()))
+
+		postLists, err := queries.ListPostsForGroup(ctx.Request.Context(), getRequest.GroupId)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts")
 			return
 		}
-
-		ctx.JSON(http.StatusOK, membersList)
+		//DOGSHIT PLEASE FIX
+		var posts []database.Post
+		for _, post := range postLists {
+			posts = append(posts, post.Post)
+		}
+		ctx.JSON(http.StatusOK, posts)
 	}
 }

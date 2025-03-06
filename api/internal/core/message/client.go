@@ -54,6 +54,14 @@ func (client *Client) writePump() {
 
 // ServeWS upgrades the HTTP connection to a WebSocket, registers the client with the hub
 func ServeWS(hub *Hub, w http.ResponseWriter, r *http.Request) {
+    upgrader := websocket.Upgrader{
+        ReadBufferSize:  1024,
+        WriteBufferSize: 1024,
+        CheckOrigin: func(r *http.Request) bool {
+            // Perform your origin checks if you need them
+            return true
+        },
+    }
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Println("Error upgrading to websocket:", err)

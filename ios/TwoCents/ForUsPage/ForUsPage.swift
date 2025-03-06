@@ -41,6 +41,7 @@ struct ForUsPostView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             // Full-screen media view (gray placeholder)
+            //Use makePostView(post: Post, postMedia: any Downloadable)
             Rectangle()
                 .fill(Color.blue.gradient)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

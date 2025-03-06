@@ -20,9 +20,12 @@ class Post: Codable {
     var media: Media
     var dateCreated: Date
     var caption: String?
-    
+
     // New initializer to create Post objects with specific values.
-    init(id: UUID, userId: UUID, media: Media, dateCreated: Date, caption: String?) {
+    init(
+        id: UUID, userId: UUID, media: Media, dateCreated: Date,
+        caption: String?
+    ) {
         self.id = id
         self.userId = userId
         self.media = media
@@ -31,18 +34,17 @@ class Post: Codable {
     }
 }
 
-
 protocol PostView: View {
     var post: Post { get }
 }
 
 protocol Uploadable: Identifiable, Codable {
-    
+
     func uploadPost() async throws -> Data
 }
 
 protocol Downloadable: Codable {
-    
+
 }
 
 func makeUploadable(post: Post, data: Data) -> any Uploadable {
@@ -59,26 +61,14 @@ func makeUploadable(post: Post, data: Data) -> any Uploadable {
 }
 
 @ViewBuilder
-func makePostView(post: Post, postMedia: any Downloadable) -> some View {
+func makePostView(post: Post) -> some View {
     switch post.media {
     case .IMAGE:
-        if let imageDownload = postMedia as? ImageDownload {
-            ImageView(post: post, image: imageDownload)
-        } else {
-            EmptyPostView(post: post)
-        }
+        ImageView(post: post)
     case .VIDEO:
-        if let videoDownload = postMedia as? VideoDownload {
-            VideoView(post: post, video: videoDownload)
-        } else {
-            EmptyPostView(post: post)
-        }
+        VideoView(post: post)
     case .LINK:
-        if let linkDownload = postMedia as? LinkDownload {
-            LinkView(post: post, link: linkDownload)
-         } else {
-             EmptyPostView(post: post)
-         }
+        LinkView(post: post)
     default:
         EmptyPostView(post: post)
     }
@@ -86,11 +76,11 @@ func makePostView(post: Post, postMedia: any Downloadable) -> some View {
 
 struct EmptyPostView: PostView {
     let post: Post
-    
+
     init(post: Post) {
         self.post = post
     }
-    
+
     var body: some View {
         EmptyView()
     }

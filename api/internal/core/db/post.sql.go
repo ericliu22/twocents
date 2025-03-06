@@ -47,6 +47,29 @@ func (q *Queries) CheckPostOwner(ctx context.Context, arg CheckPostOwnerParams) 
 	return exists, err
 }
 
+const checkUserMemberOfPostGroups = `-- name: CheckUserMemberOfPostGroups :one
+SELECT EXISTS (
+    SELECT 1
+    FROM friend_group_members
+    JOIN friend_group_posts ON friend_group_members.group_id = friend_group_posts.group_id
+    WHERE friend_group_members.user_id = $1
+      AND friend_group_posts.post_id = $2
+    LIMIT 1
+)
+`
+
+type CheckUserMemberOfPostGroupsParams struct {
+	UserID uuid.UUID `json:"userId"`
+	PostID uuid.UUID `json:"postId"`
+}
+
+func (q *Queries) CheckUserMemberOfPostGroups(ctx context.Context, arg CheckUserMemberOfPostGroupsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserMemberOfPostGroups, arg.UserID, arg.PostID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
     id, user_id, media, date_created, caption
