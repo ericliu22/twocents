@@ -8,7 +8,7 @@
 import AVKit
 import SwiftUI
 
-struct VideoWidgetSheetView: View {
+struct CachedVideo: View {
 
     let videoUrl: URL
     @State var videoPlayer: AVPlayer?

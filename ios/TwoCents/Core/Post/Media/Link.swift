@@ -58,14 +58,13 @@ struct LinkDownload: Downloadable {
 struct LinkView: PostView {
     
     let post: Post
-    let link: LinkDownload
+    @State var link: LinkDownload?
     
-    init(post: Post, link: LinkDownload) {
+    init(post: Post) {
         self.post = post
-        self.link = link
     }
     
     var body: some View {
-        EmptyView()
+        Text("Not implemented yet")
     }
 }

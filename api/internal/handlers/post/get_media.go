@@ -9,37 +9,37 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetMembersRequest struct {
-	GroupId uuid.UUID `form:"groupId"`
+type GetMediaRequest struct {
+	PostId uuid.UUID `form:"postId"`
+	Media database.MediaType `form:"media"`
 }
 
-func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
+func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
-			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: " + userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
 
-		var getRequest GetMembersRequest
+		var getRequest GetMediaRequest
 		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
 			return
 		}
 
-		checkMembership := database.CheckUserMembershipParams{
-			GroupID: getRequest.GroupId,
-			UserID:  user.ID,
+		checkMembership := database.CheckUserMemberOfPostGroupsParams {
+			UserID: user.ID,
+			PostID: getRequest.PostId,
 		}
-		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
+		isMember, checkErr := queries.CheckUserMemberOfPostGroups(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to check membership: " + checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
@@ -51,13 +51,22 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
-		membersList, getErr := queries.ListGroupMembersWithProfiles(ctx.Request.Context(), checkMembership.GroupID)
-		if getErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to get members: "+getErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to get members: " + getErr.Error()))
+		var media any
+		var mediaErr error
+		switch getRequest.Media {
+		case database.MediaTypeIMAGE:
+			media, mediaErr = queries.GetImage(ctx.Request.Context(), getRequest.PostId)
+		case database.MediaTypeVIDEO:
+			media, mediaErr = queries.GetVideo(ctx.Request.Context(), getRequest.PostId)
+		case database.MediaTypeLINK:
+			media, mediaErr = queries.GetLink(ctx.Request.Context(), getRequest.PostId)
+		}
+		if mediaErr != nil {
+			ctx.String(http.StatusInternalServerError, "Failed to fetch media: " + mediaErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch media: " + mediaErr.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, membersList)
+		ctx.JSON(http.StatusOK, media)
 	}
 }

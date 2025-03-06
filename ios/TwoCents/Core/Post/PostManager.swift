@@ -48,4 +48,20 @@ struct PostManager {
         let data: Data = try await uploadPost.uploadPost()
         return (post, data)
     }
+    
+    static func getGroupPosts(groupId: UUID) async throws -> Data {
+        let request: Request = Request<String> (
+            method: .GET,
+            contentType: .json,
+            url: POST_URL.appending(path: "get-group-posts?groupId=\(groupId)"))
+        return try await request.sendRequest()
+    }
+    
+    static func getMedia(post: Post) async throws -> Data {
+        let request: Request = Request<String> (
+            method: .GET,
+            contentType: .json,
+            url: POST_URL.appending(path: "get-media?postId=\(post.id)&media=\(post.media)"))
+        return try await request.sendRequest()
+    }
 }
