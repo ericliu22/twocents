@@ -24,7 +24,7 @@ class GroupMember: Codable {
     let member: Member
 }
 
-class Group: Identifiable, Codable {
+class FriendGroup: Identifiable, Codable {
     
     let id: UUID
     var name: String
