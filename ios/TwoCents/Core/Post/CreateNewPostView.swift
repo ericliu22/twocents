@@ -3,11 +3,17 @@ import AVKit
 
 struct CreatePostView: View {
     @State private var caption: String = ""
-    @State private var mediaType: Media = .OTHER
+    @State private var mediaType: Media = .IMAGE
     @State private var mediaURL: String = ""
     @State private var selectedMedia: URL? = nil
     @State private var showMediaPicker = false
     @State private var isPosting = false
+    
+    let mediaOptions: [(icon: String, label: String, type: Media)] = [
+        ("photo.fill", "Image/Video", .IMAGE),
+        ("link", "Link", .LINK),
+        ("ellipsis", "Other", .OTHER)
+    ]
     
     var body: some View {
         NavigationStack {
@@ -19,13 +25,17 @@ struct CreatePostView: View {
                     .font(.body)
                     .padding(.horizontal)
                 
-                Picker("Select Media Type", selection: $mediaType) {
-                    Text("Image/Video").tag(Media.IMAGE)
-                    Text("Link").tag(Media.LINK)
-                    Text("Other").tag(Media.OTHER)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(mediaOptions, id: \ .label) { option in
+                            mediaButton(icon: option.icon, label: option.label) {
+                                mediaType = option.type
+                                if mediaType == .IMAGE { showMediaPicker.toggle() }
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
                 
                 if mediaType == .LINK {
                     TextField("Enter URL", text: $mediaURL)
@@ -36,38 +46,9 @@ struct CreatePostView: View {
                         .autocapitalization(.none)
                         .padding(.horizontal)
                 } else if mediaType == .IMAGE {
-                    Button(action: { showMediaPicker.toggle() }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(.systemGray6))
-                                .frame(height: 150)
-                                .overlay(
-                                    Group {
-                                        if let selectedMedia = selectedMedia {
-                                            if isVideo(url: selectedMedia) {
-                                                VideoPlayer(player: AVPlayer(url: selectedMedia))
-                                                    .frame(height: 150)
-                                            } else {
-                                                Image(uiImage: UIImage(contentsOfFile: selectedMedia.path) ?? UIImage())
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(height: 150)
-                                            }
-                                        } else {
-                                            VStack {
-                                                Image(systemName: "photo.fill")
-                                                    .font(.largeTitle)
-                                                    .foregroundColor(.gray)
-                                                Text("Select Image/Video")
-                                                    .foregroundColor(.gray)
-                                                    .font(.subheadline)
-                                            }
-                                        }
-                                    }
-                                )
-                        }
+                    if let selectedMedia = selectedMedia {
+                        mediaPreview(selectedMedia: selectedMedia)
                     }
-                    .padding(.horizontal)
                 }
                 
                 Spacer()
@@ -100,10 +81,46 @@ struct CreatePostView: View {
     
     private func createPost() {
         isPosting = true
-        // Handle post creation logic here
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             isPosting = false
         }
+    }
+    
+    private func mediaButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack {
+                Image(systemName: icon)
+                    .font(.title)
+                    .foregroundColor(.blue)
+                    .frame(width: 64, height: 64)
+                    .background(Circle().fill(Color(.systemGray5)))
+                Text(label)
+                    .font(.caption)
+                    .foregroundColor(.primary)
+            }
+        }
+    }
+    
+    private func mediaPreview(selectedMedia: URL) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(.systemGray6))
+                .frame(height: 150)
+                .overlay(
+                    Group {
+                        if isVideo(url: selectedMedia) {
+                            VideoPlayer(player: AVPlayer(url: selectedMedia))
+                                .frame(height: 150)
+                        } else {
+                            Image(uiImage: UIImage(contentsOfFile: selectedMedia.path) ?? UIImage())
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 150)
+                        }
+                    }
+                )
+        }
+        .padding(.horizontal)
     }
     
     private func isVideo(url: URL) -> Bool {
