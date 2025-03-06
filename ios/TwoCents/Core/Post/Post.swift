@@ -15,14 +15,22 @@ enum Media: String, Codable {
 }
 
 class Post: Codable {
-    
     let id: UUID
     let userId: UUID
     var media: Media
     var dateCreated: Date
     var caption: String?
     
+    // New initializer to create Post objects with specific values.
+    init(id: UUID, userId: UUID, media: Media, dateCreated: Date, caption: String?) {
+        self.id = id
+        self.userId = userId
+        self.media = media
+        self.dateCreated = dateCreated
+        self.caption = caption
+    }
 }
+
 
 protocol PostView: View {
     var post: Post { get }
