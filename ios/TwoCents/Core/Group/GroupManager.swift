@@ -32,7 +32,7 @@ struct GroupManager {
         return try decoder.decode([GroupMember].self, from: data)
     }
     
-    static func fetchUserGroups() async throws -> [Group] {
+    static func fetchUserGroups() async throws -> [FriendGroup] {
         let request = Request<String> (
             method: .GET,
             contentType: .json,
@@ -44,6 +44,6 @@ struct GroupManager {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        return try decoder.decode([Group].self, from: data)
+        return try decoder.decode([FriendGroup].self, from: data)
     }
 }
