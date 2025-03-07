@@ -214,41 +214,55 @@ struct FullScreenImageView: View {
     let onDelete: () -> Void
     let onDismiss: () -> Void
     
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Color.black.ignoresSafeArea()
-            
-            if let uiImage = UIImage(contentsOfFile: selectedMedia.url.path) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black)
-            } else {
-                Text("Unable to load image")
-                    .foregroundColor(.white)
-            }
-            
-            HStack(spacing: 20) {
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .font(.title)
-                        .padding()
-                        .background(Color.red.opacity(0.7))
-                        .clipShape(Circle())
+
+        var body: some View {
+            NavigationView {
+                ZStack {
+                    Color.white.ignoresSafeArea()
+                    
+                    if let uiImage = UIImage(contentsOfFile: selectedMedia.url.path) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black)
+                    } else {
+                        Text("Unable to load image")
+                            .foregroundColor(.white)
+                    }
                 }
-                
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(.title)
-                        .padding()
-                        .background(Color.gray.opacity(0.7))
-                        .clipShape(Circle())
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    // Top-leading close button
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: onDismiss) {
+                            Image(systemName: "xmark")
+                                .font(.title2)
+                        }
+                    }
+                    
+                    // Bottom toolbar delete button
+                    ToolbarItem(placement: .bottomBar) {
+                        
+                        Button(action: {
+                            
+                        
+                            onDelete()
+                        }, label: {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Remove Image")
+                            }
+                            
+                        })
+                        
+                       
+                    }
                 }
             }
-            .padding()
         }
-    }
+  
+
 }
 
 // Updated MediaPicker that now rebuilds the selection based on the current picker results,
