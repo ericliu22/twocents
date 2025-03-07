@@ -19,12 +19,9 @@ struct CreatePostView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                TextField("Write a caption...", text: $caption)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-                    .font(.body)
-                    .padding(.horizontal)
+ 
+               
+              
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
@@ -35,8 +32,23 @@ struct CreatePostView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
+                   
                 }
+                
+                Divider()
+                
+                
+                TextField("Write a caption...", text: $caption, axis: .vertical)
+
+                    .lineLimit(3, reservesSpace: true)
+                    .font(.body)
+                
+                
+                
+                
+                Divider()
+                
+                
                 
                 if mediaType == .LINK {
                     HStack {
@@ -57,7 +69,7 @@ struct CreatePostView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-                    .padding(.horizontal)
+                   
                 } else if mediaType == .IMAGE {
                     if let selectedMedia = selectedMedia {
                         mediaPreview(selectedMedia: selectedMedia)
@@ -81,9 +93,11 @@ struct CreatePostView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
                 }
-                .padding(.horizontal)
+                
                 .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
             }
+            .padding(.horizontal)
+        
             .padding(.top)
             .navigationTitle("Create Post")
             .sheet(isPresented: $showMediaPicker) {
