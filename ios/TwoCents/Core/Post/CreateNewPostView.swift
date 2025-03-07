@@ -37,7 +37,7 @@ struct CreatePostView: View {
                             ForEach(mediaOptions, id: \.label) { option in
                                 mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
                                     mediaType = option.type
-                                    if mediaType == .IMAGE { showMediaPicker.toggle() }
+                                    if mediaType == .IMAGE && selectedMedia == [] { showMediaPicker.toggle() }
                                 }
                             }
                         }
@@ -76,8 +76,21 @@ struct CreatePostView: View {
                         
                     case .IMAGE:
                         if selectedMedia.isEmpty {
-                            Text("No media selected")
-                                .foregroundColor(.secondary)
+                            // Grey box with plus icon to add more images.
+                            Button(action: {
+                                showMediaPicker.toggle()
+                            }) {
+                                ZStack {
+                                    Rectangle()
+                                        .fill(Color(.systemGray5))
+                                        .frame(width: 100, height: 100)
+                                        .cornerRadius(10)
+                                    Image(systemName: "plus")
+                                        .font(.title)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
