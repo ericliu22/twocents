@@ -40,7 +40,7 @@ struct CreatePostView: View {
                 
                 TextField("Write a caption...", text: $caption, axis: .vertical)
 
-                    .lineLimit(3, reservesSpace: true)
+                    .lineLimit(5, reservesSpace: true)
                     .font(.body)
                 
                 
