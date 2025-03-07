@@ -4,140 +4,156 @@
 //
 //  Created by Joshua Shen on 2/28/25.
 //
-import SwiftUI
+import AVFoundation
 import UIKit
-import AVKit
-import UniformTypeIdentifiers // For UTType usage
 
-struct CameraPickerView: View {
-    @State private var isShowingCamera = true
-    @State private var selectedImage: UIImage?
-    @State private var selectedVideoURL: URL?
-
-    var body: some View {
-        VStack {
-            if let image = selectedImage {
-                // Display the chosen/captured image
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 300, height: 300)
-            } else if let videoURL = selectedVideoURL {
-                // Play the chosen/captured video
-                VideoPlayer(player: AVPlayer(url: videoURL))
-                    .frame(width: 300, height: 300)
-            } else {
-                Text("Capture or select media")
-            }
+class CameraManager: NSObject, ObservableObject {
+    enum CaptureMode {
+        case photo
+        case video
+    }
+    
+    @Published var isRecording = false
+    @Published var captureMode: CaptureMode = .photo
+    
+    private let session = AVCaptureSession()
+    private var photoOutput = AVCapturePhotoOutput()
+    private var videoOutput = AVCaptureMovieFileOutput()
+    
+    private var previewLayer: AVCaptureVideoPreviewLayer?
+    private var activeInput: AVCaptureDeviceInput?
+    
+    override init() {
+        super.init()
+        setupSession()
+    }
+    
+    private func setupSession() {
+        session.beginConfiguration()
+        
+        // Photo resolution preset (adjust as needed)
+        session.sessionPreset = .high
+        
+        // Setup default camera device
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera,
+                                                   for: .video,
+                                                   position: .back),
+              let input = try? AVCaptureDeviceInput(device: device),
+              session.canAddInput(input)
+        else {
+            return
         }
-        // Automatically present the camera when the view appears
-        .onAppear {
-            isShowingCamera = true
+        
+        session.addInput(input)
+        activeInput = input
+        
+        // Add photo output
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
         }
-        // Present the UIImagePickerController
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker(
-                selectedImage: $selectedImage,
-                selectedVideoURL: $selectedVideoURL
-            )
-        }.ignoresSafeArea()
+        
+        // Add video output
+        if session.canAddOutput(videoOutput) {
+            session.addOutput(videoOutput)
+        }
+        
+        session.commitConfiguration()
+    }
+    
+    func startSession() {
+        if !session.isRunning {
+            session.startRunning()
+        }
+    }
+    
+    func stopSession() {
+        if session.isRunning {
+            session.stopRunning()
+        }
+    }
+    
+    func switchCamera() {
+        guard let currentInput = activeInput else { return }
+        
+        session.beginConfiguration()
+        session.removeInput(currentInput)
+        
+        let newPosition: AVCaptureDevice.Position = (currentInput.device.position == .back) ? .front : .back
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
+              let newInput = try? AVCaptureDeviceInput(device: device),
+              session.canAddInput(newInput)
+        else {
+            session.addInput(currentInput)
+            session.commitConfiguration()
+            return
+        }
+        
+        session.addInput(newInput)
+        activeInput = newInput
+        session.commitConfiguration()
+    }
+    
+    func capturePhoto() {
+        let settings = AVCapturePhotoSettings()
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+    
+    func startVideoRecording() {
+        guard !videoOutput.isRecording else { return }
+        
+        let outputURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mov")
+        
+        videoOutput.startRecording(to: outputURL, recordingDelegate: self)
+        isRecording = true
+    }
+    
+    func stopVideoRecording() {
+        guard videoOutput.isRecording else { return }
+        videoOutput.stopRecording()
+        isRecording = false
+    }
+    
+    func setPreviewLayer(_ layer: AVCaptureVideoPreviewLayer) {
+        previewLayer = layer
+        previewLayer?.session = session
+        previewLayer?.videoGravity = .resizeAspectFill
     }
 }
 
-struct CameraPicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    @Binding var selectedVideoURL: URL?
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
+// MARK: - AVCapturePhotoCaptureDelegate
+extension CameraManager: AVCapturePhotoCaptureDelegate {
+    func photoOutput(_ output: AVCapturePhotoOutput,
+                     didFinishProcessingPhoto photo: AVCapturePhoto,
+                     error: Error?) {
+        guard let data = photo.fileDataRepresentation() else { return }
+        // Handle the image data (e.g., save, pass to SwiftUI, etc.)
+        // For demonstration, you might just store it in a published property
+        // or pass a completion handler.
+        print("Photo captured, size: \(data.count) bytes")
     }
+}
 
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        
-        // Use the camera as the source
-        picker.sourceType = .camera
-        
-        // Allow both images and movies
-        // Using UTType for iOS 14+ to avoid deprecation
-        if #available(iOS 14, *) {
-            picker.mediaTypes = [
-                UTType.image.identifier,
-                UTType.movie.identifier
-            ]
+// MARK: - AVCaptureFileOutputRecordingDelegate
+extension CameraManager: AVCaptureFileOutputRecordingDelegate {
+    func fileOutput(_ output: AVCaptureFileOutput,
+                    didStartRecordingTo fileURL: URL,
+                    from connections: [AVCaptureConnection]) {
+        print("Started video recording: \(fileURL)")
+    }
+    
+    func fileOutput(_ output: AVCaptureFileOutput,
+                    didFinishRecordingTo outputFileURL: URL,
+                    from connections: [AVCaptureConnection],
+                    error: Error?) {
+        if let error = error {
+            print("Error recording video: \(error)")
         } else {
-            // Fallback for older iOS (if you still need it):
-            // picker.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String]
-            print("older types not available")
-        }
-
-        // Default to high video quality, if user switches to video
-        picker.videoQuality = .typeHigh
-        // Default capture mode is photo; user can switch to video in UI
-        picker.cameraCaptureMode = .photo
-        
-        // Let the user switch to photo library or between photo/video
-        picker.showsCameraControls = true
-        
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
-        // No updates needed in this example
-    }
-
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: CameraPicker
-
-        init(parent: CameraPicker) {
-            self.parent = parent
-        }
-
-        func imagePickerController(
-            _ picker: UIImagePickerController,
-            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
-        ) {
-            // Check if the user picked an image
-            if let mediaType = info[.mediaType] as? String {
-                if #available(iOS 14, *), let utType = UTType(mediaType) {
-                    handleSelectedMedia(using: utType, info: info)
-                } else {
-                    // If on older iOS, fall back to checking strings directly
-                    print("deprecated media")
-                }
-            }
-            picker.dismiss(animated: true)
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
-        }
-        
-        // MARK: - Helpers
-        
-        @available(iOS 14, *)
-        private func handleSelectedMedia(using utType: UTType, info: [UIImagePickerController.InfoKey : Any]) {
-            if utType.conforms(to: .image) {
-                // It's an image
-                if let image = info[.originalImage] as? UIImage {
-                    parent.selectedImage = image
-                    parent.selectedVideoURL = nil
-                }
-            } else if utType.conforms(to: .movie) {
-                // It's a video
-                if let videoURL = info[.mediaURL] as? URL {
-                    parent.selectedVideoURL = videoURL
-                    parent.selectedImage = nil
-                }
-            }
+            // Handle the recorded video (e.g., save to Photo Library or your app’s documents).
+            print("Video recording finished: \(outputFileURL)")
         }
     }
 }
 
-struct CameraPickerView_Previews: PreviewProvider {
-    static var previews: some View {
-        CameraPickerView()
-    }
-}
 

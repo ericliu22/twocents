@@ -64,6 +64,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8515AD662D72608700A76B97 /* Exceptions for "TwoCents" folder in "TwoCents" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A2E84B372D6D2C15007B44F7 /* TwoCents */;
+		};
 		851F24A32D6E8C9600A08134 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -94,6 +101,9 @@
 		};
 		A2E84B7A2D6D2CEF007B44F7 /* TwoCents */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8515AD662D72608700A76B97 /* Exceptions for "TwoCents" folder in "TwoCents" target */,
+			);
 			path = TwoCents;
 			sourceTree = "<group>";
 		};
@@ -600,8 +610,11 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your friends would love to see you";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -631,8 +644,11 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your friends would love to see you";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

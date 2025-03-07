@@ -24,8 +24,6 @@ class ImageUpload: Uploadable {
             mimeType: "image/jpeg",
             url: PostManager.POST_URL.appending(path: "upload-image-post"))
     }
-    
-    
 }
 
 struct ImageDownload: Downloadable {

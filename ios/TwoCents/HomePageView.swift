@@ -19,8 +19,8 @@ struct HomePageView: View {
                         Image(systemName: "house.fill")
                     }
                 //placeholder for upload page
-                CameraPickerView()
-                //Text("placeholder")
+                //CameraPickerView()
+                Text("placeholder")
                     .tabItem{
                         Image(systemName: "plus.app")
                     }

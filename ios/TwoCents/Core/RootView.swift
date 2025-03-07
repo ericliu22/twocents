@@ -24,8 +24,8 @@ struct RootView: View {
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
-            CameraPickerView()
-            //Text("placeholder")
+            //CameraPickerView()
+            Text("placeholder")
                 .tabItem{
                     Image(systemName: "plus.app")
                 }
