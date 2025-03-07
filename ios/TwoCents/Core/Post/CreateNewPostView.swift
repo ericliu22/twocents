@@ -85,7 +85,7 @@ struct CreatePostView: View {
                             }) {
                                 ZStack {
                                     Rectangle()
-                                        .fill(Color(.systemGray5))
+                                        .fill(Color(.systemGray6))
                                         .frame(width: 100, height: 100)
                                         .cornerRadius(10)
                                     Image(systemName: "plus")
@@ -111,7 +111,7 @@ struct CreatePostView: View {
                                     }) {
                                         ZStack {
                                             Rectangle()
-                                                .fill(Color(.systemGray5))
+                                                .fill(Color(.systemGray6))
                                                 .frame(width: 100, height: 100)
                                                 .cornerRadius(10)
                                             Image(systemName: "plus")
