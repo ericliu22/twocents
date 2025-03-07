@@ -3,13 +3,22 @@ import AVKit
 import PhotosUI
 import UniformTypeIdentifiers
 
+// A model to store selected media information.
+struct SelectedMedia: Identifiable, Equatable {
+    // Use assetIdentifier if available; otherwise, fall back to the file URL string.
+    var id: String { assetIdentifier ?? url.absoluteString }
+    let assetIdentifier: String?
+    let url: URL
+}
+
 struct CreatePostView: View {
     @State private var caption: String = ""
     @State private var mediaType: Media = .LINK
     @State private var mediaURL: String = ""
-    @State private var selectedMedia: [URL] = []  // Now holds multiple media URLs
+    @State private var selectedMedia: [SelectedMedia] = []  // Holds SelectedMedia items
     @State private var showMediaPicker = false
     @State private var isPosting = false
+    @State private var fullScreenMedia: SelectedMedia? = nil  // For full screen preview
     
     let mediaOptions: [(icon: String, label: String, type: Media)] = [
         ("link", "Link", .LINK),
@@ -22,6 +31,7 @@ struct CreatePostView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Media option buttons
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
                             ForEach(mediaOptions, id: \.label) { option in
@@ -35,12 +45,14 @@ struct CreatePostView: View {
                     
                     Divider()
                     
+                    // Use the newer TextField initializer if available (iOS 16+).
                     TextField("Write a caption...", text: $caption, axis: .vertical)
                         .lineLimit(5, reservesSpace: true)
                         .font(.body)
                     
                     Divider()
                     
+                    // Switch based on selected media type.
                     switch mediaType {
                     case .LINK:
                         HStack {
@@ -69,8 +81,26 @@ struct CreatePostView: View {
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
-                                    ForEach(selectedMedia, id: \.self) { media in
-                                        mediaPreview(selectedMedia: media)
+                                    // Display each selected image.
+                                    ForEach(selectedMedia) { media in
+                                        mediaPreview(for: media)
+                                            .onTapGesture {
+                                                fullScreenMedia = media
+                                            }
+                                    }
+                                    // Grey box with plus icon to add more images.
+                                    Button(action: {
+                                        showMediaPicker.toggle()
+                                    }) {
+                                        ZStack {
+                                            Rectangle()
+                                                .fill(Color(.systemGray5))
+                                                .frame(width: 100, height: 100)
+                                                .cornerRadius(10)
+                                            Image(systemName: "plus")
+                                                .font(.title)
+                                                .foregroundColor(.blue)
+                                        }
                                     }
                                 }
                             }
@@ -80,11 +110,12 @@ struct CreatePostView: View {
                         EmptyView()
                         
                     default:
-                        EmptyView() // Handles other cases safely
+                        EmptyView() // Handles other cases safely.
                     }
                     
                     Spacer()
                     
+                    // Post button.
                     Button(action: createPost) {
                         HStack {
                             if isPosting {
@@ -105,8 +136,20 @@ struct CreatePostView: View {
                 .padding(.horizontal)
                 .padding(.top)
                 .navigationTitle("Create Post")
+                // Media picker sheet – passes in the already selected asset identifiers.
                 .sheet(isPresented: $showMediaPicker) {
-                    MediaPicker(mediaURLs: $selectedMedia)
+                    MediaPicker(mediaItems: $selectedMedia)
+                }
+                // Full screen preview of tapped image.
+                .fullScreenCover(item: $fullScreenMedia) { media in
+                    FullScreenImageView(selectedMedia: media, onDelete: {
+                        if let index = selectedMedia.firstIndex(of: media) {
+                            selectedMedia.remove(at: index)
+                        }
+                        fullScreenMedia = nil
+                    }, onDismiss: {
+                        fullScreenMedia = nil
+                    })
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -120,6 +163,7 @@ struct CreatePostView: View {
         }
     }
     
+    // Media option button view.
     private func mediaButton(icon: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack {
@@ -135,23 +179,25 @@ struct CreatePostView: View {
         }
     }
     
-    private func mediaPreview(selectedMedia: URL) -> some View {
+    // Preview view for each image or video.
+    private func mediaPreview(for media: SelectedMedia) -> some View {
         Group {
-            if isVideo(url: selectedMedia) {
-                VideoPlayer(player: AVPlayer(url: selectedMedia))
+            if isVideo(url: media.url) {
+                VideoPlayer(player: AVPlayer(url: media.url))
                     .cornerRadius(10)
-                    .frame(height: 100, alignment: .topLeading)
+                    .frame(width: 100, height: 100, alignment: .topLeading)
             } else {
-                if let image = UIImage(contentsOfFile: selectedMedia.path) {
+                if let image = UIImage(contentsOfFile: media.url.path) {
                     Image(uiImage: image)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipped()
                         .cornerRadius(10)
-                        .frame(height: 100, alignment: .topLeading)
                 } else {
                     Color.gray
                         .cornerRadius(10)
-                        .frame(height: 100, alignment: .topLeading)
+                        .frame(width: 100, height: 100)
                 }
             }
         }
@@ -163,8 +209,52 @@ struct CreatePostView: View {
     }
 }
 
+struct FullScreenImageView: View {
+    let selectedMedia: SelectedMedia
+    let onDelete: () -> Void
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Color.black.ignoresSafeArea()
+            
+            if let uiImage = UIImage(contentsOfFile: selectedMedia.url.path) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black)
+            } else {
+                Text("Unable to load image")
+                    .foregroundColor(.white)
+            }
+            
+            HStack(spacing: 20) {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.title)
+                        .padding()
+                        .background(Color.red.opacity(0.7))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.title)
+                        .padding()
+                        .background(Color.gray.opacity(0.7))
+                        .clipShape(Circle())
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+// Updated MediaPicker that now rebuilds the selection based on the current picker results,
+// so if an image is deselected, it is removed from the selection.
 struct MediaPicker: UIViewControllerRepresentable {
-    @Binding var mediaURLs: [URL]
+    @Binding var mediaItems: [SelectedMedia]
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -172,8 +262,11 @@ struct MediaPicker: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> PHPickerViewController {
         var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.filter = .images  // Only images are selected; adjust to .any for images and videos.
-        config.selectionLimit = 0  // 0 = unlimited selection
+        config.filter = .images  // Only images are allowed.
+        config.selectionLimit = 0  // 0 for unlimited selection
+        
+        // Set preselectedAssetIdentifiers using those stored in mediaItems.
+        config.preselectedAssetIdentifiers = mediaItems.compactMap { $0.assetIdentifier }
         
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = context.coordinator
@@ -190,32 +283,43 @@ struct MediaPicker: UIViewControllerRepresentable {
         }
         
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            // Build a new list of media items based solely on the current picker results.
+            var newMediaItems: [SelectedMedia] = []
             let dispatchGroup = DispatchGroup()
             
             for result in results {
-                if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                    dispatchGroup.enter()
-                    result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, error in
-                        if let url = url {
-                            // Copy to a temporary URL to persist the file representation
-                            let tempURL = FileManager.default.temporaryDirectory
-                                .appendingPathComponent(UUID().uuidString)
-                                .appendingPathExtension("jpg")
-                            do {
-                                try FileManager.default.copyItem(at: url, to: tempURL)
-                                DispatchQueue.main.async {
-                                    self.parent.mediaURLs.append(tempURL)
+                // If the image was already selected, retain it.
+                if let assetId = result.assetIdentifier,
+                   let existingItem = parent.mediaItems.first(where: { $0.assetIdentifier == assetId }) {
+                    newMediaItems.append(existingItem)
+                } else {
+                    // Otherwise, load the new image.
+                    if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                        dispatchGroup.enter()
+                        result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, error in
+                            if let url = url {
+                                let tempURL = FileManager.default.temporaryDirectory
+                                    .appendingPathComponent(UUID().uuidString)
+                                    .appendingPathExtension("jpg")
+                                do {
+                                    try FileManager.default.copyItem(at: url, to: tempURL)
+                                    let newItem = SelectedMedia(assetIdentifier: result.assetIdentifier, url: tempURL)
+                                    DispatchQueue.main.async {
+                                        newMediaItems.append(newItem)
+                                    }
+                                } catch {
+                                    print("Error copying file: \(error.localizedDescription)")
                                 }
-                            } catch {
-                                print("Error copying file: \(error.localizedDescription)")
                             }
+                            dispatchGroup.leave()
                         }
-                        dispatchGroup.leave()
                     }
                 }
             }
             
             dispatchGroup.notify(queue: .main) {
+                // Update the binding with the newly selected items.
+                self.parent.mediaItems = newMediaItems
                 picker.dismiss(animated: true)
             }
         }
