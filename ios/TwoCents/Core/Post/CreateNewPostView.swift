@@ -63,14 +63,17 @@ struct CreatePostView: View {
                                 .keyboardType(.URL)
                                 .autocapitalization(.none)
                             
-                            Button("Paste") {
+                            
+                            Button(action: {
                                 if let clipboard = UIPasteboard.general.string {
                                     mediaURL = clipboard
                                 }
+                            }) {
+                               Text("Paste")
+                                    .padding(.vertical, 10)
                             }
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
+                            .buttonStyle(.bordered)
+
                             .cornerRadius(10)
                         }
                         
@@ -87,10 +90,11 @@ struct CreatePostView: View {
                                         .cornerRadius(10)
                                     Image(systemName: "plus")
                                         .font(.title)
-                                        .foregroundColor(.blue)
+//                                        .foregroundColor(.blue)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
@@ -112,9 +116,10 @@ struct CreatePostView: View {
                                                 .cornerRadius(10)
                                             Image(systemName: "plus")
                                                 .font(.title)
-                                                .foregroundColor(.blue)
+//                                                .foregroundColor(.blue)
                                         }
                                     }
+//                                    .buttonStyle(.bordered)
                                 }
                             }
                         }
@@ -140,11 +145,12 @@ struct CreatePostView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
                         .cornerRadius(10)
                     }
                     .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
+                    .buttonStyle(.bordered)
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -178,18 +184,34 @@ struct CreatePostView: View {
     
     // Media option button view.
     private func mediaButton(icon: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack {
-                Image(systemName: icon)
-                    .font(.title)
-                    .foregroundColor(isSelected ? .white : .blue)
-                    .frame(width: 64, height: 64)
-                    .background(Circle().fill(isSelected ? Color.blue : Color(.systemGray5)))
-                Text(label)
-                    .font(.caption)
-                    .foregroundColor(.primary)
+       
+        VStack(spacing: 8) {
+            if isSelected {
+                Button(action: action) {
+                    Image(systemName: icon)
+                        .font(.title)
+                        .frame(width: 48, height: 48)
+                }
+                .buttonBorderShape(.circle)
+         
+                .buttonStyle(.borderedProminent)
+            } else {
+                Button(action: action) {
+                    Image(systemName: icon)
+                        .font(.title)
+                        .frame(width: 48, height: 48)
+                }
+                .buttonBorderShape(.circle)
+                
+                .buttonStyle(.bordered)
             }
+            
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.primary)
         }
+       
+   
     }
     
     // Preview view for each image or video.
@@ -252,6 +274,8 @@ struct FullScreenImageView: View {
                             Image(systemName: "xmark")
                                 .font(.title2)
                         }
+                        .buttonBorderShape(.circle)
+                        .buttonStyle(.bordered)
                     }
                     
                     // Bottom toolbar delete button

@@ -24,6 +24,14 @@ struct RootView: View {
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
+            
+            
+            CreatePostView()
+                .tabItem {
+                    Label("Create", systemImage: "plus.app")
+                }
+            
+            
             //CameraPickerView()
             Text("placeholder")
                 .tabItem{
@@ -52,6 +60,7 @@ struct RootView: View {
                 }
             }
         }
+        .tint(.green)
     }
 }
 
