@@ -12,7 +12,7 @@ struct CreatePostView: View {
     let mediaOptions: [(icon: String, label: String, type: Media)] = [
         ("link", "Link", .LINK),
         ("photo.fill", "Image/Video", .IMAGE),
-        
+        ("textformat", "Text", .TEXT),
         ("ellipsis", "Other", .OTHER)
     ]
     
@@ -49,8 +49,8 @@ struct CreatePostView: View {
                 Divider()
                 
                 
-                
-                if mediaType == .LINK {
+                switch mediaType {
+                case .LINK:
                     HStack {
                         TextField("Enter URL", text: $mediaURL)
                             .padding()
@@ -69,12 +69,19 @@ struct CreatePostView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-                   
-                } else if mediaType == .IMAGE {
+
+                case .IMAGE:
                     if let selectedMedia = selectedMedia {
                         mediaPreview(selectedMedia: selectedMedia)
                     }
+                    
+                case .TEXT:
+                    EmptyView()
+
+                default:
+                    EmptyView() // Ensures other cases don’t cause issues
                 }
+
                 
                 Spacer()
                 

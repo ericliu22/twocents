@@ -10,6 +10,7 @@ import SwiftUI
 enum Media: String, Codable {
     case IMAGE
     case VIDEO
+    case TEXT
     case LINK
     case OTHER
 }
