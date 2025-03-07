@@ -18,98 +18,101 @@ struct CreatePostView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
- 
-               
-              
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 15) {
-                        ForEach(mediaOptions, id: \ .label) { option in
-                            mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
-                                mediaType = option.type
-                                if mediaType == .IMAGE { showMediaPicker.toggle() }
+            ScrollView{
+                VStack(spacing: 20) {
+                    
+                    
+                    
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 15) {
+                            ForEach(mediaOptions, id: \ .label) { option in
+                                mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
+                                    mediaType = option.type
+                                    if mediaType == .IMAGE { showMediaPicker.toggle() }
+                                }
                             }
                         }
-                    }
-                   
-                }
-                
-                Divider()
-                
-                
-                TextField("Write a caption...", text: $caption, axis: .vertical)
-
-                    .lineLimit(5, reservesSpace: true)
-                    .font(.body)
-                
-                
-                
-                
-                Divider()
-                
-                
-                switch mediaType {
-                case .LINK:
-                    HStack {
-                        TextField("Enter URL", text: $mediaURL)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                            .keyboardType(.URL)
-                            .autocapitalization(.none)
                         
-                        Button("Paste") {
-                            if let clipboard = UIPasteboard.general.string {
-                                mediaURL = clipboard
+                    }
+                    
+                    Divider()
+                    
+                    
+                    TextField("Write a caption...", text: $caption, axis: .vertical)
+                    
+                        .lineLimit(5, reservesSpace: true)
+                        .font(.body)
+                    
+                    
+                    
+                    
+                    Divider()
+                    
+                    
+                    switch mediaType {
+                    case .LINK:
+                        HStack {
+                            TextField("Enter URL", text: $mediaURL)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                .keyboardType(.URL)
+                                .autocapitalization(.none)
+                            
+                            Button("Paste") {
+                                if let clipboard = UIPasteboard.general.string {
+                                    mediaURL = clipboard
+                                }
+                            }
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        }
+                        
+                    case .IMAGE:
+                        if let selectedMedia = selectedMedia {
+                            mediaPreview(selectedMedia: selectedMedia)
+                        }
+                        
+                    case .TEXT:
+                        EmptyView()
+                        
+                    default:
+                        EmptyView() // Ensures other cases don’t cause issues
+                    }
+                    
+                    
+                    Spacer()
+                    
+                    Button(action: createPost) {
+                        HStack {
+                            if isPosting {
+                                ProgressView()
+                            } else {
+                                Text("Post")
+                                    .font(.headline)
                             }
                         }
+                        .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-
-                case .IMAGE:
-                    if let selectedMedia = selectedMedia {
-                        mediaPreview(selectedMedia: selectedMedia)
-                    }
                     
-                case .TEXT:
-                    EmptyView()
-
-                default:
-                    EmptyView() // Ensures other cases don’t cause issues
+                    .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
                 }
-
+                .padding(.horizontal)
                 
-                Spacer()
-                
-                Button(action: createPost) {
-                    HStack {
-                        if isPosting {
-                            ProgressView()
-                        } else {
-                            Text("Post")
-                                .font(.headline)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                .padding(.top)
+                .navigationTitle("Create Post")
+                .sheet(isPresented: $showMediaPicker) {
+                    MediaPicker(mediaURL: $selectedMedia)
                 }
-                
-                .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
             }
-            .padding(.horizontal)
-        
-            .padding(.top)
-            .navigationTitle("Create Post")
-            .sheet(isPresented: $showMediaPicker) {
-                MediaPicker(mediaURL: $selectedMedia)
-            }
+            .scrollDismissesKeyboard(.interactively)
         }
     }
     
@@ -136,25 +139,26 @@ struct CreatePostView: View {
     }
     
     private func mediaPreview(selectedMedia: URL) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.systemGray6))
-                .frame(height: 150)
-                .overlay(
-                    Group {
-                        if isVideo(url: selectedMedia) {
-                            VideoPlayer(player: AVPlayer(url: selectedMedia))
-                                .frame(height: 150)
-                        } else {
-                            Image(uiImage: UIImage(contentsOfFile: selectedMedia.path) ?? UIImage())
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 150)
-                        }
-                    }
-                )
+        
+        Group {
+            if isVideo(url: selectedMedia) {
+                VideoPlayer(player: AVPlayer(url: selectedMedia))
+                    .cornerRadius(10)
+                    .frame(height: 100, alignment: .topLeading)
+              
+            } else {
+                Image(uiImage: UIImage(contentsOfFile: selectedMedia.path) ?? UIImage())
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(10)
+                    .frame(height: 100, alignment: .topLeading)
+                 
+            }
         }
-        .padding(.horizontal)
+     
+              
+       
+     
     }
     
     private func isVideo(url: URL) -> Bool {
