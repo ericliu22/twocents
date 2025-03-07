@@ -1,11 +1,13 @@
 import SwiftUI
 import AVKit
+import PhotosUI
+import UniformTypeIdentifiers
 
 struct CreatePostView: View {
     @State private var caption: String = ""
     @State private var mediaType: Media = .LINK
     @State private var mediaURL: String = ""
-    @State private var selectedMedia: URL? = nil
+    @State private var selectedMedia: [URL] = []  // Now holds multiple media URLs
     @State private var showMediaPicker = false
     @State private var isPosting = false
     
@@ -18,37 +20,26 @@ struct CreatePostView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView{
+            ScrollView {
                 VStack(spacing: 20) {
-                    
-                    
-                    
-                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
-                            ForEach(mediaOptions, id: \ .label) { option in
+                            ForEach(mediaOptions, id: \.label) { option in
                                 mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
                                     mediaType = option.type
                                     if mediaType == .IMAGE { showMediaPicker.toggle() }
                                 }
                             }
                         }
-                        
                     }
                     
                     Divider()
                     
-                    
                     TextField("Write a caption...", text: $caption, axis: .vertical)
-                    
                         .lineLimit(5, reservesSpace: true)
                         .font(.body)
                     
-                    
-                    
-                    
                     Divider()
-                    
                     
                     switch mediaType {
                     case .LINK:
@@ -72,17 +63,25 @@ struct CreatePostView: View {
                         }
                         
                     case .IMAGE:
-                        if let selectedMedia = selectedMedia {
-                            mediaPreview(selectedMedia: selectedMedia)
+                        if selectedMedia.isEmpty {
+                            Text("No media selected")
+                                .foregroundColor(.secondary)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    ForEach(selectedMedia, id: \.self) { media in
+                                        mediaPreview(selectedMedia: media)
+                                    }
+                                }
+                            }
                         }
                         
                     case .TEXT:
                         EmptyView()
                         
                     default:
-                        EmptyView() // Ensures other cases don’t cause issues
+                        EmptyView() // Handles other cases safely
                     }
-                    
                     
                     Spacer()
                     
@@ -101,15 +100,13 @@ struct CreatePostView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-                    
                     .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
                 }
                 .padding(.horizontal)
-                
                 .padding(.top)
                 .navigationTitle("Create Post")
                 .sheet(isPresented: $showMediaPicker) {
-                    MediaPicker(mediaURL: $selectedMedia)
+                    MediaPicker(mediaURLs: $selectedMedia)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -139,26 +136,25 @@ struct CreatePostView: View {
     }
     
     private func mediaPreview(selectedMedia: URL) -> some View {
-        
         Group {
             if isVideo(url: selectedMedia) {
                 VideoPlayer(player: AVPlayer(url: selectedMedia))
                     .cornerRadius(10)
                     .frame(height: 100, alignment: .topLeading)
-              
             } else {
-                Image(uiImage: UIImage(contentsOfFile: selectedMedia.path) ?? UIImage())
-                    .resizable()
-                    .scaledToFit()
-                    .cornerRadius(10)
-                    .frame(height: 100, alignment: .topLeading)
-                 
+                if let image = UIImage(contentsOfFile: selectedMedia.path) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(10)
+                        .frame(height: 100, alignment: .topLeading)
+                } else {
+                    Color.gray
+                        .cornerRadius(10)
+                        .frame(height: 100, alignment: .topLeading)
+                }
             }
         }
-     
-              
-       
-     
     }
     
     private func isVideo(url: URL) -> Bool {
@@ -168,40 +164,60 @@ struct CreatePostView: View {
 }
 
 struct MediaPicker: UIViewControllerRepresentable {
-    @Binding var mediaURL: URL?
+    @Binding var mediaURLs: [URL]
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
     
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.filter = .images  // Only images are selected; adjust to .any for images and videos.
+        config.selectionLimit = 0  // 0 = unlimited selection
+        
+        let picker = PHPickerViewController(configuration: config)
         picker.delegate = context.coordinator
-        picker.mediaTypes = ["public.image", "public.movie"]
-        picker.sourceType = .photoLibrary
         return picker
     }
     
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
     
-    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
         let parent: MediaPicker
+        
         init(_ parent: MediaPicker) {
             self.parent = parent
         }
         
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let mediaURL = info[.mediaURL] as? URL {
-                parent.mediaURL = mediaURL
-            } else if let image = info[.originalImage] as? UIImage {
-                let tempDirectory = FileManager.default.temporaryDirectory
-                let fileURL = tempDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("jpg")
-                if let data = image.jpegData(compressionQuality: 1.0) {
-                    try? data.write(to: fileURL)
-                    parent.mediaURL = fileURL
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            let dispatchGroup = DispatchGroup()
+            
+            for result in results {
+                if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                    dispatchGroup.enter()
+                    result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, error in
+                        if let url = url {
+                            // Copy to a temporary URL to persist the file representation
+                            let tempURL = FileManager.default.temporaryDirectory
+                                .appendingPathComponent(UUID().uuidString)
+                                .appendingPathExtension("jpg")
+                            do {
+                                try FileManager.default.copyItem(at: url, to: tempURL)
+                                DispatchQueue.main.async {
+                                    self.parent.mediaURLs.append(tempURL)
+                                }
+                            } catch {
+                                print("Error copying file: \(error.localizedDescription)")
+                            }
+                        }
+                        dispatchGroup.leave()
+                    }
                 }
             }
-            picker.dismiss(animated: true)
+            
+            dispatchGroup.notify(queue: .main) {
+                picker.dismiss(animated: true)
+            }
         }
     }
 }
