@@ -3,15 +3,16 @@ import AVKit
 
 struct CreatePostView: View {
     @State private var caption: String = ""
-    @State private var mediaType: Media = .IMAGE
+    @State private var mediaType: Media = .LINK
     @State private var mediaURL: String = ""
     @State private var selectedMedia: URL? = nil
     @State private var showMediaPicker = false
     @State private var isPosting = false
     
     let mediaOptions: [(icon: String, label: String, type: Media)] = [
-        ("photo.fill", "Image/Video", .IMAGE),
         ("link", "Link", .LINK),
+        ("photo.fill", "Image/Video", .IMAGE),
+        
         ("ellipsis", "Other", .OTHER)
     ]
     
