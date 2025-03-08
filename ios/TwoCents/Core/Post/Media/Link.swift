@@ -20,11 +20,7 @@ class LinkUpload: Uploadable {
     func uploadPost() async throws -> Data {
         let boundary = UUID()
         var body = Data()
-        let encoder = JSONEncoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        let postData = try encoder.encode(post)
+        let postData = try TwoCentsEncoder().encode(post)
         
         body.append("--\(boundary)\r\n")
         body.append("Content-Disposition: form-data; name=\"post\"\r\n")

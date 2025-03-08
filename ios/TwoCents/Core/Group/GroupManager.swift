@@ -25,11 +25,7 @@ struct GroupManager {
             url: GROUP_URL.appending(path: "get-members?groupId=\(groupId.uuidString)")
         )
         let data = try await request.sendRequest()
-        let decoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        return try decoder.decode([GroupMember].self, from: data)
+        return try TwoCentsDecoder().decode([GroupMember].self, from: data)
     }
     
     static func fetchUserGroups() async throws -> [FriendGroup] {
@@ -40,10 +36,6 @@ struct GroupManager {
         )
         
         let data = try await request.sendRequest()
-        let decoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        return try decoder.decode([FriendGroup].self, from: data)
+        return try TwoCentsDecoder().decode([FriendGroup].self, from: data)
     }
 }

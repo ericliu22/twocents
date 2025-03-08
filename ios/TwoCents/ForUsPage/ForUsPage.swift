@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ForUsPage: View {
+    //let group: FriendGroup
+    
     @State private var posts: [Post] = [
         Post(id: UUID(), userId: UUID(), media: .IMAGE, dateCreated: Date(), caption: "First post"),
         Post(id: UUID(), userId: UUID(), media: .IMAGE, dateCreated: Date(), caption: "Second post")
@@ -18,6 +20,13 @@ struct ForUsPage: View {
                         }
                 }
             }
+        }
+        .task {
+//            guard let postsData = try? await PostManager.getGroupPosts(groupId: group.id) else {
+//                return
+//            }
+            
+            
         }
         .edgesIgnoringSafeArea(.all)
         .scrollTargetBehavior(.paging)
@@ -79,8 +88,10 @@ struct ForUsPostView: View {
     }
 }
 
+/*
 struct ForUsPage_Previews: PreviewProvider {
     static var previews: some View {
         ForUsPage()
     }
 }
+*/

@@ -88,11 +88,7 @@ struct Request<T: Encodable> {
         }
         
         // Attach body if present
-        let encoder = JSONEncoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        let bodyData = try? encoder.encode(body)
+        let bodyData = try? TwoCentsEncoder().encode(body)
         request.httpBody = bodyData
         
         return request
@@ -131,11 +127,7 @@ struct Request<T: Encodable> {
         request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
 
         var body = Data()
-        let encoder = JSONEncoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        let postData = try encoder.encode(post)
+        let postData = try TwoCentsEncoder().encode(post)
         
         body.append("--\(boundary)\r\n")
         body.append("Content-Disposition: form-data; name=\"post\"\r\n")
@@ -180,4 +172,20 @@ extension Data {
             append(data)
         }
     }
+}
+
+func TwoCentsEncoder() -> JSONEncoder {
+    let encoder = JSONEncoder()
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+    encoder.dateEncodingStrategy = .formatted(dateFormatter)
+    return encoder
+}
+
+func TwoCentsDecoder() -> JSONDecoder {
+    let decoder = JSONDecoder()
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+    decoder.dateDecodingStrategy = .formatted(dateFormatter)
+    return decoder
 }

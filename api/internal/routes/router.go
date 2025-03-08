@@ -13,4 +13,5 @@ func SetupCoreRouter(router *gin.Engine, queries *database.Queries, authClient *
 	r := router.Group("/v1")
 	SetupUserRoutes(r, queries, authClient)
 	SetupPostRoutes(r, queries, authClient)
+	SetupGroupRoutes(r, queries, authClient)
 }

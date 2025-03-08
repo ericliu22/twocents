@@ -35,12 +35,8 @@ struct PostManager {
     static func uploadMediaPost(postRequest: PostRequest, data: Data) async throws -> (Post, Data) {
         //The DBPost
         let postData: Data = try await uploadPost(postRequest: postRequest)
-        let decoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
         
-        let post: Post = try decoder.decode(Post.self, from: postData)
+        let post: Post = try TwoCentsDecoder().decode(Post.self, from: postData)
 
         //The media
         let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
