@@ -9,11 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetMediaRequest struct {
-	PostId uuid.UUID `form:"postId"`
-	Media database.MediaType `form:"media"`
-}
-
 func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
@@ -28,16 +23,25 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		var getRequest GetMediaRequest
-		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
-			return
+		postIDStr := ctx.Query("postId")
+		if postIDStr == "" {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "postId is required"})
+			gin.DefaultWriter.Write([]byte("Failed to query postId"))
+		    return
 		}
+        
+		postID, err := uuid.Parse(postIDStr)
+		if err != nil {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
+		    return
+		}
+
+		mediaStr := database.MediaType(ctx.Query("media"))
 
 		checkMembership := database.CheckUserMemberOfPostGroupsParams {
 			UserID: user.ID,
-			PostID: getRequest.PostId,
+			PostID: postID,
 		}
 		isMember, checkErr := queries.CheckUserMemberOfPostGroups(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
@@ -53,15 +57,15 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		var media any
 		var mediaErr error
-		switch getRequest.Media {
+		switch mediaStr {
 		case database.MediaTypeIMAGE:
-			media, mediaErr = queries.GetImages(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetImages(ctx.Request.Context(), postID)
 		case database.MediaTypeVIDEO:
-			media, mediaErr = queries.GetVideos(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetVideos(ctx.Request.Context(), postID)
 		case database.MediaTypeLINK:
-			media, mediaErr = queries.GetLinks(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetLinks(ctx.Request.Context(), postID)
 		case database.MediaTypeTEXT:
-			media, mediaErr = queries.GetLinks(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetLinks(ctx.Request.Context(), postID)
 		}
 		if mediaErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch media: " + mediaErr.Error())

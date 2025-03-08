@@ -9,10 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetGroupPostsRequest struct {
-	GroupId uuid.UUID `form:"groupId"`
-}
-
 func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)

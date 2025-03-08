@@ -50,9 +50,10 @@ struct PostManager {
         ]
         
         guard let finalURL = components.url else {
-            fatalError("Failed to construct URL")
+            print("failed to construct url")
+            throw URLError.init(URLError.Code(rawValue: 404))
         }
-        
+
         print(finalURL.absoluteString)
         // Should print: https://api.twocentsapp.com/v1/post/get-group-posts?groupId=B343342A-D41B-4C79-A8A8-7E0B142BE6DA
 
@@ -65,10 +66,21 @@ struct PostManager {
     }
 
     static func getMedia(post: Post) async throws -> Data {
+        let baseURL = POST_URL.appendingPathComponent("get-media")
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "postId", value: post.id.uuidString),
+            URLQueryItem(name: "media", value: post.media.rawValue)
+        ]
+        guard let finalURL = components.url else {
+            print("failed to construct url")
+            throw URLError.init(URLError.Code(rawValue: 404))
+        }
         let request: Request = Request<String> (
             method: .GET,
             contentType: .json,
-            url: POST_URL.appending(path: "get-media?postId=\(post.id)&media=\(post.media)"))
+            url: finalURL
+        )
         return try await request.sendRequest()
     }
 }
