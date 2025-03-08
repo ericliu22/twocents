@@ -28,7 +28,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		var getRequest GetGroupPostsRequest
-		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
+		if bindErr := ctx.ShouldBindQuery(&getRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
 			return
@@ -53,6 +53,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		postLists, err := queries.ListPostsForGroup(ctx.Request.Context(), getRequest.GroupId)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts")
+			gin.DefaultWriter.Write([]byte("Failed to retrieve posts: " + err.Error()))
 			return
 		}
 		//DOGSHIT PLEASE FIX

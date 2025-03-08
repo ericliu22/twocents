@@ -42,13 +42,32 @@ struct PostManager {
     }
     
     static func getGroupPosts(groupId: UUID) async throws -> Data {
-        let request: Request = Request<String> (
+        // 1. Create the base URL: https://api.twocentsapp.com/v1/post/get-group-posts
+        let baseURL = POST_URL.appendingPathComponent("get-group-posts")
+
+        // 2. Construct URLComponents from the base URL
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        // 3. Add your query items
+        components.queryItems = [
+            URLQueryItem(name: "groupId", value: groupId.uuidString)
+        ]
+
+        // 4. Create the final URL with `?groupId=...`
+        let finalURL = components.url!
+
+        // 5. Use finalURL in your request
+        let request: Request = Request<String>(
             method: .GET,
             contentType: .json,
-            url: POST_URL.appending(path: "get-group-posts?groupId=\(groupId)"))
+            url: finalURL
+        )
+        
+        // Print for debugging
+        print(request.url.absoluteString)
+
         return try await request.sendRequest()
     }
-    
+
     static func getMedia(post: Post) async throws -> Data {
         let request: Request = Request<String> (
             method: .GET,

@@ -129,7 +129,11 @@ struct CreatePostView: View {
                     Spacer()
                     
                     // Post button.
-                    Button(action: viewModel.createPost) {
+                    Button(action: {
+                        Task {
+                            await viewModel.createPost()
+                        }
+                    }) {
                         HStack {
                             if viewModel.isPosting {
                                 ProgressView()

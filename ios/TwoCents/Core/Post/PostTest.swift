@@ -75,26 +75,7 @@ struct PostTest: View {
                 
 
             Button {
-                Task {
-                    do {
-                        
-                        guard let data = try await selectedPhoto?.loadTransferable(type: Data.self) else { return }
-                        
-                        //Some Video/Image -> data
-                        #warning("Don't press this button it will crash -Eric")
-                        //@TODO: Change groups with actual id of groups
-                        let postRequest = PostRequest(media: .IMAGE, caption: "My Image", groups: [UUID(uuidString: "asdfasdf")!])
-                        let (imagePost, imageData) = try await PostManager.uploadMediaPost(postRequest: postRequest, data: data)
-                        
-                        //Decode return into any Downloadable
-                        let image: ImageDownload = try JSONDecoder().decode(ImageDownload.self, from: imageData)
-                        
-                        mediaUrl = URL(string: image.mediaUrl)
-                        caption = imagePost.caption
-                    } catch let error {
-                        print(error)
-                    }
-                }
+                
             } label: {
                 Text("Upload")
             }

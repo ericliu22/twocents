@@ -21,6 +21,11 @@ class CreatePostViewModel {
 
     func createPost() async {
         isPosting = true
+        
+        print(caption)
+        print(mediaURL)
+        print(mediaType)
+        print(selectedMedia)
 
         switch mediaType {
         case .IMAGE:
@@ -34,10 +39,6 @@ class CreatePostViewModel {
         case .OTHER:
             await createLink()
         }
-        print(caption)
-        print(mediaURL)
-        print(mediaType)
-        print(selectedMedia)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.isPosting = false
         }

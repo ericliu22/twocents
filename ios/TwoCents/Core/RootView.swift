@@ -14,7 +14,7 @@ struct RootView: View {
         @Bindable var appModel = appModel
         
         TabView {
-            HomeView()
+            ForUsPage(group: HARDCODED_GROUP)
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }

@@ -19,14 +19,14 @@ struct ForUsPage: View {
             }
         }
         .task {
-            guard let postsData = try? await PostManager.getGroupPosts(groupId: group.id) else {
-                return
+            do {
+                let postsData = try await PostManager.getGroupPosts(groupId: group.id)
+                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
+                posts = fetchedPosts
+            } catch let error {
+                print(error)
             }
             
-            guard let fetchedPosts = try? TwoCentsDecoder().decode([Post].self, from: postsData) else {
-                return
-            }
-            posts = fetchedPosts
             
         }
         .edgesIgnoringSafeArea(.all)

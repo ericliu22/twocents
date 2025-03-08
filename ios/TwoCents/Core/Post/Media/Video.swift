@@ -55,7 +55,8 @@ struct VideoView: PostView {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            video = try? JSONDecoder().decode(VideoDownload.self, from: data)
+            let videos = try? JSONDecoder().decode([VideoDownload].self, from: data)
+            let video = videos?.first
         }
     }
 }

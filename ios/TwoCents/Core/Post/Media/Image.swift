@@ -53,7 +53,8 @@ struct ImageView: PostView {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            image = try? JSONDecoder().decode(ImageDownload.self, from: data)
+            let images = try? JSONDecoder().decode([ImageDownload].self, from: data)
+            image = images?.first
         }
     }
 }
