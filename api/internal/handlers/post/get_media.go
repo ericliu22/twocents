@@ -55,11 +55,13 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 		var mediaErr error
 		switch getRequest.Media {
 		case database.MediaTypeIMAGE:
-			media, mediaErr = queries.GetImage(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetImages(ctx.Request.Context(), getRequest.PostId)
 		case database.MediaTypeVIDEO:
-			media, mediaErr = queries.GetVideo(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetVideos(ctx.Request.Context(), getRequest.PostId)
 		case database.MediaTypeLINK:
-			media, mediaErr = queries.GetLink(ctx.Request.Context(), getRequest.PostId)
+			media, mediaErr = queries.GetLinks(ctx.Request.Context(), getRequest.PostId)
+		case database.MediaTypeTEXT:
+			media, mediaErr = queries.GetLinks(ctx.Request.Context(), getRequest.PostId)
 		}
 		if mediaErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch media: " + mediaErr.Error())

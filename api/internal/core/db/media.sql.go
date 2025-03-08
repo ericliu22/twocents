@@ -14,104 +14,199 @@ import (
 const createImage = `-- name: CreateImage :one
 INSERT INTO images (
     id,
+    post_id,
     media_url
 )
-VALUES ($1, $2)
+VALUES ($1, $2, $3)
 ON CONFLICT (id) DO NOTHING
-RETURNING id, media_url
+RETURNING id, post_id, media_url
 `
 
 type CreateImageParams struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }
 
 func (q *Queries) CreateImage(ctx context.Context, arg CreateImageParams) (Image, error) {
-	row := q.db.QueryRow(ctx, createImage, arg.ID, arg.MediaUrl)
+	row := q.db.QueryRow(ctx, createImage, arg.ID, arg.PostID, arg.MediaUrl)
 	var i Image
-	err := row.Scan(&i.ID, &i.MediaUrl)
+	err := row.Scan(&i.ID, &i.PostID, &i.MediaUrl)
 	return i, err
 }
 
 const createLink = `-- name: CreateLink :one
 INSERT INTO links (
     id,
+    post_id,
     media_url
 )
-VALUES ($1, $2)
+VALUES ($1, $2, $3)
 ON CONFLICT (id) DO NOTHING
-RETURNING id, media_url
+RETURNING id, post_id, media_url
 `
 
 type CreateLinkParams struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }
 
 func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, error) {
-	row := q.db.QueryRow(ctx, createLink, arg.ID, arg.MediaUrl)
+	row := q.db.QueryRow(ctx, createLink, arg.ID, arg.PostID, arg.MediaUrl)
 	var i Link
-	err := row.Scan(&i.ID, &i.MediaUrl)
+	err := row.Scan(&i.ID, &i.PostID, &i.MediaUrl)
+	return i, err
+}
+
+const createText = `-- name: CreateText :one
+INSERT INTO texts (
+    id,
+    post_id,
+    text
+)
+VALUES ($1, $2, $3)
+ON CONFLICT (id) DO NOTHING
+RETURNING id, post_id, text
+`
+
+type CreateTextParams struct {
+	ID     uuid.UUID `json:"id"`
+	PostID uuid.UUID `json:"postId"`
+	Text   string    `json:"text"`
+}
+
+func (q *Queries) CreateText(ctx context.Context, arg CreateTextParams) (Text, error) {
+	row := q.db.QueryRow(ctx, createText, arg.ID, arg.PostID, arg.Text)
+	var i Text
+	err := row.Scan(&i.ID, &i.PostID, &i.Text)
 	return i, err
 }
 
 const createVideo = `-- name: CreateVideo :one
 INSERT INTO videos (
     id,
+    post_id,
     media_url
 )
-VALUES ($1, $2)
+VALUES ($1, $2, $3)
 ON CONFLICT (id) DO NOTHING
-RETURNING id, media_url
+RETURNING id, post_id, media_url
 `
 
 type CreateVideoParams struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }
 
 func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video, error) {
-	row := q.db.QueryRow(ctx, createVideo, arg.ID, arg.MediaUrl)
+	row := q.db.QueryRow(ctx, createVideo, arg.ID, arg.PostID, arg.MediaUrl)
 	var i Video
-	err := row.Scan(&i.ID, &i.MediaUrl)
+	err := row.Scan(&i.ID, &i.PostID, &i.MediaUrl)
 	return i, err
 }
 
-const getImage = `-- name: GetImage :one
-SELECT id, media_url
+const getImages = `-- name: GetImages :many
+SELECT id, post_id, media_url
 FROM images
-WHERE id = $1
+WHERE post_id = $1
 `
 
-func (q *Queries) GetImage(ctx context.Context, id uuid.UUID) (Image, error) {
-	row := q.db.QueryRow(ctx, getImage, id)
-	var i Image
-	err := row.Scan(&i.ID, &i.MediaUrl)
-	return i, err
+func (q *Queries) GetImages(ctx context.Context, postID uuid.UUID) ([]Image, error) {
+	rows, err := q.db.Query(ctx, getImages, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Image
+	for rows.Next() {
+		var i Image
+		if err := rows.Scan(&i.ID, &i.PostID, &i.MediaUrl); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const getLink = `-- name: GetLink :one
-SELECT id, media_url
+const getLinks = `-- name: GetLinks :many
+SELECT id, post_id, media_url
 FROM links
-WHERE id = $1
+WHERE post_id = $1
 `
 
-func (q *Queries) GetLink(ctx context.Context, id uuid.UUID) (Link, error) {
-	row := q.db.QueryRow(ctx, getLink, id)
-	var i Link
-	err := row.Scan(&i.ID, &i.MediaUrl)
-	return i, err
+func (q *Queries) GetLinks(ctx context.Context, postID uuid.UUID) ([]Link, error) {
+	rows, err := q.db.Query(ctx, getLinks, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Link
+	for rows.Next() {
+		var i Link
+		if err := rows.Scan(&i.ID, &i.PostID, &i.MediaUrl); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const getVideo = `-- name: GetVideo :one
-SELECT id, media_url
-FROM videos
-WHERE id = $1
+const getTexts = `-- name: GetTexts :many
+SELECT id, post_id, text
+FROM texts
+WHERE post_id = $1
 `
 
-func (q *Queries) GetVideo(ctx context.Context, id uuid.UUID) (Video, error) {
-	row := q.db.QueryRow(ctx, getVideo, id)
-	var i Video
-	err := row.Scan(&i.ID, &i.MediaUrl)
-	return i, err
+func (q *Queries) GetTexts(ctx context.Context, postID uuid.UUID) ([]Text, error) {
+	rows, err := q.db.Query(ctx, getTexts, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Text
+	for rows.Next() {
+		var i Text
+		if err := rows.Scan(&i.ID, &i.PostID, &i.Text); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVideos = `-- name: GetVideos :many
+SELECT id, post_id, media_url
+FROM videos
+WHERE post_id = $1
+`
+
+func (q *Queries) GetVideos(ctx context.Context, postID uuid.UUID) ([]Video, error) {
+	rows, err := q.db.Query(ctx, getVideos, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(&i.ID, &i.PostID, &i.MediaUrl); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

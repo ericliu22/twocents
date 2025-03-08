@@ -43,18 +43,27 @@ CREATE TABLE user_profiles (
 );
 
 CREATE TABLE images (
-    id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASCADE,
+    id              UUID            PRIMARY KEY,
+    post_id         UUID            NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     media_url  		TEXT            NOT NULL
 );
 
 CREATE TABLE videos (
-    id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASCADE,
-    media_url       TEXT            NOT NULL
+    id              UUID            PRIMARY KEY,
+    post_id         UUID            NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    media_url  		TEXT            NOT NULL
 );
 
 CREATE TABLE links (
-    id              UUID            PRIMARY KEY REFERENCES posts(id) on DELETE CASCADE,
-    media_url       TEXT            NOT NULL
+    id              UUID            PRIMARY KEY,
+    post_id         UUID            NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    media_url  		TEXT            NOT NULL
+);
+
+CREATE TABLE texts (
+    id              UUID            PRIMARY KEY,
+    post_id         UUID            NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    text  		    TEXT            NOT NULL
 );
 
 CREATE TYPE friendship_status AS ENUM (

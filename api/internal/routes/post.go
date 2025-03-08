@@ -17,4 +17,5 @@ func SetupPostRoutes(router *gin.RouterGroup, queries *database.Queries, authCli
 	r.POST("/upload-image-post", handlers.UploadImagePostHandler(queries))
 	r.POST("/upload-video-post", handlers.UploadVideoPostHandler(queries))
 	r.POST("/upload-link-post", handlers.UploadLinkPostHandler(queries))
+	r.POST("/upload-text-post", handlers.UploadTextPostHandler(queries))
 }

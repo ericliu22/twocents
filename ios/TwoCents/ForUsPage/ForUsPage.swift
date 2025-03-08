@@ -1,31 +1,32 @@
 import SwiftUI
 
 struct ForUsPage: View {
-    //let group: FriendGroup
+    let group: FriendGroup
     
-    @State private var posts: [Post] = [
-        Post(id: UUID(), userId: UUID(), media: .IMAGE, dateCreated: Date(), caption: "First post"),
-        Post(id: UUID(), userId: UUID(), media: .IMAGE, dateCreated: Date(), caption: "Second post")
-    ]
+    @State private var posts: [Post] = []
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(posts, id: \.id) { post in
                     ForUsPostView(post: post)
-                        .onAppear {
-                            if post.id == posts.last?.id {
-                                loadMorePosts()
-                            }
-                        }
+//                        .onAppear {
+//                            if post.id == posts.last?.id {
+//                                loadMorePosts()
+//                            }
+//                        }
                 }
             }
         }
         .task {
-//            guard let postsData = try? await PostManager.getGroupPosts(groupId: group.id) else {
-//                return
-//            }
+            guard let postsData = try? await PostManager.getGroupPosts(groupId: group.id) else {
+                return
+            }
             
+            guard let fetchedPosts = try? TwoCentsDecoder().decode([Post].self, from: postsData) else {
+                return
+            }
+            posts = fetchedPosts
             
         }
         .edgesIgnoringSafeArea(.all)
@@ -51,10 +52,8 @@ struct ForUsPostView: View {
         ZStack(alignment: .bottomLeading) {
             // Full-screen media view (gray placeholder)
             //Use makePostView(post: Post, postMedia: any Downloadable)
-            Rectangle()
-                .fill(Color.blue.gradient)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
+            makePostView(post: post)
+
             
             // Overlay for user profile and interactions.
             VStack(alignment: .leading, spacing: 16) {

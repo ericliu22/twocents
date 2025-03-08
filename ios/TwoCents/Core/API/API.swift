@@ -88,8 +88,10 @@ struct Request<T: Encodable> {
         }
         
         // Attach body if present
-        let bodyData = try? TwoCentsEncoder().encode(body)
-        request.httpBody = bodyData
+        if method != .GET {
+            let bodyData = try? TwoCentsEncoder().encode(body)
+            request.httpBody = bodyData
+        }
         
         return request
     }

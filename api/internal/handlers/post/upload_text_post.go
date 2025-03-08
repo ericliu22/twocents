@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"api/internal/core/aws"
 	database "api/internal/core/db"
 	"api/internal/middleware"
 	"encoding/json"
@@ -11,7 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
+type Text struct {
+	Text string `json:"text"`
+}
+
+func UploadTextPostHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
@@ -25,7 +28,6 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to fetch user" + userErr.Error()))
 			return
 		}
-
 		postJSON := ctx.PostForm("post")
 		if postJSON == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "post part of form is empty"})
@@ -39,46 +41,38 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
 		}
-		//@TODO: This is stupid fix this -Eric
 		if user.ID != post.UserID {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
 
-		fileHeader, formErr := ctx.FormFile("file")
-		if formErr != nil {
-			ctx.String(http.StatusBadRequest, "Failed to get form file")
-			gin.DefaultWriter.Write([]byte("File form is empty"))
-			return
-		}
-		file, fileErr := fileHeader.Open()
-		if fileErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to open file header as file")
-			gin.DefaultWriter.Write([]byte("Failed to open file header as file" + fileErr.Error()))
+		textJSON := ctx.PostForm("text")
+		if textJSON == "" {
+			ctx.String(http.StatusBadRequest, "Failed to get form text")
+			gin.DefaultWriter.Write([]byte("Text form is empty"))
 			return
 		}
 
-		id := uuid.New()
-		mediaURL, uploadErr := aws.ObjectUpload(id.String()+".jpeg", &file, "image/jpeg")
-		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
+		var textRequest Text
+		if err := json.Unmarshal([]byte(postJSON), &textRequest); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing JSON: " + err.Error()})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
 		}
 
-		imageParams := database.CreateImageParams {
-			ID:       id,
+		textParams := database.CreateTextParams {
+			ID:       uuid.New(),
 			PostID:	  post.ID,
-			MediaUrl: *mediaURL,
+			Text: textRequest.Text,
 		}
 
-		image, createErr := queries.CreateImage(ctx.Request.Context(), imageParams)
+		text, createErr := queries.CreateText(ctx.Request.Context(), textParams)
 		if createErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to create image on db")
-			gin.DefaultWriter.Write([]byte("Failed to create image" + createErr.Error()))
+			ctx.String(http.StatusInternalServerError, "Failed to create text")
+			gin.DefaultWriter.Write([]byte("Failed to create text" + createErr.Error()))
 			return
 		}
-		ctx.JSON(http.StatusOK, image)
+		ctx.JSON(http.StatusOK, text)
 	}
 }

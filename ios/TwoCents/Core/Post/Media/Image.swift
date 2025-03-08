@@ -28,6 +28,7 @@ class ImageUpload: Uploadable {
 
 struct ImageDownload: Downloadable {
     let id: UUID
+    let postId: UUID
     let mediaUrl: String
 }
 

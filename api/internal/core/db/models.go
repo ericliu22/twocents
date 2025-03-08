@@ -103,6 +103,7 @@ const (
 	MediaTypeIMAGE MediaType = "IMAGE"
 	MediaTypeVIDEO MediaType = "VIDEO"
 	MediaTypeLINK  MediaType = "LINK"
+	MediaTypeTEXT  MediaType = "TEXT"
 	MediaTypeOTHER MediaType = "OTHER"
 )
 
@@ -214,11 +215,13 @@ type Friendship struct {
 
 type Image struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }
 
 type Link struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }
 
@@ -228,6 +231,12 @@ type Post struct {
 	Media       MediaType   `json:"media"`
 	DateCreated pgtype.Date `json:"dateCreated"`
 	Caption     *string     `json:"caption"`
+}
+
+type Text struct {
+	ID     uuid.UUID `json:"id"`
+	PostID uuid.UUID `json:"postId"`
+	Text   string    `json:"text"`
 }
 
 type User struct {
@@ -249,5 +258,6 @@ type UserProfile struct {
 
 type Video struct {
 	ID       uuid.UUID `json:"id"`
+	PostID   uuid.UUID `json:"postId"`
 	MediaUrl string    `json:"mediaUrl"`
 }

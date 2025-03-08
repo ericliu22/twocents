@@ -45,7 +45,6 @@ struct RootView: View {
         }
         .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
-            print(try? await AuthenticationManager.getJwtToken())
             
             if authUser == nil {
                 appModel.activeSheet = .signIn

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Link struct {
@@ -61,7 +62,8 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		linkParams := database.CreateLinkParams{
-			ID:       post.ID,
+			ID:       uuid.New(),
+			PostID:	  post.ID,
 			MediaUrl: linkRequest.MediaUrl,
 		}
 

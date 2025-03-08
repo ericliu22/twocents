@@ -22,27 +22,23 @@ struct PostManager {
     
     static let POST_URL: URL = API_URL.appending(path: "post")
     
-    static func uploadPost(postRequest: PostRequest) async throws -> Data {
+    static func uploadPost(postRequest: PostRequest) async throws -> Post {
         let request: Request = Request(
             method: .POST,
             contentType: .json,
             url: POST_URL.appending(path: "create-post"),
             body: postRequest
         )
-        return try await request.sendRequest()
+        let data = try await request.sendRequest()
+        return try TwoCentsDecoder().decode(Post.self, from: data)
     }
     
-    static func uploadMediaPost(postRequest: PostRequest, data: Data) async throws -> (Post, Data) {
-        //The DBPost
-        let postData: Data = try await uploadPost(postRequest: postRequest)
-        
-        let post: Post = try TwoCentsDecoder().decode(Post.self, from: postData)
-
+    static func uploadMediaPost(post: Post, data: Data) async throws -> Data {
         //The media
         let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
         //The downloadable
         let data: Data = try await uploadPost.uploadPost()
-        return (post, data)
+        return data
     }
     
     static func getGroupPosts(groupId: UUID) async throws -> Data {

@@ -30,6 +30,7 @@ class VideoUpload: Uploadable {
 
 struct VideoDownload: Downloadable {
     let id: UUID
+    let postId: UUID
     let mediaUrl: String
 }
 

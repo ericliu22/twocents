@@ -12,13 +12,8 @@ struct SelectedMedia: Identifiable, Equatable {
 }
 
 struct CreatePostView: View {
-    @State private var caption: String = ""
-    @State private var mediaType: Media = .LINK
-    @State private var mediaURL: String = ""
-    @State private var selectedMedia: [SelectedMedia] = []  // Holds SelectedMedia items
-    @State private var showMediaPicker = false
-    @State private var isPosting = false
-    @State private var fullScreenMedia: SelectedMedia? = nil  // For full screen preview
+    
+    @State var viewModel = CreatePostViewModel()
     
     let mediaOptions: [(icon: String, label: String, type: Media)] = [
         ("link", "Link", .LINK),
@@ -35,9 +30,9 @@ struct CreatePostView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
                             ForEach(mediaOptions, id: \.label) { option in
-                                mediaButton(icon: option.icon, label: option.label, isSelected: mediaType == option.type) {
-                                    mediaType = option.type
-                                    if mediaType == .IMAGE && selectedMedia == [] { showMediaPicker.toggle() }
+                                mediaButton(icon: option.icon, label: option.label, isSelected: viewModel.mediaType == option.type) {
+                                    viewModel.mediaType = option.type
+                                    if viewModel.mediaType == .IMAGE && viewModel.selectedMedia == [] { viewModel.showMediaPicker.toggle() }
                                 }
                             }
                         }
@@ -46,17 +41,17 @@ struct CreatePostView: View {
                     Divider()
                     
                     // Use the newer TextField initializer if available (iOS 16+).
-                    TextField("Write a caption...", text: $caption, axis: .vertical)
+                    TextField("Write a viewModel.caption...", text: $viewModel.caption, axis: .vertical)
                         .lineLimit(5, reservesSpace: true)
                         .font(.body)
                     
                     Divider()
                     
                     // Switch based on selected media type.
-                    switch mediaType {
+                    switch viewModel.mediaType {
                     case .LINK:
                         HStack {
-                            TextField("Enter URL", text: $mediaURL)
+                            TextField("Enter URL", text: $viewModel.mediaURL)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
@@ -66,7 +61,7 @@ struct CreatePostView: View {
                             
                             Button(action: {
                                 if let clipboard = UIPasteboard.general.string {
-                                    mediaURL = clipboard
+                                    viewModel.mediaURL = clipboard
                                 }
                             }) {
                                Text("Paste")
@@ -78,10 +73,10 @@ struct CreatePostView: View {
                         }
                         
                     case .IMAGE:
-                        if selectedMedia.isEmpty {
+                        if viewModel.selectedMedia.isEmpty {
                             // Grey box with plus icon to add more images.
                             Button(action: {
-                                showMediaPicker.toggle()
+                                viewModel.showMediaPicker.toggle()
                             }) {
                                 ZStack {
                                     Rectangle()
@@ -99,15 +94,15 @@ struct CreatePostView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
                                     // Display each selected image.
-                                    ForEach(selectedMedia) { media in
+                                    ForEach(viewModel.selectedMedia) { media in
                                         mediaPreview(for: media)
                                             .onTapGesture {
-                                                fullScreenMedia = media
+                                                viewModel.fullScreenMedia = media
                                             }
                                     }
                                     // Grey box with plus icon to add more images.
                                     Button(action: {
-                                        showMediaPicker.toggle()
+                                        viewModel.showMediaPicker.toggle()
                                     }) {
                                         ZStack {
                                             Rectangle()
@@ -134,9 +129,9 @@ struct CreatePostView: View {
                     Spacer()
                     
                     // Post button.
-                    Button(action: createPost) {
+                    Button(action: viewModel.createPost) {
                         HStack {
-                            if isPosting {
+                            if viewModel.isPosting {
                                 ProgressView()
                             } else {
                                 Text("Post")
@@ -149,25 +144,25 @@ struct CreatePostView: View {
 //                        .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-                    .disabled(isPosting || (mediaType == .LINK && mediaURL.isEmpty))
+                    .disabled(viewModel.isPosting || (viewModel.mediaType == .LINK && viewModel.mediaURL.isEmpty))
                     .buttonStyle(.bordered)
                 }
                 .padding(.horizontal)
                 .padding(.top)
                 .navigationTitle("Create Post")
                 // Media picker sheet – passes in the already selected asset identifiers.
-                .sheet(isPresented: $showMediaPicker) {
-                    MediaPicker(mediaItems: $selectedMedia)
+                .sheet(isPresented: $viewModel.showMediaPicker) {
+                    MediaPicker(mediaItems: $viewModel.selectedMedia)
                 }
                 // Full screen preview of tapped image.
-                .fullScreenCover(item: $fullScreenMedia) { media in
+                .fullScreenCover(item: $viewModel.fullScreenMedia) { media in
                     FullScreenImageView(selectedMedia: media, onDelete: {
-                        if let index = selectedMedia.firstIndex(of: media) {
-                            selectedMedia.remove(at: index)
+                        if let index = viewModel.selectedMedia.firstIndex(of: media) {
+                            viewModel.selectedMedia.remove(at: index)
                         }
-                        fullScreenMedia = nil
+                        viewModel.fullScreenMedia = nil
                     }, onDismiss: {
-                        fullScreenMedia = nil
+                        viewModel.fullScreenMedia = nil
                     })
                 }
             }
@@ -175,12 +170,6 @@ struct CreatePostView: View {
         }
     }
     
-    private func createPost() {
-        isPosting = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            isPosting = false
-        }
-    }
     
     // Media option button view.
     private func mediaButton(icon: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -242,64 +231,6 @@ struct CreatePostView: View {
         let asset = AVAsset(url: url)
         return asset.tracks(withMediaType: .video).count > 0
     }
-}
-
-struct FullScreenImageView: View {
-    let selectedMedia: SelectedMedia
-    let onDelete: () -> Void
-    let onDismiss: () -> Void
-    
-
-        var body: some View {
-            NavigationView {
-                ZStack {
-                    Color.white.ignoresSafeArea()
-                    
-                    if let uiImage = UIImage(contentsOfFile: selectedMedia.url.path) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.black)
-                    } else {
-                        Text("Unable to load image")
-                            .foregroundColor(.white)
-                    }
-                }
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    // Top-leading close button
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: onDismiss) {
-                            Image(systemName: "xmark")
-                                .font(.title2)
-                        }
-                        .buttonBorderShape(.circle)
-                        .buttonStyle(.bordered)
-                    }
-                    
-                    // Bottom toolbar delete button
-                    ToolbarItem(placement: .bottomBar) {
-                        
-                        Button(action: {
-                            
-                        
-                            onDelete()
-                        }, label: {
-                            HStack {
-                                Image(systemName: "trash")
-                                Text("Remove Image")
-                            }
-                            
-                        })
-                        
-                       
-                    }
-                }
-            }
-        }
-  
-
 }
 
 // Updated MediaPicker that now rebuilds the selection based on the current picker results,

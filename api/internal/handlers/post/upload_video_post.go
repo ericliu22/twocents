@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
@@ -57,7 +58,8 @@ func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload(post.ID.String()+".mp4", &file, "video/mp4")
+		id := uuid.New()
+		mediaURL, uploadErr := aws.ObjectUpload(id.String()+".mp4", &file, "video/mp4")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
@@ -65,7 +67,8 @@ func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		videoParams := database.CreateVideoParams{
-			ID:       post.ID,
+			ID:       id,
+			PostID:	  post.ID,
 			MediaUrl: *mediaURL,
 		}
 

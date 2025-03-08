@@ -70,6 +70,8 @@ func makePostView(post: Post) -> some View {
         VideoView(post: post)
     case .LINK:
         LinkView(post: post)
+    case .TEXT:
+        TextView(post: post)
     default:
         EmptyPostView(post: post)
     }

@@ -1,13 +1,13 @@
 //
-//  Link.swift
+//  Text.swift
 //  TwoCents
 //
-//  Created by Eric Liu on 2025/3/3.
+//  Created by Eric Liu on 2025/3/8.
 //
 
 import SwiftUI
 
-class LinkUpload: Uploadable {
+class TextUpload: Uploadable {
     
     let post: Post
     let data: Data
@@ -38,7 +38,7 @@ class LinkUpload: Uploadable {
         let request = Request (
             method: .POST,
             contentType: .json,
-            url: PostManager.POST_URL.appending(path: "upload-link-post"),
+            url: PostManager.POST_URL.appending(path: "upload-text-post"),
             body: body
         )
         return try await request.sendRequest()
@@ -46,16 +46,16 @@ class LinkUpload: Uploadable {
     
 }
 
-struct LinkDownload: Downloadable {
+struct TextDownload: Downloadable {
     let id: UUID
     let postId: UUID
-    let mediaUrl: String
+    let text: String
 }
 
-struct LinkView: PostView {
+struct TextView: PostView {
     
     let post: Post
-    @State var link: LinkDownload?
+    @State var text: TextDownload?
     
     init(post: Post) {
         self.post = post
