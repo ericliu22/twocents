@@ -53,6 +53,8 @@ struct ForUsPostView: View {
             // Full-screen media view (gray placeholder)
             //Use makePostView(post: Post, postMedia: any Downloadable)
             makePostView(post: post)
+                .frame(width: 150, height: 200)
+                .ignoresSafeArea()
 
             
             // Overlay for user profile and interactions.
