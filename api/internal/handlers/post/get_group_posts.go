@@ -27,14 +27,22 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		var getRequest GetGroupPostsRequest
-		if bindErr := ctx.ShouldBindQuery(&getRequest); bindErr != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
-			return
+		groupIDStr := ctx.Query("groupId")
+		if groupIDStr == "" {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
+			gin.DefaultWriter.Write([]byte("Failed to query groupId"))
+		    return
 		}
+        
+		groupID, err := uuid.Parse(groupIDStr)
+		if err != nil {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
+		    return
+		}
+
 		checkMembership := database.CheckUserMembershipParams {
-			GroupID: getRequest.GroupId,
+			GroupID: groupID,
 			UserID: user.ID,
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
@@ -50,7 +58,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		postLists, err := queries.ListPostsForGroup(ctx.Request.Context(), getRequest.GroupId)
+		postLists, err := queries.ListPostsForGroup(ctx.Request.Context(), groupID)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts")
 			gin.DefaultWriter.Write([]byte("Failed to retrieve posts: " + err.Error()))
