@@ -30,12 +30,14 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("File form is empty"))
 			return
 		}
+
 		file, fileErr := fileHeader.Open()
 		if fileErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to open file header as file")
 			gin.DefaultWriter.Write([]byte("Failed to open file header as file" + fileErr.Error()))
 			return
 		}
+
 		mediaURL, uploadErr := aws.ObjectUpload("profilepics/" + user.ID.String()+".jpeg", &file, "image/jpeg")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())

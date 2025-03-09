@@ -3,6 +3,7 @@ import SwiftUI
 struct ExploreView: View {
     let group: FriendGroup
     @State private var posts: [Post] = []         // Now using backend Post objects
+    @State private var users: IdentifiedCollection<User> = IdentifiedCollection()
     @State private var isLoading = false
     @State private var selectedPost: Post? = nil    // For full screen detail
     
@@ -16,7 +17,9 @@ struct ExploreView: View {
                 LazyVGrid(columns: columns, spacing: 5) {
                     ForEach(posts, id: \.id) {     post in
 
-                        ExploreCard(post: post, selectedPost: $selectedPost)
+                        if let user = users[id: post.userId] {
+                            ExploreCard(post: post, user: user, selectedPost: $selectedPost)
+                        }
 
                     }
                 }
@@ -35,14 +38,18 @@ struct ExploreView: View {
                 let postsData = try await PostManager.getGroupPosts(groupId: group.id)
                 let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
                 posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
+                let members = try await GroupManager.fetchGroupMembers(groupId: group.id)
+                users = IdentifiedCollection(members)
             } catch {
                 print("Error fetching posts: \(error)")
             }
         }
         .fullScreenCover(item: $selectedPost) { post in
-            ExploreDetailView(post: post) {
-                withAnimation(.spring()) {
-                    selectedPost = nil
+            if let user = users[id: post.userId] {
+                ExploreDetailView(post: post, user: user) {
+                    withAnimation(.spring()) {
+                        selectedPost = nil
+                    }
                 }
             }
         }
@@ -61,6 +68,7 @@ struct ExploreView: View {
 
 struct ExploreCard: View {
     let post: Post
+    let user: User
     @Binding var selectedPost: Post?
                         // Use the factory to generate the appropriate view for each post.
     var body: some View {
@@ -84,8 +92,11 @@ struct ExploreCard: View {
                 }
                 
                 HStack {
-                    if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
+                    if let url = URL(string: user.profilePic ?? "") {
                         CachedImage(url: url)
+                            .scaledToFill()
+                            .frame(width: 24, height: 24)
+                            .clipShape(Circle())
                     } else {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
@@ -110,6 +121,7 @@ struct ExploreCard: View {
 
 struct ExploreDetailView: View {
     let post: Post
+    let user: User
     var onDismiss: () -> Void
     
     // For a drag-to-dismiss gesture
@@ -131,13 +143,13 @@ struct ExploreDetailView: View {
                     // Header with profile image and username.
                     HStack {
                         // For demo purposes, a placeholder URL is used.
-                        if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
+                        if let url = URL(string: user.profilePic ?? "") {
                             CachedImage(url: url)
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())
                         }
-                        Text("User \(post.userId.uuidString.prefix(4))")
+                        Text(user.name ?? user.username)
                             .font(.title3)
                     }
                     .padding()

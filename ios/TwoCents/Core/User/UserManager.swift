@@ -65,22 +65,45 @@ struct UserManager {
     }
     
     static func updateProfilePic(imageData: Data) async throws {
-        let boundary = UUID()
+        //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes early -Eric
+        let boundary: UUID = UUID()
+        
+        var request = URLRequest(url: USER_URL.appending(path: "update-profile-pic"))
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        let firebaseToken = try await AuthenticationManager.getJwtToken()
+        request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
+
         var body = Data()
+        let mimeType: String = "image/jpeg"
         
         body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"\r\n")
-        body.append("Content-Type: image/jpeg\r\n\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"myimage.jpg\"\r\n")
+        body.append("Content-Type: \(mimeType)\r\n\r\n")
         body.append(imageData)
         body.append("\r\n")
         body.append("--\(boundary)--\r\n")
         
-        let request = Request(
-            method: .POST,
-            contentType: .imgJpeg,
-            url: USER_URL.appending(path: "update-profile-pic"),
-            body: body
-        )
-        try await request.sendRequest()
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print(response)
+            print(data)
+            throw APIError.invalidResponse
+        }
+        
+        if httpResponse.statusCode != 200 {
+            print(response)
+            print(data)
+            throw APIError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+        
+        if data.isEmpty {
+            print(response)
+            print(data)
+            throw APIError.noData
+        }
+        return
     }
 }

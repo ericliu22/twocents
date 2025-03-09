@@ -18,14 +18,24 @@ struct GroupManager {
     }
      */
     
-    static func fetchGroupMembers(groupId: UUID) async throws -> [GroupMember] {
+    static func fetchGroupMembers(groupId: UUID) async throws -> [User] {
+        let baseURL = GROUP_URL.appendingPathComponent("get-members")
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "groupId", value: groupId.uuidString)
+        ]
+        
+        guard let finalURL = components.url else {
+            print("failed to construct url")
+            throw URLError.init(URLError.Code(rawValue: 404))
+        }
         let request = Request<String> (
             method: .GET,
             contentType: .json,
-            url: GROUP_URL.appending(path: "get-members?groupId=\(groupId.uuidString)")
+            url: finalURL
         )
         let data = try await request.sendRequest()
-        return try TwoCentsDecoder().decode([GroupMember].self, from: data)
+        return try TwoCentsDecoder().decode([User].self, from: data)
     }
     
     static func fetchUserGroups() async throws -> [FriendGroup] {
