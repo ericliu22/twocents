@@ -23,7 +23,6 @@ struct CachedImage: View {
                     case .success(let image):
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
                             .clipped()
                     case .failure:
                         Image(systemName: "exclamationmark.triangle")

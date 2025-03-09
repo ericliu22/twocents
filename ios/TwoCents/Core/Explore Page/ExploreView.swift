@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct ExploreView: View {
-    @State private var items: [ExploreItem] = ExploreItem.sampleData
+    let group: FriendGroup
+    @State private var posts: [Post] = []         // Now using backend Post objects
     @State private var isLoading = false
-    @State private var selectedItem: ExploreItem? = nil
+    @State private var selectedPost: Post? = nil    // For full screen detail
     @Namespace private var namespace
     
     let columns = [
@@ -14,18 +15,10 @@ struct ExploreView: View {
         NavigationView {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 5) {
-                    ForEach(items) { item in
-                        ExploreCard(item: item, namespace: namespace)
-                            .onTapGesture {
-                                withAnimation(.spring()) {
-                                    selectedItem = item
-                                }
-                            }
-                            .onAppear {
-                                if item == items.last {
-                                    loadMoreContent()
-                                }
-                            }
+                    ForEach(posts, id: \.id) {     post in
+
+                        ExploreCard(post: post, namespace: namespace, selectedPost: $selectedPost)
+
                     }
                 }
                 .padding(5)
@@ -37,12 +30,22 @@ struct ExploreView: View {
             }
             .navigationTitle("Explore")
         }
-        .fullScreenCover(item: $selectedItem) { item in
-            ExploreDetailView(item: item, namespace: namespace, onDismiss: {
+        .task {
+            do {
+                // Fetch posts from the backend
+                let postsData = try await PostManager.getGroupPosts(groupId: group.id)
+                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
+                posts = fetchedPosts
+            } catch {
+                print("Error fetching posts: \(error)")
+            }
+        }
+        .fullScreenCover(item: $selectedPost) { post in
+            ExploreDetailView(post: post, namespace: namespace) {
                 withAnimation(.spring()) {
-                    selectedItem = nil
+                    selectedPost = nil
                 }
-            })
+            }
         }
     }
     
@@ -50,65 +53,52 @@ struct ExploreView: View {
         guard !isLoading else { return }
         isLoading = true
         
+        // Simulate load-more delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            items.append(contentsOf: ExploreItem.generateMoreData())
             isLoading = false
         }
     }
 }
 
 struct ExploreCard: View {
-    let item: ExploreItem
+    let post: Post
     let namespace: Namespace.ID
-    
+    @Binding var selectedPost: Post?
+                        // Use the factory to generate the appropriate view for each post.
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            AsyncImage(url: URL(string: item.imageUrl)) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity, minHeight: 200)
-                        .aspectRatio(3/4, contentMode: .fill)
-                        .clipped()
-                        .cornerRadius(12)
-                        .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                } else {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .aspectRatio(3/4, contentMode: .fill)
-                        .cornerRadius(12)
-                        .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
+            makePostView(post: post)
+                .frame(maxWidth: 150, minHeight: 200)
+                .aspectRatio(3/4, contentMode: .fill)
+                .clipped()
+                .cornerRadius(12)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        selectedPost = post
+                    }
                 }
-            }
-            
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.caption)
-                    .font(.system(size: 14, weight: .medium))
-                    .lineLimit(2)
-                    .foregroundColor(.primary)
+                if let caption = post.caption {
+                    Text(caption)
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(2)
+                        .foregroundColor(.primary)
+                }
                 
                 HStack {
-                    AsyncImage(url: URL(string: item.profileImageUrl)) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 24, height: 24)
-                                .clipShape(Circle())
-                                .matchedGeometryEffect(id: "profile-\(item.id)", in: namespace)
-                        } else {
-                            Circle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 24, height: 24)
-                                .matchedGeometryEffect(id: "profile-\(item.id)", in: namespace)
-                        }
+                    if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
+                        CachedImage(imageUrl: url)
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 24, height: 24)
+                        
                     }
                     
                     HStack(spacing: 8) {
-                        Label("\(item.likes)", systemImage: "heart.fill")
+                        Label("\(100)", systemImage: "heart.fill")
                             .foregroundColor(.red)
-                        Label("\(item.comments)", systemImage: "bubble.right.fill")
+                        Label("\(100)", systemImage: "bubble.right.fill")
                             .foregroundColor(.gray)
                     }
                     .font(.caption)
@@ -116,18 +106,18 @@ struct ExploreCard: View {
             }
             .padding(.horizontal, 4)
         }
+        
     }
 }
 
 struct ExploreDetailView: View {
-    let item: ExploreItem
+    let post: Post
     let namespace: Namespace.ID
     var onDismiss: () -> Void
     
-    // Track vertical drag offset
+    // For a drag-to-dismiss gesture
     @State private var dragOffset: CGFloat = 0
     
-    // Compute a scale factor that reduces as the user drags down.
     private var scale: CGFloat {
         let cappedOffset = min(dragOffset, 150)
         return 1 - (cappedOffset / 150 * 0.15)
@@ -136,89 +126,37 @@ struct ExploreDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background to capture gestures
+                // Invisible background to capture gestures
                 Color.black.opacity(0.001)
                     .ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    // Header with profile image and name
+                    // Header with profile image and username.
                     HStack {
-                        AsyncImage(url: URL(string: item.profileImageUrl)) { phase in
-                            if let image = phase.image {
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .matchedGeometryEffect(id: "profile-\(item.id)", in: namespace)
-                            } else {
-                                Circle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(width: 50, height: 50)
-                                    .matchedGeometryEffect(id: "profile-\(item.id)", in: namespace)
-                            }
+                        // For demo purposes, a placeholder URL is used.
+                        if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
+                            CachedImage(imageUrl: url)
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
                         }
-                        
-                        Text("Firstname Lastname")
+                        Text("User \(post.userId.uuidString.prefix(4))")
                             .font(.title3)
                     }
                     .padding()
                     
-                    // Main image carousel with full screen width
-                    TabView {
-                        ForEach(Array(item.imageUrls.enumerated()), id: \.offset) { index, url in
-                            if index == 0 {
-                                AsyncImage(url: URL(string: url)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .clipped()
-                                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                                    } else {
-                                        Rectangle()
-                                            .fill(Color.yellow.gradient.opacity(0.3))
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                                    }
-                                }
-                            } else {
-                                AsyncImage(url: URL(string: url)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .clipped()
-                                    } else {
-                                        Rectangle()
-                                            .fill(Color.yellow.gradient.opacity(0.3))
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                    // Show the post’s content using your media-aware factory.
+                    makePostView(post: post)
                     
-                    // Likes, comments, and caption
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Likes: \(item.likes)")
-                        Text("Comments: \(item.comments)")
-                        Text(item.caption)
+                    // Optionally show the caption, if any.
+                    if let caption = post.caption {
+                        Text(caption)
                             .font(.headline)
-                            .fontWeight(.regular)
+                            .padding()
                     }
-                    .padding()
                     
                     Spacer()
                 }
-                // Ensure the detail view covers the full width
                 .frame(width: UIScreen.main.bounds.width)
                 .background(Color.white)
                 .cornerRadius(12)
@@ -254,58 +192,5 @@ struct ExploreDetailView: View {
             }
         }
         .ignoresSafeArea()
-    }
-}
-
-struct ExploreItem: Identifiable, Equatable {
-    let id = UUID()
-    let imageUrls: [String]
-    let profileImageUrl: String
-    let caption: String
-    let likes: Int
-    let comments: Int
-    
-    // Computed property for backward compatibility
-    var imageUrl: String {
-        imageUrls.first ?? ""
-    }
-    
-    static let sampleData: [ExploreItem] = [
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?nature",
-                                  "https://source.unsplash.com/600x800/?landscape"],
-                    profileImageUrl: "https://source.unsplash.com/100x100/?face",
-                    caption: "A beautiful sunset in the mountains.",
-                    likes: 120, comments: 45),
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?city",
-                                  "https://source.unsplash.com/600x800/?architecture"],
-                    profileImageUrl: "https://source.unsplash.com/100x100/?profile",
-                    caption: "Exploring the city streets at night.",
-                    likes: 89, comments: 30),
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?food",
-                                  "https://source.unsplash.com/600x800/?cuisine"],
-                    profileImageUrl: "https://source.unsplash.com/100x100/?person",
-                    caption: "Delicious homemade ramen with extra toppings.",
-                    likes: 200, comments: 60),
-    ]
-    
-    static func generateMoreData() -> [ExploreItem] {
-        return [
-            ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?technology",
-                                      "https://source.unsplash.com/600x800/?innovation"],
-                        profileImageUrl: "https://source.unsplash.com/100x100/?avatar",
-                        caption: "New AI advancements shaping the future.",
-                        likes: 340, comments: 80),
-            ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?fashion",
-                                      "https://source.unsplash.com/600x800/?style"],
-                        profileImageUrl: "https://source.unsplash.com/100x100/?human",
-                        caption: "Latest fashion trends this season.",
-                        likes: 175, comments: 45),
-        ]
-    }
-}
-
-struct ExploreView_Previews: PreviewProvider {
-    static var previews: some View {
-        ExploreView()
     }
 }

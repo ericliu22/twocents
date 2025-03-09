@@ -20,7 +20,7 @@ struct RootView: View {
 //                }
 //                //.tag(Tab.defaulthome)
 //            
-            ExploreView()
+            ExploreView(group: HARDCODED_GROUP)
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }

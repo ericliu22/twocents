@@ -15,7 +15,7 @@ enum Media: String, Codable {
     case OTHER
 }
 
-class Post: Codable {
+class Post: Identifiable, Codable {
     let id: UUID
     let userId: UUID
     var media: Media
@@ -44,7 +44,7 @@ protocol Uploadable: Identifiable, Codable {
     func uploadPost() async throws -> Data
 }
 
-protocol Downloadable: Codable {
+protocol Downloadable: Identifiable, Codable {
 
 }
 

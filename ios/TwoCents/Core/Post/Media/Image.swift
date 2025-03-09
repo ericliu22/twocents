@@ -8,7 +8,7 @@
 import SwiftUI
 
 class ImageUpload: Uploadable {
-    
+
     let post: Post
     let data: Data
 
@@ -16,8 +16,8 @@ class ImageUpload: Uploadable {
         self.post = post
         self.data = data
     }
-    
-    func uploadPost() async throws -> Data{
+
+    func uploadPost() async throws -> Data {
         return try await Request<String>.uploadMedia(
             post: post,
             fileData: data,
@@ -33,28 +33,43 @@ struct ImageDownload: Downloadable {
 }
 
 struct ImageView: PostView {
-    
+
     let post: Post
-    @State var image: ImageDownload?
-    
+    @State var images: [ImageDownload] = []
+
     init(post: Post) {
         self.post = post
     }
-    
+
     var body: some View {
-        ZStack {
-            if let image {
-                if let url = URL(string: image.mediaUrl) {
-                    CachedImage(imageUrl: url)
+        Group {
+            if images.isEmpty {
+                ProgressView()
+            } else {
+                TabView {
+                    ForEach(images, id: \.id) { imageDownload in
+                        if let url = URL(string: imageDownload.mediaUrl) {
+                            CachedImage(imageUrl: url)
+                                .scaledToFill()
+                                .clipped()
+                        } else {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                        }
+                    }
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             }
         }
         .task {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            let images = try? JSONDecoder().decode([ImageDownload].self, from: data)
-            image = images?.first
+            let newImages = try? JSONDecoder().decode(
+                [ImageDownload].self, from: data)
+            if let newImages {
+                images.append(contentsOf: newImages)
+            }
         }
     }
 }
