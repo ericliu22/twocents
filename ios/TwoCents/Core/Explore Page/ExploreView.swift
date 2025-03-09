@@ -5,7 +5,6 @@ struct ExploreView: View {
     @State private var posts: [Post] = []         // Now using backend Post objects
     @State private var isLoading = false
     @State private var selectedPost: Post? = nil    // For full screen detail
-    @Namespace private var namespace
     
     let columns = [
         GridItem(.adaptive(minimum: 150), spacing: 5)
@@ -17,7 +16,7 @@ struct ExploreView: View {
                 LazyVGrid(columns: columns, spacing: 5) {
                     ForEach(posts, id: \.id) {     post in
 
-                        ExploreCard(post: post, namespace: namespace, selectedPost: $selectedPost)
+                        ExploreCard(post: post, selectedPost: $selectedPost)
 
                     }
                 }
@@ -35,13 +34,13 @@ struct ExploreView: View {
                 // Fetch posts from the backend
                 let postsData = try await PostManager.getGroupPosts(groupId: group.id)
                 let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
-                posts = fetchedPosts
+                posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
             } catch {
                 print("Error fetching posts: \(error)")
             }
         }
         .fullScreenCover(item: $selectedPost) { post in
-            ExploreDetailView(post: post, namespace: namespace) {
+            ExploreDetailView(post: post) {
                 withAnimation(.spring()) {
                     selectedPost = nil
                 }
@@ -62,7 +61,6 @@ struct ExploreView: View {
 
 struct ExploreCard: View {
     let post: Post
-    let namespace: Namespace.ID
     @Binding var selectedPost: Post?
                         // Use the factory to generate the appropriate view for each post.
     var body: some View {
@@ -87,7 +85,7 @@ struct ExploreCard: View {
                 
                 HStack {
                     if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
-                        CachedImage(imageUrl: url)
+                        CachedImage(url: url)
                     } else {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
@@ -112,7 +110,6 @@ struct ExploreCard: View {
 
 struct ExploreDetailView: View {
     let post: Post
-    let namespace: Namespace.ID
     var onDismiss: () -> Void
     
     // For a drag-to-dismiss gesture
@@ -135,7 +132,7 @@ struct ExploreDetailView: View {
                     HStack {
                         // For demo purposes, a placeholder URL is used.
                         if let url = URL(string: "https://source.unsplash.com/100x100/?avatar") {
-                            CachedImage(imageUrl: url)
+                            CachedImage(url: url)
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())

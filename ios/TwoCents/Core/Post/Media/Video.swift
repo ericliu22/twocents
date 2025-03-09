@@ -51,7 +51,7 @@ struct VideoView: PostView {
                 TabView {
                     ForEach(videos, id: \.id) { videoDownload in
                         if let url = URL(string: videoDownload.mediaUrl) {
-                            CachedVideo(videoUrl: url)
+                            CachedVideo(url: url)
                                 .scaledToFill()
                                 .clipped()
                         } else {

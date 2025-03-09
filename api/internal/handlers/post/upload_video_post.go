@@ -59,7 +59,7 @@ func UploadVideoPostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		id := uuid.New()
-		mediaURL, uploadErr := aws.ObjectUpload(id.String()+".mp4", &file, "video/mp4")
+		mediaURL, uploadErr := aws.ObjectUpload("videos/" + id.String()+".mp4", &file, "video/mp4")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))

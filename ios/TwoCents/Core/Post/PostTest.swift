@@ -60,7 +60,7 @@ struct PostTest: View {
             }
             
             if let mediaUrl {
-                CachedImage(imageUrl: mediaUrl)
+                CachedImage(url: mediaUrl)
                     .scaledToFill()
                     .frame(
                         width: 250,

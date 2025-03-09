@@ -138,7 +138,7 @@ struct Request<T: Encodable> {
         body.append("\r\n")
         
         body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"myimage.jpg\"\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"\r\n")
         body.append("Content-Type: \(mimeType)\r\n\r\n")
         body.append(fileData)
         body.append("\r\n")

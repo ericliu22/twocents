@@ -16,4 +16,5 @@ func SetupUserRoutes(router *gin.RouterGroup, queries *database.Queries, authCli
 	r.POST("/register-user", handlers.RegisterUserHandler(queries))
 	r.POST("/friend-request", handlers.FriendRequestHandler(queries))
 	r.POST("/accept-friend-request", handlers.AcceptFriendRequestHandler(queries))
+	r.POST("/update-profile-pic", handlers.UpdateProfilePicHandler(queries))
 }

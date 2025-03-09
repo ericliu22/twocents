@@ -49,7 +49,7 @@ struct ImageView: PostView {
                 TabView {
                     ForEach(images, id: \.id) { imageDownload in
                         if let url = URL(string: imageDownload.mediaUrl) {
-                            CachedImage(imageUrl: url)
+                            CachedImage(url: url)
                                 .scaledToFill()
                                 .clipped()
                         } else {
@@ -67,7 +67,9 @@ struct ImageView: PostView {
             }
             let newImages = try? JSONDecoder().decode(
                 [ImageDownload].self, from: data)
+            //Reloads each time user comes back not sure if good or bad
             if let newImages {
+                images = []
                 images.append(contentsOf: newImages)
             }
         }

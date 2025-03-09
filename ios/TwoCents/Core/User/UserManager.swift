@@ -63,4 +63,24 @@ struct UserManager {
         
         return user
     }
+    
+    static func updateProfilePic(imageData: Data) async throws {
+        let boundary = UUID()
+        var body = Data()
+        
+        body.append("--\(boundary)\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"\r\n")
+        body.append("Content-Type: image/jpeg\r\n\r\n")
+        body.append(imageData)
+        body.append("\r\n")
+        body.append("--\(boundary)--\r\n")
+        
+        let request = Request(
+            method: .POST,
+            contentType: .imgJpeg,
+            url: USER_URL.appending(path: "update-profile-pic"),
+            body: body
+        )
+        try await request.sendRequest()
+    }
 }

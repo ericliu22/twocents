@@ -57,6 +57,14 @@ struct ProfilePictureUploadView: View {
                 // Button to trigger image selection.
                 Button(action: {
                     self.showActionSheet = true
+                    //Add functionality here
+                    if let croppedImage {
+                        if let data = croppedImage.jpegData(compressionQuality: 1.0) {
+                            Task {
+                                try? await UserManager.updateProfilePic(imageData: data)
+                            }
+                        }
+                    }
                 }) {
                     Text("Upload Profile Picture")
                         .fontWeight(.semibold)

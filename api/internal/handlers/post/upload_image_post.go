@@ -60,7 +60,7 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		id := uuid.New()
-		mediaURL, uploadErr := aws.ObjectUpload(id.String()+".jpeg", &file, "image/jpeg")
+		mediaURL, uploadErr := aws.ObjectUpload("images/" + id.String()+".jpeg", &file, "image/jpeg")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))

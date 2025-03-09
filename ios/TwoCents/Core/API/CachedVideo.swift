@@ -8,12 +8,26 @@
 import AVKit
 import SwiftUI
 
-struct CachedVideo: View {
-
+struct CachedVideo<FailureView: View>: View {
+    
     let videoUrl: URL
     @State var videoPlayer: AVPlayer?
     @State var isLoading: Bool = true
-
+    var failureView: FailureView
+    
+    // Initializer to provide a custom failure view.
+    init(url: URL, @ViewBuilder onFailure: () -> FailureView) {
+        self.videoUrl = url
+        self.failureView = onFailure()
+    }
+    
+    // Convenience initializer when no custom failure view is provided.
+    // This forces FailureView to be DefaultFailureView.
+    init(url: URL) where FailureView == DefaultFailureView {
+        self.videoUrl = url
+        self.failureView = DefaultFailureView()
+    }
+    
     var body: some View {
         ZStack {
             if let videoPlayer {
@@ -26,17 +40,15 @@ struct CachedVideo: View {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .primary))
             } else {
-                Image(systemName: "exclamationmark.triangle")
+                failureView
             }
         }
         .task {
             do {
                 let cachedURL = try await CacheManager.fetchCachedVideoURL(for: videoUrl)
-                
                 let asset = AVURLAsset(url: cachedURL)
                 let playerItem = AVPlayerItem(asset: asset)
                 videoPlayer = AVPlayer(playerItem: playerItem)
-                
                 isLoading = false
             } catch {
                 isLoading = false

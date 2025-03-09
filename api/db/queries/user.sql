@@ -70,3 +70,8 @@ SELECT sqlc.embed(users), sqlc.embed(user_profiles)
 FROM users
 JOIN user_profiles ON users.id = user_profiles.user_id
 WHERE users.id = $1;
+
+-- name: UpdateProfilePic :exec
+UPDATE user_profiles
+SET profile_pic = $2
+WHERE user_id = $1;

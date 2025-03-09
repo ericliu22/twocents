@@ -9,10 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetMembersRequest struct {
-	GroupId uuid.UUID `form:"groupId"`
-}
-
 func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, tokenErr := middleware.GetAuthToken(ctx)
@@ -28,15 +24,21 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		var getRequest GetMembersRequest
-		if bindErr := ctx.Bind(&getRequest); bindErr != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
-			return
+		groupIDStr := ctx.Query("groupId")
+		if groupIDStr == "" {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
+			gin.DefaultWriter.Write([]byte("Failed to query groupId"))
+		    return
 		}
-
+        
+		groupID, err := uuid.Parse(groupIDStr)
+		if err != nil {
+		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
+		    return
+		}
 		checkMembership := database.CheckUserMembershipParams{
-			GroupID: getRequest.GroupId,
+			GroupID: groupID,
 			UserID:  user.ID,
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
@@ -57,7 +59,12 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to get members: " + getErr.Error()))
 			return
 		}
+		//DOGSHIT PLEASE FIX
+		var members []database.UserProfile
+		for _, member := range membersList {
+			members = append(members, member.UserProfile)
+		}
 
-		ctx.JSON(http.StatusOK, membersList)
+		ctx.JSON(http.StatusOK, members)
 	}
 }

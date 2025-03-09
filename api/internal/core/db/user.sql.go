@@ -255,6 +255,22 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const updateProfilePic = `-- name: UpdateProfilePic :exec
+UPDATE user_profiles
+SET profile_pic = $2
+WHERE user_id = $1
+`
+
+type UpdateProfilePicParams struct {
+	UserID     uuid.UUID `json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+}
+
+func (q *Queries) UpdateProfilePic(ctx context.Context, arg UpdateProfilePicParams) error {
+	_, err := q.db.Exec(ctx, updateProfilePic, arg.UserID, arg.ProfilePic)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
 SET provider = $2,
