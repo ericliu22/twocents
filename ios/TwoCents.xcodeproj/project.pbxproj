@@ -12,6 +12,7 @@
 		851F24A22D6E8C9600A08134 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
 		A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409472D6F8BC700E26D73 /* FirebaseCore */; };
+		ABF6A69F2D7D34C00076DDD6 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ABF6A6952D7D34C00076DDD6 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,13 @@
 			remoteGlobalIDString = A2E84B372D6D2C15007B44F7;
 			remoteInfo = TwoCents;
 		};
+		ABF6A69D2D7D34C00076DDD6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A2E84B302D6D2C15007B44F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABF6A6942D7D34C00076DDD6;
+			remoteInfo = Share;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +53,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				ABF6A69F2D7D34C00076DDD6 /* Share.appex in Embed Foundation Extensions */,
 				851F24A22D6E8C9600A08134 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -61,6 +70,7 @@
 		A2E84B382D6D2C15007B44F7 /* TwoCents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TwoCents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B482D6D2C18007B44F7 /* TwoCentsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B522D6D2C18007B44F7 /* TwoCentsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABF6A6952D7D34C00076DDD6 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -77,6 +87,13 @@
 				Info.plist,
 			);
 			target = 851F248B2D6E8C9500A08134 /* TwoCentsWidgetExtension */;
+		};
+		ABF6A6A32D7D34C00076DDD6 /* Exceptions for "Share" folder in "Share" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = ABF6A6942D7D34C00076DDD6 /* Share */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -105,6 +122,14 @@
 				8515AD662D72608700A76B97 /* Exceptions for "TwoCents" folder in "TwoCents" target */,
 			);
 			path = TwoCents;
+			sourceTree = "<group>";
+		};
+		ABF6A6962D7D34C00076DDD6 /* Share */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ABF6A6A32D7D34C00076DDD6 /* Exceptions for "Share" folder in "Share" target */,
+			);
+			path = Share;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -142,6 +167,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABF6A6922D7D34C00076DDD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -171,6 +203,7 @@
 				A2E84B4B2D6D2C18007B44F7 /* TwoCentsTests */,
 				A2E84B552D6D2C18007B44F7 /* TwoCentsUITests */,
 				851F24922D6E8C9500A08134 /* TwoCentsWidget */,
+				ABF6A6962D7D34C00076DDD6 /* Share */,
 				851F248D2D6E8C9500A08134 /* Frameworks */,
 				A2E84B392D6D2C15007B44F7 /* Products */,
 			);
@@ -183,6 +216,7 @@
 				A2E84B482D6D2C18007B44F7 /* TwoCentsTests.xctest */,
 				A2E84B522D6D2C18007B44F7 /* TwoCentsUITests.xctest */,
 				851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */,
+				ABF6A6952D7D34C00076DDD6 /* Share.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -225,6 +259,7 @@
 			);
 			dependencies = (
 				851F24A12D6E8C9600A08134 /* PBXTargetDependency */,
+				ABF6A69E2D7D34C00076DDD6 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A2E84B7A2D6D2CEF007B44F7 /* TwoCents */,
@@ -284,6 +319,28 @@
 			productReference = A2E84B522D6D2C18007B44F7 /* TwoCentsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		ABF6A6942D7D34C00076DDD6 /* Share */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ABF6A6A22D7D34C00076DDD6 /* Build configuration list for PBXNativeTarget "Share" */;
+			buildPhases = (
+				ABF6A6912D7D34C00076DDD6 /* Sources */,
+				ABF6A6922D7D34C00076DDD6 /* Frameworks */,
+				ABF6A6932D7D34C00076DDD6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				ABF6A6962D7D34C00076DDD6 /* Share */,
+			);
+			name = Share;
+			packageProductDependencies = (
+			);
+			productName = Share;
+			productReference = ABF6A6952D7D34C00076DDD6 /* Share.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -307,6 +364,9 @@
 					A2E84B512D6D2C18007B44F7 = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = A2E84B372D6D2C15007B44F7;
+					};
+					ABF6A6942D7D34C00076DDD6 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -341,6 +401,7 @@
 				A2E84B472D6D2C18007B44F7 /* TwoCentsTests */,
 				A2E84B512D6D2C18007B44F7 /* TwoCentsUITests */,
 				851F248B2D6E8C9500A08134 /* TwoCentsWidgetExtension */,
+				ABF6A6942D7D34C00076DDD6 /* Share */,
 			);
 		};
 /* End PBXProject section */
@@ -368,6 +429,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A2E84B502D6D2C18007B44F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABF6A6932D7D34C00076DDD6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -405,6 +473,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABF6A6912D7D34C00076DDD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -422,6 +497,11 @@
 			isa = PBXTargetDependency;
 			target = A2E84B372D6D2C15007B44F7 /* TwoCents */;
 			targetProxy = A2E84B532D6D2C18007B44F7 /* PBXContainerItemProxy */;
+		};
+		ABF6A69E2D7D34C00076DDD6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ABF6A6942D7D34C00076DDD6 /* Share */;
+			targetProxy = ABF6A69D2D7D34C00076DDD6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -735,6 +815,56 @@
 			};
 			name = Release;
 		};
+		ABF6A6A02D7D34C00076DDD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Share/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Share;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ABF6A6A12D7D34C00076DDD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Share/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Share;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.Share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -779,6 +909,15 @@
 			buildConfigurations = (
 				A2E84B632D6D2C18007B44F7 /* Debug */,
 				A2E84B642D6D2C18007B44F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ABF6A6A22D7D34C00076DDD6 /* Build configuration list for PBXNativeTarget "Share" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABF6A6A02D7D34C00076DDD6 /* Debug */,
+				ABF6A6A12D7D34C00076DDD6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>NSExtension</key>
+    <dict>
+      <key>NSExtensionAttributes</key>
+      <dict>
+        <key>NSExtensionActivationRule</key>
+        <!-- The following dictionary restricts activation to specific content types -->
+        <dict>
+          <!-- Supports multiple images (maximum 5 in this example) -->
+          <key>NSExtensionActivationSupportsImageWithMaxCount</key>
+          <integer>5</integer>
+          <!-- Supports multiple videos (maximum 5 in this example) -->
+          <key>NSExtensionActivationSupportsMovieWithMaxCount</key>
+          <integer>5</integer>
+          <!-- Supports URLs (for web links) -->
+          <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+          <integer>1</integer>
+          <!-- Supports plain text -->
+          <key>NSExtensionActivationSupportsText</key>
+          <true/>
+        </dict>
+      </dict>
+      <!-- For SwiftUI-based extensions, use NSExtensionPrincipalClass -->
+      <key>NSExtensionPrincipalClass</key>
+      <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+      <key>NSExtensionPointIdentifier</key>
+      <string>com.apple.share-services</string>
+    </dict>
+  </dict>
+</plist>
