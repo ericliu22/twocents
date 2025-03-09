@@ -17,6 +17,7 @@ struct ExploreView: View {
                     ForEach(items) { item in
                         ExploreCard(item: item, namespace: namespace)
                             .onTapGesture {
+                                // Animate to detail view when tapped
                                 withAnimation(.spring()) {
                                     selectedItem = item
                                 }
@@ -37,6 +38,7 @@ struct ExploreView: View {
             }
             .navigationTitle("Explore")
         }
+        // Present full-screen detail view when an item is selected
         .fullScreenCover(item: $selectedItem) { item in
             ExploreDetailView(item: item, namespace: namespace, onDismiss: {
                 withAnimation(.spring()) {
@@ -164,47 +166,20 @@ struct ExploreDetailView: View {
                     }
                     .padding()
                     
-                    // Main image carousel with full screen width
-                    TabView {
-                        ForEach(Array(item.imageUrls.enumerated()), id: \.offset) { index, url in
-                            if index == 0 {
-                                AsyncImage(url: URL(string: url)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .clipped()
-                                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                                    } else {
-                                        Rectangle()
-                                            .fill(Color.yellow.gradient.opacity(0.3))
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
-                                    }
-                                }
-                            } else {
-                                AsyncImage(url: URL(string: url)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                            .clipped()
-                                    } else {
-                                        Rectangle()
-                                            .fill(Color.yellow.gradient.opacity(0.3))
-                                            .frame(width: UIScreen.main.bounds.width,
-                                                   height: UIScreen.main.bounds.width * 4/3)
-                                    }
-                                }
-                            }
+                    // Main image
+                    AsyncImage(url: URL(string: item.imageUrl)) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
+                        } else {
+                            Rectangle()
+                                .fill(Color.yellow.gradient.opacity(0.3))
+                                .matchedGeometryEffect(id: "image-\(item.id)", in: namespace)
                         }
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                    .aspectRatio(3/4, contentMode: .fill)
                     
                     // Likes, comments, and caption
                     VStack(alignment: .leading, spacing: 8) {
@@ -218,7 +193,7 @@ struct ExploreDetailView: View {
                     
                     Spacer()
                 }
-                // Ensure the detail view covers the full width
+                // Use UIScreen.main.bounds.width for the default width
                 .frame(width: UIScreen.main.bounds.width)
                 .background(Color.white)
                 .cornerRadius(12)
@@ -259,30 +234,22 @@ struct ExploreDetailView: View {
 
 struct ExploreItem: Identifiable, Equatable {
     let id = UUID()
-    let imageUrls: [String]
+    let imageUrl: String
     let profileImageUrl: String
     let caption: String
     let likes: Int
     let comments: Int
     
-    // Computed property for backward compatibility
-    var imageUrl: String {
-        imageUrls.first ?? ""
-    }
-    
     static let sampleData: [ExploreItem] = [
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?nature",
-                                  "https://source.unsplash.com/600x800/?landscape"],
+        ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?nature",
                     profileImageUrl: "https://source.unsplash.com/100x100/?face",
                     caption: "A beautiful sunset in the mountains.",
                     likes: 120, comments: 45),
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?city",
-                                  "https://source.unsplash.com/600x800/?architecture"],
+        ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?city",
                     profileImageUrl: "https://source.unsplash.com/100x100/?profile",
                     caption: "Exploring the city streets at night.",
                     likes: 89, comments: 30),
-        ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?food",
-                                  "https://source.unsplash.com/600x800/?cuisine"],
+        ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?food",
                     profileImageUrl: "https://source.unsplash.com/100x100/?person",
                     caption: "Delicious homemade ramen with extra toppings.",
                     likes: 200, comments: 60),
@@ -290,13 +257,11 @@ struct ExploreItem: Identifiable, Equatable {
     
     static func generateMoreData() -> [ExploreItem] {
         return [
-            ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?technology",
-                                      "https://source.unsplash.com/600x800/?innovation"],
+            ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?technology",
                         profileImageUrl: "https://source.unsplash.com/100x100/?avatar",
                         caption: "New AI advancements shaping the future.",
                         likes: 340, comments: 80),
-            ExploreItem(imageUrls: ["https://source.unsplash.com/600x800/?fashion",
-                                      "https://source.unsplash.com/600x800/?style"],
+            ExploreItem(imageUrl: "https://source.unsplash.com/600x800/?fashion",
                         profileImageUrl: "https://source.unsplash.com/100x100/?human",
                         caption: "Latest fashion trends this season.",
                         likes: 175, comments: 45),
