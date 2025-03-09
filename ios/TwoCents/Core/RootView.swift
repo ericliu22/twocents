@@ -14,12 +14,12 @@ struct RootView: View {
         @Bindable var appModel = appModel
         
         TabView {
-            ForUsPage(group: HARDCODED_GROUP)
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-                //.tag(Tab.defaulthome)
-            
+//            ForUsPage(group: HARDCODED_GROUP)
+//                .tabItem {
+//                    Label("Home", systemImage: "house.fill")
+//                }
+//                //.tag(Tab.defaulthome)
+//            
             ExploreView()
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
