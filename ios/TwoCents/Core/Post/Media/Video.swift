@@ -35,28 +35,44 @@ struct VideoDownload: Downloadable {
 }
 
 struct VideoView: PostView {
-    
+
     let post: Post
-    @State var video: VideoDownload?
-    
+    @State var videos: [VideoDownload] = []
+
     init(post: Post) {
         self.post = post
     }
-    
+
     var body: some View {
-        ZStack {
-            if let video {
-                if let url = URL(string: video.mediaUrl) {
-                    CachedVideo(videoUrl: url)
+        Group {
+            if videos.isEmpty {
+                ProgressView()
+            } else {
+                TabView {
+                    ForEach(videos, id: \.id) { videoDownload in
+                        if let url = URL(string: videoDownload.mediaUrl) {
+                            CachedVideo(videoUrl: url)
+                                .scaledToFill()
+                                .clipped()
+                        } else {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                        }
+                    }
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             }
         }
         .task {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            let videos = try? JSONDecoder().decode([VideoDownload].self, from: data)
-            let video = videos?.first
+            let newVideos = try? JSONDecoder().decode(
+                [VideoDownload].self, from: data)
+            if let newVideos {
+                videos.append(contentsOf: newVideos)
+            }
         }
     }
 }
+
