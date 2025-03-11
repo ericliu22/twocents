@@ -44,14 +44,11 @@ services:
     volumes:
       - ./certbot/www:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt:rw
-  rabbitmq:
-    image: rabbitmq:management-alpine
+  broker:
+    image: apache/kafka:latest
     env_file:
       #Requires RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS
       - message.env
-    ports:
-      - "5672:5672"     # AMQP port
-      - "15672:15672"   # Management UI (use http://localhost:15672)
     networks:
       - api-network
     restart: unless-stopped
