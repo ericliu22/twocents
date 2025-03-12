@@ -32,20 +32,6 @@
 			remoteGlobalIDString = A227C7A02D811BBB0079C865;
 			remoteInfo = ShareExtension;
 		};
-		A27A38EC2D821C57007F9026 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A2E84B302D6D2C15007B44F7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A227C7A02D811BBB0079C865;
-			remoteInfo = ShareExtension;
-		};
-		A27A38F22D821C71007F9026 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A2E84B302D6D2C15007B44F7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A227C7A02D811BBB0079C865;
-			remoteInfo = ShareExtension;
-		};
 		A27A38F52D821C77007F9026 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A2E84B302D6D2C15007B44F7 /* Project object */;
@@ -72,7 +58,7 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		A27A38EB2D821C52007F9026 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
@@ -80,7 +66,7 @@
 				A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -328,8 +314,6 @@
 			);
 			dependencies = (
 				A27A38EA2D821C52007F9026 /* PBXTargetDependency */,
-				A27A38ED2D821C57007F9026 /* PBXTargetDependency */,
-				A27A38F32D821C71007F9026 /* PBXTargetDependency */,
 				A27A38F62D821C77007F9026 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -540,16 +524,6 @@
 			isa = PBXTargetDependency;
 			target = A227C7A02D811BBB0079C865 /* ShareExtension */;
 			targetProxy = A27A38E92D821C52007F9026 /* PBXContainerItemProxy */;
-		};
-		A27A38ED2D821C57007F9026 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A227C7A02D811BBB0079C865 /* ShareExtension */;
-			targetProxy = A27A38EC2D821C57007F9026 /* PBXContainerItemProxy */;
-		};
-		A27A38F32D821C71007F9026 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A227C7A02D811BBB0079C865 /* ShareExtension */;
-			targetProxy = A27A38F22D821C71007F9026 /* PBXContainerItemProxy */;
 		};
 		A27A38F62D821C77007F9026 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
