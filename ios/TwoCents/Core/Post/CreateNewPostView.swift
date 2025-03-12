@@ -2,6 +2,7 @@ import SwiftUI
 import AVKit
 import PhotosUI
 import UniformTypeIdentifiers
+import TwoCentsInternal
 
 // A model to store selected media information.
 struct SelectedMedia: Identifiable, Equatable {

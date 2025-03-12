@@ -1,4 +1,5 @@
 import SwiftUI
+import TwoCentsInternal
 
 struct ExploreView: View {
     let group: FriendGroup

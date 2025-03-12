@@ -1,41 +1,43 @@
 //
-//  Image.swift
+//  Video.swift
 //  TwoCents
 //
-//  Created by Eric Liu on 2025/2/28.
+//  Created by Eric Liu on 2025/3/3.
 //
 
 import SwiftUI
 
-class ImageUpload: Uploadable {
+public class VideoUpload: Uploadable {
+    
+    public let post: Post
+    public let data: Data
 
-    let post: Post
-    let data: Data
-
-    init(post: Post, data: Data) {
+    public init(post: Post, data: Data) {
         self.post = post
         self.data = data
     }
-
-    func uploadPost() async throws -> Data {
+    
+    public func uploadPost() async throws -> Data{
         return try await Request<String>.uploadMedia(
             post: post,
             fileData: data,
-            mimeType: "image/jpeg",
-            url: PostManager.POST_URL.appending(path: "upload-image-post"))
+            mimeType: "video/mp4",
+            url: PostManager.POST_URL.appending(path: "upload-video-post"))
     }
+    
+    
 }
 
-struct ImageDownload: Downloadable {
+struct VideoDownload: Downloadable {
     let id: UUID
     let postId: UUID
     let mediaUrl: String
 }
 
-struct ImageView: PostView {
+struct VideoView: PostView {
 
     let post: Post
-    @State var images: [ImageDownload] = []
+    @State var videos: [VideoDownload] = []
 
     init(post: Post) {
         self.post = post
@@ -43,13 +45,13 @@ struct ImageView: PostView {
 
     var body: some View {
         Group {
-            if images.isEmpty {
+            if videos.isEmpty {
                 ProgressView()
             } else {
                 TabView {
-                    ForEach(images, id: \.id) { imageDownload in
-                        if let url = URL(string: imageDownload.mediaUrl) {
-                            CachedImage(url: url)
+                    ForEach(videos, id: \.id) { videoDownload in
+                        if let url = URL(string: videoDownload.mediaUrl) {
+                            CachedVideo(url: url)
                                 .scaledToFill()
                                 .clipped()
                         } else {
@@ -65,13 +67,12 @@ struct ImageView: PostView {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            let newImages = try? JSONDecoder().decode(
-                [ImageDownload].self, from: data)
-            //Reloads each time user comes back not sure if good or bad
-            if let newImages {
-                images = []
-                images.append(contentsOf: newImages)
+            let newVideos = try? JSONDecoder().decode(
+                [VideoDownload].self, from: data)
+            if let newVideos {
+                videos.append(contentsOf: newVideos)
             }
         }
     }
 }
+

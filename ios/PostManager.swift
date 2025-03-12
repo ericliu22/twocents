@@ -7,22 +7,28 @@
 
 import Foundation
 
-struct PostRequest: Encodable {
-    let media: Media
-    let caption: String?
-    let groups: [UUID]
+public struct PostRequest: Encodable {
+    public let media: Media
+    public let caption: String?
+    public let groups: [UUID]
+    
+    public init(media: Media, caption: String? = nil, groups: [UUID]) {
+        self.media = media
+        self.caption = caption
+        self.groups = groups
+    }
 }
 
 //CanvasWidget: Post
 //Media: Image
 
-struct PostManager {
+public struct PostManager {
     
     private init() {}
     
-    static let POST_URL: URL = API_URL.appending(path: "post")
+    public static let POST_URL: URL = API_URL.appending(path: "post")
     
-    static func uploadPost(postRequest: PostRequest) async throws -> Post {
+    public static func uploadPost(postRequest: PostRequest) async throws -> Post {
         let request: Request = Request(
             method: .POST,
             contentType: .json,
@@ -33,7 +39,7 @@ struct PostManager {
         return try TwoCentsDecoder().decode(Post.self, from: data)
     }
     
-    static func uploadMediaPost(post: Post, data: Data) async throws -> Data {
+    public static func uploadMediaPost(post: Post, data: Data) async throws -> Data {
         //The media
         let uploadPost: any Uploadable = makeUploadable(post: post, data: data)
         //The downloadable

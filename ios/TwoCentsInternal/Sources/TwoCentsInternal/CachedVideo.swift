@@ -8,27 +8,27 @@
 import AVKit
 import SwiftUI
 
-struct CachedVideo<FailureView: View>: View {
+public struct CachedVideo<FailureView: View>: View {
     
-    let videoUrl: URL
-    @State var videoPlayer: AVPlayer?
-    @State var isLoading: Bool = true
-    var failureView: FailureView
+    public let videoUrl: URL
+    @State public var videoPlayer: AVPlayer?
+    @State public var isLoading: Bool = true
+    public var failureView: FailureView
     
     // Initializer to provide a custom failure view.
-    init(url: URL, @ViewBuilder onFailure: () -> FailureView) {
+    public init(url: URL, @ViewBuilder onFailure: () -> FailureView) {
         self.videoUrl = url
         self.failureView = onFailure()
     }
     
     // Convenience initializer when no custom failure view is provided.
     // This forces FailureView to be DefaultFailureView.
-    init(url: URL) where FailureView == DefaultFailureView {
+    public init(url: URL) where FailureView == DefaultFailureView {
         self.videoUrl = url
         self.failureView = DefaultFailureView()
     }
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             if let videoPlayer {
                 VideoPlayer(player: videoPlayer)

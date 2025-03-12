@@ -19,7 +19,7 @@ services:
       - api-network
     depends_on:
       - database
-      - rabbitmq
+      - broker
     restart: unless-stopped
     volumes:
       - ./logs:/root/logs
@@ -47,7 +47,6 @@ services:
   broker:
     image: apache/kafka:latest
     env_file:
-      #Requires RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS
       - message.env
     networks:
       - api-network

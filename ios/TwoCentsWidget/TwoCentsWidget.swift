@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import TwoCentsInternal
 
 var HARDCODED_DATE: Date {
     var dateComponents = DateComponents()

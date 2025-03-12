@@ -7,7 +7,7 @@
 import Foundation
 import SwiftUI
 
-enum Media: String, Codable {
+public enum Media: String, Codable {
     case IMAGE
     case VIDEO
     case TEXT
@@ -15,15 +15,15 @@ enum Media: String, Codable {
     case OTHER
 }
 
-class Post: Identifiable, Codable {
-    let id: UUID
-    let userId: UUID
-    var media: Media
-    var dateCreated: Date
-    var caption: String?
+public class Post: Identifiable, Codable {
+    public let id: UUID
+    public let userId: UUID
+    public var media: Media
+    public var dateCreated: Date
+    public var caption: String?
 
     // New initializer to create Post objects with specific values.
-    init(
+    public init(
         id: UUID, userId: UUID, media: Media, dateCreated: Date,
         caption: String?
     ) {
@@ -39,7 +39,7 @@ protocol PostView: View {
     var post: Post { get }
 }
 
-protocol Uploadable: Identifiable, Codable {
+public protocol Uploadable: Identifiable, Codable {
 
     func uploadPost() async throws -> Data
 }
@@ -48,7 +48,7 @@ protocol Downloadable: Identifiable, Codable {
 
 }
 
-func makeUploadable(post: Post, data: Data) -> any Uploadable {
+public func makeUploadable(post: Post, data: Data) -> any Uploadable {
     switch post.media {
     case .IMAGE:
         return ImageUpload(post: post, data: data)
@@ -61,8 +61,8 @@ func makeUploadable(post: Post, data: Data) -> any Uploadable {
     }
 }
 
-@ViewBuilder
-func makePostView(post: Post) -> some View {
+@MainActor @ViewBuilder
+public func makePostView(post: Post) -> some View {
     switch post.media {
     case .IMAGE:
         ImageView(post: post)

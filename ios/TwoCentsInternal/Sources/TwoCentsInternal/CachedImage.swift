@@ -6,30 +6,30 @@
 //
 import SwiftUI
 
-struct DefaultFailureView: View {
-    var body: some View {
+public struct DefaultFailureView: View {
+    public var body: some View {
         Image(systemName: "exclamationmark.triangle")
     }
 }
 
-struct CachedImage<FailureView: View>: View {
+public struct CachedImage<FailureView: View>: View {
 
-    let imageUrl: URL
-    @State private var cachedURL: URL?
-    @State private var isLoading: Bool = true
-    var failureView: FailureView
+    public let imageUrl: URL
+    @State public var cachedURL: URL?
+    @State public var isLoading: Bool = true
+    public var failureView: FailureView
     
-    init(url: URL, @ViewBuilder onFailure: () -> FailureView) {
+    public init(url: URL, @ViewBuilder onFailure: () -> FailureView) {
         self.imageUrl = url
         self.failureView = onFailure()
     }
     
-    init(url: URL) where FailureView == DefaultFailureView {
+    public init(url: URL) where FailureView == DefaultFailureView {
         self.imageUrl = url
         self.failureView = DefaultFailureView()
     }
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             if let url = cachedURL {
                 // pass the local URL to AsyncImage

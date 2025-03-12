@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-class LinkUpload: Uploadable {
+public class LinkUpload: Uploadable {
     
-    let post: Post
-    let data: Data
+    public let post: Post
+    public let data: Data
 
-    init(post: Post, data: Data) {
+    public init(post: Post, data: Data) {
         self.post = post
         self.data = data
     }
     
-    func uploadPost() async throws -> Data {
+    public func uploadPost() async throws -> Data {
         let boundary = UUID()
         var body = Data()
         let postData = try TwoCentsEncoder().encode(post)

@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-class VideoUpload: Uploadable {
+public class VideoUpload: Uploadable {
     
-    let post: Post
-    let data: Data
+    public let post: Post
+    public let data: Data
 
-    init(post: Post, data: Data) {
+    public init(post: Post, data: Data) {
         self.post = post
         self.data = data
     }
     
-    func uploadPost() async throws -> Data{
+    public func uploadPost() async throws -> Data{
         return try await Request<String>.uploadMedia(
             post: post,
             fileData: data,

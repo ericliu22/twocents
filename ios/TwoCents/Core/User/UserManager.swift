@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TwoCentsInternal
 
 //We don't use shared
 struct UserManager {

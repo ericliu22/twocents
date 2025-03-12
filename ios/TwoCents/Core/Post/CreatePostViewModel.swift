@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import UniformTypeIdentifiers
+import TwoCentsInternal
 
 @MainActor @Observable
 class CreatePostViewModel {
@@ -96,7 +97,7 @@ class CreatePostViewModel {
     
     func createLink() async {
         let postRequest = PostRequest(
-            media: .VIDEO, caption: caption.isEmpty ? nil : caption,
+            media: .LINK, caption: caption.isEmpty ? nil : caption,
             groups: groups)
         guard
             let post = try? await PostManager.uploadPost(
@@ -106,7 +107,6 @@ class CreatePostViewModel {
             return
         }
         
-        //Important that it's lowercase
         let body = [
             "mediaUrl": mediaURL
         ]
@@ -121,6 +121,28 @@ class CreatePostViewModel {
     }
     
     func createText() async {
-        print("Not properly implemented yet. Needs additional text field besides caption")
+        let postRequest = PostRequest(
+            media: .TEXT, caption: caption.isEmpty ? nil : caption,
+            groups: groups)
+        guard
+            let post = try? await PostManager.uploadPost(
+                postRequest: postRequest)
+        else {
+            print("Failed to upload post")
+            return
+        }
+        
+        //@TODO: Tentatively use the caption as text
+        let body = [
+            "text": caption
+        ]
+        guard let data = try? TwoCentsEncoder().encode(body) else {
+            print("Failed to encode body")
+            return
+        }
+        guard let _ = try? await PostManager.uploadMediaPost(post: post, data: data) else {
+            print("Failed to upload link")
+            return
+        }
     }
 }

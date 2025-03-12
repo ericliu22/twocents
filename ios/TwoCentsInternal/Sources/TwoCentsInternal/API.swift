@@ -7,15 +7,15 @@
 
 import Foundation
 
-let API_URL: URL = URL(string: "https://api.twocentsapp.com/v1/")!
+public let API_URL: URL = URL(string: "https://api.twocentsapp.com/v1/")!
 
-enum APIError: Error {
+public enum APIError: Error {
     case invalidResponse
     case unexpectedStatusCode(Int)
     case noData
 }
 
-enum HTTPMethod: String, RawRepresentable, Equatable, Hashable {
+public enum HTTPMethod: String, RawRepresentable, Equatable, Hashable {
     case GET
     case POST
     case PUT
@@ -29,7 +29,7 @@ enum HTTPMethod: String, RawRepresentable, Equatable, Hashable {
 }
 
 //We really don't care any other content types besides the following
-enum ContentType {
+public enum ContentType {
     case json
     case textPlain
     case imgJpeg
@@ -52,15 +52,15 @@ enum ContentType {
     }
 }
 
-struct Request<T: Encodable> {
-    let method: HTTPMethod
-    let contentType: ContentType
-    let url: URL
-    let headers: [String: String]?
-    let body: T?
+public struct Request<T: Encodable> {
+    public let method: HTTPMethod
+    public let contentType: ContentType
+    public let url: URL
+    public let headers: [String: String]?
+    public let body: T?
     
     /// Designated initializer with optional headers/body
-    init(
+    public init(
         method: HTTPMethod,
         contentType: ContentType,
         url: URL,
@@ -74,7 +74,7 @@ struct Request<T: Encodable> {
         self.body = body
     }
     
-    func asURLRequest() async throws -> URLRequest {
+    public func asURLRequest() async throws -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         
@@ -96,7 +96,7 @@ struct Request<T: Encodable> {
         return request
     }
     
-    func sendRequest() async throws -> Data {
+    public func sendRequest() async throws -> Data {
         let urlRequest = try await self.asURLRequest()
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
@@ -118,7 +118,7 @@ struct Request<T: Encodable> {
         return data
     }
     
-    static func uploadMedia(post: Post, fileData: Data, mimeType: String, url: URL) async throws -> Data {
+    public static func uploadMedia(post: Post, fileData: Data, mimeType: String, url: URL) async throws -> Data {
         //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes early -Eric
         let boundary: UUID = UUID()
         
@@ -168,7 +168,7 @@ struct Request<T: Encodable> {
     }
 }
 
-extension Data {
+public extension Data {
     mutating func append(_ string: String) {
         if let data = string.data(using: .utf8) {
             append(data)
@@ -176,7 +176,7 @@ extension Data {
     }
 }
 
-func TwoCentsEncoder() -> JSONEncoder {
+public func TwoCentsEncoder() -> JSONEncoder {
     let encoder = JSONEncoder()
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
@@ -184,7 +184,7 @@ func TwoCentsEncoder() -> JSONEncoder {
     return encoder
 }
 
-func TwoCentsDecoder() -> JSONDecoder {
+public func TwoCentsDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format

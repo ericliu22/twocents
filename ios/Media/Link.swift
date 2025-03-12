@@ -1,23 +1,23 @@
 //
-//  Text.swift
+//  Link.swift
 //  TwoCents
 //
-//  Created by Eric Liu on 2025/3/8.
+//  Created by Eric Liu on 2025/3/3.
 //
 
 import SwiftUI
 
-class TextUpload: Uploadable {
+public class LinkUpload: Uploadable {
     
-    let post: Post
-    let data: Data
+    public let post: Post
+    public let data: Data
 
-    init(post: Post, data: Data) {
+    public init(post: Post, data: Data) {
         self.post = post
         self.data = data
     }
     
-    func uploadPost() async throws -> Data {
+    public func uploadPost() async throws -> Data {
         let boundary = UUID()
         var body = Data()
         let postData = try TwoCentsEncoder().encode(post)
@@ -38,7 +38,7 @@ class TextUpload: Uploadable {
         let request = Request (
             method: .POST,
             contentType: .json,
-            url: PostManager.POST_URL.appending(path: "upload-text-post"),
+            url: PostManager.POST_URL.appending(path: "upload-link-post"),
             body: body
         )
         return try await request.sendRequest()
@@ -46,16 +46,16 @@ class TextUpload: Uploadable {
     
 }
 
-struct TextDownload: Downloadable {
+struct LinkDownload: Downloadable {
     let id: UUID
     let postId: UUID
-    let text: String
+    let mediaUrl: String
 }
 
-struct TextView: PostView {
+struct LinkView: PostView {
     
     let post: Post
-    @State var text: TextDownload?
+    @State var link: LinkDownload?
     
     init(post: Post) {
         self.post = post
