@@ -10,6 +10,8 @@
 		851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F248E2D6E8C9500A08134 /* WidgetKit.framework */; };
 		851F24912D6E8C9500A08134 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F24902D6E8C9500A08134 /* SwiftUI.framework */; };
 		851F24A22D6E8C9600A08134 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		85CF0BC42D7E29D700609032 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 85CF0BC32D7E29D700609032 /* FirebaseAuth */; };
+		85CF0BC62D7E29DC00609032 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 85CF0BC52D7E29DC00609032 /* FirebaseCore */; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
 		A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409472D6F8BC700E26D73 /* FirebaseCore */; };
 		ABF6A69F2D7D34C00076DDD6 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ABF6A6952D7D34C00076DDD6 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -83,6 +85,24 @@
 			);
 			target = A2E84B372D6D2C15007B44F7 /* TwoCents */;
 		};
+		8515AFC02D7E15C400A76B97 /* Exceptions for "TwoCents" folder in "TwoCentsWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/API/API.swift,
+				Core/API/CachedImage.swift,
+				Core/API/CachedVideo.swift,
+				Core/Auth/AuthenticationManager.swift,
+				Core/Group/FriendGroup.swift,
+				Core/Post/Media/Image.swift,
+				Core/Post/Media/Link.swift,
+				Core/Post/Media/Text.swift,
+				Core/Post/Media/Video.swift,
+				Core/Post/Post.swift,
+				Core/Post/PostManager.swift,
+				Core/User/User.swift,
+			);
+			target = 851F248B2D6E8C9500A08134 /* TwoCentsWidgetExtension */;
+		};
 		851F24A32D6E8C9600A08134 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -122,6 +142,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				8515AD662D72608700A76B97 /* Exceptions for "TwoCents" folder in "TwoCents" target */,
+				8515AFC02D7E15C400A76B97 /* Exceptions for "TwoCents" folder in "TwoCentsWidgetExtension" target */,
 			);
 			path = TwoCents;
 			sourceTree = "<group>";
@@ -142,6 +163,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				851F24912D6E8C9500A08134 /* SwiftUI.framework in Frameworks */,
+				85CF0BC42D7E29D700609032 /* FirebaseAuth in Frameworks */,
+				85CF0BC62D7E29DC00609032 /* FirebaseCore in Frameworks */,
 				851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -245,6 +268,8 @@
 			);
 			name = TwoCentsWidgetExtension;
 			packageProductDependencies = (
+				85CF0BC32D7E29D700609032 /* FirebaseAuth */,
+				85CF0BC52D7E29DC00609032 /* FirebaseCore */,
 			);
 			productName = TwoCentsWidgetExtension;
 			productReference = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */;
@@ -951,6 +976,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		85CF0BC32D7E29D700609032 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		85CF0BC52D7E29DC00609032 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		A2E409452D6F8B8A00E26D73 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
