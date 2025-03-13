@@ -32,6 +32,7 @@ struct ExploreView: View {
                 if isLoading {
                     ProgressView()
                         .padding(.bottom, 20)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .navigationTitle("Explore")
@@ -169,9 +170,9 @@ struct ExploreDetailView: View {
                     .padding()
                     
                     // Show the post’s content using your media-aware factory.
-                    makePostView(post: post)
-                    
-                    
+                    // In ExploreDetailView's body:
+                    makePostView(post: post, isDetail: true)
+
                     // Optionally show the caption, if any.
                     if let caption = post.caption {
                         Text(caption)

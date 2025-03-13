@@ -33,12 +33,13 @@ struct ImageDownload: Downloadable {
 }
 
 struct ImageView: PostView {
-
     let post: Post
+    let isDetail: Bool
     @State var images: [ImageDownload] = []
 
-    init(post: Post) {
+    init(post: Post, isDetail: Bool = false) {
         self.post = post
+        self.isDetail = isDetail
     }
 
     var body: some View {
@@ -49,21 +50,19 @@ struct ImageView: PostView {
                 TabView {
                     ForEach(images, id: \.id) { imageDownload in
                         if let url = URL(string: imageDownload.mediaUrl) {
-                            CachedImage(url: url)
-//                                .resizable()
-                                .aspectRatio(3/4, contentMode: .fill)
-                //                .frame(width: 150, height: 200)
-                                .frame(maxWidth:.infinity)
-                                .scrollClipDisabled(false)
-//
-//                                .aspectRatio(contentMode: .fit)
-//                                .frame(maxWidth: .infinity)
-                                .clipped()
-                                .ignoresSafeArea()
-                                .frame(maxHeight: .infinity)
-                                .background(Color(UIColor.systemGray6))
-
-                            
+                            if isDetail {
+                                CachedImage(url: url)
+                                    .scaledToFit() // ensures full image is visible, stretching width naturally.
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color(UIColor.systemGray6))
+                            } else {
+                                CachedImage(url: url)
+                                    .scaledToFill() // fills the frame even if it means cropping.
+                                    .frame(maxWidth: .infinity)
+                                    .aspectRatio(3/4, contentMode: .fill)
+                                    .clipped()
+                                    .background(Color(UIColor.systemGray6))
+                            }
                         } else {
                             Rectangle()
                                 .fill(Color.gray.opacity(0.3))
@@ -77,13 +76,10 @@ struct ImageView: PostView {
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
-            let newImages = try? JSONDecoder().decode(
-                [ImageDownload].self, from: data)
-            //Reloads each time user comes back not sure if good or bad
-            if let newImages {
-                images = []
-                images.append(contentsOf: newImages)
+            if let newImages = try? JSONDecoder().decode([ImageDownload].self, from: data) {
+                images = newImages
             }
         }
     }
+
 }

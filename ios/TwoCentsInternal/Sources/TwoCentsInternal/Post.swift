@@ -62,10 +62,10 @@ public func makeUploadable(post: Post, data: Data) -> any Uploadable {
 }
 
 @MainActor @ViewBuilder
-public func makePostView(post: Post) -> some View {
+public func makePostView(post: Post, isDetail: Bool = false) -> some View {
     switch post.media {
     case .IMAGE:
-        ImageView(post: post)
+        ImageView(post: post, isDetail: isDetail)
     case .VIDEO:
         VideoView(post: post)
     case .LINK:
@@ -76,6 +76,7 @@ public func makePostView(post: Post) -> some View {
         EmptyPostView(post: post)
     }
 }
+
 
 struct EmptyPostView: PostView {
     let post: Post
