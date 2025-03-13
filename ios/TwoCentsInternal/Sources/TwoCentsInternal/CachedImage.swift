@@ -48,7 +48,7 @@ public struct CachedImage<FailureView: View>: View {
                     }
                 }
             } else if isLoading {
-                ProgressView()
+                ProgressView()  
             } else {
                 failureView
             }

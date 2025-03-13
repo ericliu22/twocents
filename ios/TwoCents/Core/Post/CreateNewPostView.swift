@@ -42,7 +42,7 @@ struct CreatePostView: View {
                     Divider()
                     
                     // Use the newer TextField initializer if available (iOS 16+).
-                    TextField("Write a viewModel.caption...", text: $viewModel.caption, axis: .vertical)
+                    TextField("Add a caption...", text: $viewModel.caption, axis: .vertical)
                         .lineLimit(5, reservesSpace: true)
                         .font(.body)
                     

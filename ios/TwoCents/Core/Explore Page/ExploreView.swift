@@ -9,8 +9,10 @@ struct ExploreView: View {
     @State private var selectedPost: Post? = nil    // For full screen detail
     
     let columns = [
-        GridItem(.adaptive(minimum: 150), spacing: 5)
+        GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5),
+        GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5)
     ]
+
     
     var body: some View {
         NavigationView {
@@ -25,6 +27,7 @@ struct ExploreView: View {
                     }
                 }
                 .padding(5)
+                
                 
                 if isLoading {
                     ProgressView()
@@ -75,8 +78,9 @@ struct ExploreCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             makePostView(post: post)
-                .frame(maxWidth: 150, minHeight: 200)
                 .aspectRatio(3/4, contentMode: .fill)
+//                .frame(width: 150, height: 200)
+                .frame(maxWidth:.infinity)
                 .clipped()
                 .cornerRadius(12)
                 .onTapGesture {
@@ -84,9 +88,15 @@ struct ExploreCard: View {
                         selectedPost = post
                     }
                 }
+
             VStack(alignment: .leading, spacing: 4) {
                 if let caption = post.caption {
                     Text(caption)
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(2)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("")
                         .font(.system(size: 14, weight: .medium))
                         .lineLimit(2)
                         .foregroundColor(.primary)
@@ -116,6 +126,9 @@ struct ExploreCard: View {
             }
             .padding(.horizontal, 4)
         }
+     
+        .ignoresSafeArea()
+
         
     }
 }
@@ -157,6 +170,7 @@ struct ExploreDetailView: View {
                     
                     // Show the post’s content using your media-aware factory.
                     makePostView(post: post)
+                    
                     
                     // Optionally show the caption, if any.
                     if let caption = post.caption {

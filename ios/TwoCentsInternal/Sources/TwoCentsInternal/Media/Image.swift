@@ -50,15 +50,27 @@ struct ImageView: PostView {
                     ForEach(images, id: \.id) { imageDownload in
                         if let url = URL(string: imageDownload.mediaUrl) {
                             CachedImage(url: url)
-                                .scaledToFill()
+//                                .resizable()
+                                .aspectRatio(3/4, contentMode: .fill)
+                //                .frame(width: 150, height: 200)
+                                .frame(maxWidth:.infinity)
+                                .scrollClipDisabled(false)
+//
+//                                .aspectRatio(contentMode: .fit)
+//                                .frame(maxWidth: .infinity)
                                 .clipped()
+                                .ignoresSafeArea()
+                                .frame(maxHeight: .infinity)
+                                .background(Color(UIColor.systemGray6))
+
+                            
                         } else {
                             Rectangle()
                                 .fill(Color.gray.opacity(0.3))
                         }
                     }
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
             }
         }
         .task {
