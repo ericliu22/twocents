@@ -25,8 +25,10 @@ struct ExploreView: View {
                         }
 
                     }
+                    .padding(.bottom, 5)
                 }
-                .padding(5)
+                .padding(.horizontal, 5)
+               
                 
                 
                 if isLoading {
@@ -37,6 +39,18 @@ struct ExploreView: View {
             }
             .navigationTitle("Explore")
         }
+        .refreshable(action: {
+            do {
+                // Fetch posts from the backend
+                let postsData = try await PostManager.getGroupPosts(groupId: group.id)
+                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
+                posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
+                let members = try await GroupManager.fetchGroupMembers(groupId: group.id)
+                users = IdentifiedCollection(members)
+            } catch {
+                print("Error fetching posts: \(error)")
+            }
+        })
         .task {
             do {
                 // Fetch posts from the backend
@@ -103,7 +117,7 @@ struct ExploreCard: View {
                         .foregroundColor(.primary)
                 }
                 
-                HStack {
+                HStack (spacing: 0){
                     if let url = URL(string: user.profilePic ?? "") {
                         CachedImage(url: url)
                             .scaledToFill()
@@ -116,13 +130,21 @@ struct ExploreCard: View {
                         
                     }
                     
-                    HStack(spacing: 8) {
-                        Label("\(100)", systemImage: "heart.fill")
-                            .foregroundColor(.red)
-                        Label("\(100)", systemImage: "bubble.right.fill")
-                            .foregroundColor(.gray)
-                    }
-                    .font(.caption)
+                    Text(user.name ?? user.username)
+                        .font(.caption)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.leading, 8)
+                        .foregroundColor(Color(UIColor.systemGray))
+                    
+                    Spacer()
+                   
+                    Label("\(100)", systemImage: "heart.fill")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        
+                    
+                    
                 }
             }
             .padding(.horizontal, 4)

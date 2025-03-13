@@ -46,6 +46,8 @@ struct ImageView: PostView {
         Group {
             if images.isEmpty {
                 ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight:.infinity)
+                
             } else {
                 TabView {
                     ForEach(images, id: \.id) { imageDownload in
@@ -58,14 +60,17 @@ struct ImageView: PostView {
                             } else {
                                 CachedImage(url: url)
                                     .scaledToFill() // fills the frame even if it means cropping.
-                                    .frame(maxWidth: .infinity)
+                                    .frame(maxWidth: .infinity, maxHeight:.infinity)
                                     .aspectRatio(3/4, contentMode: .fill)
                                     .clipped()
                                     .background(Color(UIColor.systemGray6))
                             }
                         } else {
                             Rectangle()
+                            
                                 .fill(Color.gray.opacity(0.3))
+                                .frame(maxWidth: .infinity, maxHeight:.infinity)
+                            
                         }
                     }
                 }
