@@ -31,9 +31,10 @@ struct CreatePostView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
                             ForEach(mediaOptions, id: \.label) { option in
-                                mediaButton(icon: option.icon, label: option.label, isSelected: viewModel.mediaType == option.type) {
+                                mediaButton(icon: option.icon, label: option.label, isSelected: viewModel.mediaType == option.type)
+                                {
                                     viewModel.mediaType = option.type
-                                    if viewModel.mediaType == .IMAGE && viewModel.selectedMedia == [] { viewModel.showMediaPicker.toggle() }
+//                                    if viewModel.mediaType == .IMAGE && viewModel.selectedMedia == [] { viewModel.showMediaPicker.toggle() }
                                 }
                             }
                         }
@@ -149,7 +150,11 @@ struct CreatePostView: View {
 //                        .foregroundColor(.white)
                         .cornerRadius(10)
                     }
-                    .disabled(viewModel.isPosting || (viewModel.mediaType == .LINK && viewModel.mediaURL.isEmpty))
+                    .disabled(viewModel.isPosting
+                              || (viewModel.mediaType == .LINK && viewModel.mediaURL.isEmpty)
+                              || (viewModel.mediaType == .IMAGE && viewModel.selectedMedia.isEmpty)
+                              (viewModel.mediaType == .text && viewModel.caption.isEmpty)
+                    )
                     .buttonStyle(.bordered)
                 }
                 .padding(.horizontal)
