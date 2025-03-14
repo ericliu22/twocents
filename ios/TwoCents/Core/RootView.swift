@@ -58,6 +58,7 @@ struct RootView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
+            
         }
         .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
@@ -103,11 +104,11 @@ struct HomeView: View {
         .padding()
     }
 }
-
-
-struct ProfileView: View {
-    var body: some View {
-        Text("Profile Screen")
-            .padding()
-    }
-}
+//
+//
+//struct ProfileView: View {
+//    var body: some View {
+//        Text("Profile Screen")
+//            .padding()
+//    }
+//}
