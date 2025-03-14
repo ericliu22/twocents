@@ -38,15 +38,15 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload("profilepics/" + user.ID.String()+".jpeg", &file, "image/jpeg")
+		mediaURL, uploadErr := aws.ObjectUpload("profilepics/"+user.ID.String()+".jpeg", &file, "image/jpeg")
 		if uploadErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
 			return
 		}
 
-		profilepic := database.UpdateProfilePicParams {
-			UserID: user.ID,
+		profilepic := database.UpdateProfilePicParams{
+			UserID:     user.ID,
 			ProfilePic: mediaURL,
 		}
 		err := queries.UpdateProfilePic(ctx.Request.Context(), profilepic)

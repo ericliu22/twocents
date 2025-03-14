@@ -31,7 +31,8 @@ CREATE TABLE users (
 	date_created    DATE            NOT NULL,
 	username  		TEXT	        NOT NULL,
 	hash	        TEXT,
-	salt	        TEXT
+	salt	        TEXT,
+    device_tokens   TEXT[]
 );
 
 CREATE TABLE user_profiles (

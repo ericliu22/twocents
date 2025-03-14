@@ -63,7 +63,7 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 
 		linkParams := database.CreateLinkParams{
 			ID:       uuid.New(),
-			PostID:	  post.ID,
+			PostID:   post.ID,
 			MediaUrl: linkRequest.MediaUrl,
 		}
 

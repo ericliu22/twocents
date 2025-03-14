@@ -2,8 +2,10 @@ package message
 
 import (
 	"log"
+	"strings"
 
 	"github.com/IBM/sarama"
+	"github.com/google/uuid"
 )
 
 func SetupKafkaConsumer(hub *Hub) {
@@ -26,12 +28,30 @@ func SetupKafkaConsumer(hub *Hub) {
 	// For demonstration, we consume from partition 0 starting at the newest offset.
 }
 
-func parseKafkaMessage(msg *sarama.ConsumerMessage) WSMessage {
+func parseKafkaMessage(msg *sarama.ConsumerMessage) (*WSMessage, error) {
 	//Somehow parse the key to get groupId or someshit
-	target := string(msg.Key)
-	var message = WSMessage {
-		Target: target,
-		Data: msg.Value,
+
+	messageKey := string(msg.Key)
+	parts := strings.Split(messageKey, ":")
+	subject, subjectId := parts[0], parts[1]
+
+	target, parseErr := uuid.Parse(subjectId)
+	if parseErr != nil {
+		return nil, parseErr;
 	}
-	return message
+
+	var message WSMessage
+	if subject == "group" {
+		message = WSMessage {
+			Group: &target,
+			Data:   msg.Value,
+		}
+	} else {
+		message = WSMessage {
+			Target: &target,
+			Data:   msg.Value,
+		}
+	}
+
+	return &message, nil
 }

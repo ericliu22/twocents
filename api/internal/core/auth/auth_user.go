@@ -10,5 +10,3 @@ Valid get user when
 func ValidGetUser(user *database.User) (bool, error) {
 	return true, nil
 }
-
-

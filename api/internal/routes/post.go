@@ -2,7 +2,6 @@ package routes
 
 import (
 	database "api/internal/core/db"
-	"api/internal/core/message"
 	"api/internal/handlers/post"
 	"api/internal/middleware"
 
@@ -10,11 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupPostRoutes(router *gin.RouterGroup, queries *database.Queries, authClient *firebaseAuth.Client, hub *message.Hub) {
+func SetupPostRoutes(
+	router *gin.RouterGroup,
+	queries *database.Queries,
+	authClient *firebaseAuth.Client,
+) {
 	r := router.Group("/post", middleware.AuthMiddleware(authClient))
 	r.GET("/get-group-posts", handlers.GetGroupPostsHandler(queries))
 	r.GET("/get-media", handlers.GetMediaHandler(queries))
-	r.GET("/post-listener", handlers.PostListenerHandler(queries, hub))
 	r.POST("/create-post", handlers.CreatePostHandler(queries))
 	r.POST("/upload-image-post", handlers.UploadImagePostHandler(queries))
 	r.POST("/upload-video-post", handlers.UploadVideoPostHandler(queries))

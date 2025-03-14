@@ -51,20 +51,20 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 
 		friendGroup, createErr := queries.CreateFriendGroup(ctx.Request.Context(), createGroup)
 		if createErr != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to create group: " + createErr.Error())
+			ctx.String(http.StatusInternalServerError, "Error: Failed to create group: "+createErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to create group: " + createErr.Error()))
 			return
 		}
 
-		addUser := database.AddUserToGroupParams {
-			GroupID: friendGroup.ID,
-			UserID: user.ID,
+		addUser := database.AddUserToGroupParams{
+			GroupID:  friendGroup.ID,
+			UserID:   user.ID,
 			JoinedAt: currentDate,
-			Role: database.GroupRoleADMIN,
+			Role:     database.GroupRoleADMIN,
 		}
 		_, addErr := queries.AddUserToGroup(ctx.Request.Context(), addUser)
 		if addErr != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to add user: " + addErr.Error())
+			ctx.String(http.StatusInternalServerError, "Error: Failed to add user: "+addErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to add user: " + addErr.Error()))
 			return
 

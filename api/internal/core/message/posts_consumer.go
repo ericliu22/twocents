@@ -29,8 +29,13 @@ func setupPostsConsumer(consumer sarama.Consumer, hub *Hub) {
 			case err := <-postConsumer.Errors():
 				gin.DefaultWriter.Write([]byte("Kafka consumer error" + err.Error()))
 			case msg := <-postConsumer.Messages():
-				wsMessage := parseKafkaMessage(msg)
-				hub.Broadcast(wsMessage)
+				wsMessage, err := parseKafkaMessage(msg)
+				if err != nil {
+					gin.DefaultWriter.Write([]byte("Failed to parse kafka message" + err.Error()))
+				}
+				if wsMessage != nil {
+					hub.Broadcast(*wsMessage)
+				}
 			}
 		}
 	}()

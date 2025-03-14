@@ -61,10 +61,10 @@ func UploadTextPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		textParams := database.CreateTextParams {
-			ID:       uuid.New(),
-			PostID:	  post.ID,
-			Text: textRequest.Text,
+		textParams := database.CreateTextParams{
+			ID:     uuid.New(),
+			PostID: post.ID,
+			Text:   textRequest.Text,
 		}
 
 		text, createErr := queries.CreateText(ctx.Request.Context(), textParams)

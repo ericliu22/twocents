@@ -9,7 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupUserRoutes(router *gin.RouterGroup, queries *database.Queries, authClient *firebaseAuth.Client) {
+func SetupUserRoutes(
+	router *gin.RouterGroup,
+	queries *database.Queries,
+	authClient *firebaseAuth.Client,
+) {
 	r := router.Group("/user", middleware.AuthMiddleware(authClient))
 	r.GET("/get-user", handlers.GetUserHandler(queries))
 	r.GET("/get-current-user", handlers.GetCurrentUserHandler(queries))

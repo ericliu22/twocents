@@ -28,7 +28,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user: " + userErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}

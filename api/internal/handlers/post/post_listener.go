@@ -21,23 +21,23 @@ func PostListenerHandler(queries *database.Queries, hub *message.Hub) gin.Handle
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user: " + userErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
 
 		groupIDStr := ctx.Query("groupId")
 		if groupIDStr == "" {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
 			gin.DefaultWriter.Write([]byte("Failed to query groupId"))
-		    return
+			return
 		}
 
 		groupID, err := uuid.Parse(groupIDStr)
 		if err != nil {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
 			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
-		    return
+			return
 		}
 		checkMembership := database.CheckUserMembershipParams{
 			GroupID: groupID,
@@ -45,7 +45,7 @@ func PostListenerHandler(queries *database.Queries, hub *message.Hub) gin.Handle
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to check membership: " + checkErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
 			return
 		}
@@ -54,7 +54,6 @@ func PostListenerHandler(queries *database.Queries, hub *message.Hub) gin.Handle
 			gin.DefaultWriter.Write([]byte("Unauthorized"))
 			return
 		}
-
 
 		// Upgrade the HTTP connection to a WebSocket.
 		// This registers the client with the Hub and starts its read/write pumps.

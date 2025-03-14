@@ -18,6 +18,7 @@ func SetupCoreRouter(
 	router.GET("/", handlers.IndexHandler)
 	r := router.Group("/v1")
 	SetupUserRoutes(r, queries, authClient)
-	SetupPostRoutes(r, queries, authClient, hub)
+	SetupPostRoutes(r, queries, authClient)
 	SetupGroupRoutes(r, queries, authClient)
+	message.SetupKafkaConsumer(hub)
 }

@@ -1,6 +1,7 @@
 package message
 
 import (
+	"slices"
 	"sync"
 
 	"github.com/google/uuid"
@@ -10,8 +11,8 @@ import (
 // If Target is non-empty, the message should only go to that client.
 type WSMessage struct {
 	Target *uuid.UUID `json:"target"` // ID of the target WS client (end-user)
-	Group  *uuid.UUID `json:"group"` // ID of the group of WS clients
-	Data   []byte `json:"data"`   // The payload to be sent
+	Group  *uuid.UUID `json:"group"`  // ID of the group of WS clients
+	Data   []byte     `json:"data"`   // The payload to be sent
 }
 
 type Hub struct {
@@ -61,15 +62,7 @@ func (hub *Hub) Run() {
 				// Send only to the client(s) with a matching ID.
 				hub.mutex.RLock()
 				for client := range hub.clients {
-					if client.ID == msg.Target {
-						select {
-						case client.send <- msg.Data:
-						default:
-							// If the client can’t receive the message, close the connection.
-							close(client.send)
-							delete(hub.clients, client)
-						}
-					}
+					handleBroadcastMessage(msg, client, hub)
 				}
 				hub.mutex.RUnlock()
 			} else {
@@ -99,4 +92,32 @@ func (hub *Hub) NumClients() int {
 	hub.mutex.RLock()
 	defer hub.mutex.RUnlock()
 	return len(hub.clients)
+}
+
+func handleBroadcastMessage(msg WSMessage, client *Client, hub *Hub) {
+	if msg.Target != nil {
+		if client.ID != *msg.Target {
+			return
+		}
+
+		select {
+		case client.send <- msg.Data:
+		default:
+			// If the client can’t receive the message, close the connection.
+			close(client.send)
+			delete(hub.clients, client)
+		}
+
+	} else if msg.Group != nil {
+		if !slices.Contains(client.Groups, *msg.Group) {
+			return
+		}
+		select {
+		case client.send <- msg.Data:
+		default:
+			// If the client can’t receive the message, close the connection.
+			close(client.send)
+			delete(hub.clients, client)
+		}
+	}
 }

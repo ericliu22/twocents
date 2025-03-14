@@ -11,10 +11,10 @@ import (
 // Client represents a single WebSocket connection.
 // The ID field uniquely identifies the end-user connection.
 type Client struct {
-	hub  *Hub
-	conn *websocket.Conn
-	send chan []byte
-	ID   uuid.UUID // Unique identifier for the WS client (end-user)
+	hub    *Hub
+	conn   *websocket.Conn
+	send   chan []byte
+	ID     uuid.UUID // Unique identifier for the WS client (end-user)
 	Groups []uuid.UUID
 }
 
@@ -77,7 +77,6 @@ func ServeWS(hub *Hub, writer http.ResponseWriter, requests *http.Request, clien
 		conn: conn,
 		send: make(chan []byte, 256),
 		ID:   clientID,
-		Group: [],
 	}
 
 	// Register the client with the hub.

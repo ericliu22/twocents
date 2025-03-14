@@ -18,34 +18,34 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch user: " + userErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
 
 		postIDStr := ctx.Query("postId")
 		if postIDStr == "" {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "postId is required"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "postId is required"})
 			gin.DefaultWriter.Write([]byte("Failed to query postId"))
-		    return
+			return
 		}
-        
+
 		postID, err := uuid.Parse(postIDStr)
 		if err != nil {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
 			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
-		    return
+			return
 		}
 
 		mediaStr := database.MediaType(ctx.Query("media"))
 
-		checkMembership := database.CheckUserMemberOfPostGroupsParams {
+		checkMembership := database.CheckUserMemberOfPostGroupsParams{
 			UserID: user.ID,
 			PostID: postID,
 		}
 		isMember, checkErr := queries.CheckUserMemberOfPostGroups(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to check membership: " + checkErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
 			return
 		}
@@ -68,7 +68,7 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 			media, mediaErr = queries.GetLinks(ctx.Request.Context(), postID)
 		}
 		if mediaErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch media: " + mediaErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to fetch media: "+mediaErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch media: " + mediaErr.Error()))
 			return
 		}

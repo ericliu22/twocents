@@ -26,16 +26,16 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 
 		groupIDStr := ctx.Query("groupId")
 		if groupIDStr == "" {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
 			gin.DefaultWriter.Write([]byte("Failed to query groupId"))
-		    return
+			return
 		}
-        
+
 		groupID, err := uuid.Parse(groupIDStr)
 		if err != nil {
-		    ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
 			gin.DefaultWriter.Write([]byte("Failed to parse groupId"))
-		    return
+			return
 		}
 		checkMembership := database.CheckUserMembershipParams{
 			GroupID: groupID,
@@ -43,7 +43,7 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to check membership: " + checkErr.Error())
+			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
 			return
 		}
