@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"api/internal/core/db"
+	"api/internal/core/message"
 	"api/internal/middleware"
 	"api/internal/routes"
 
@@ -50,7 +51,9 @@ func main() {
 
 	middleware.SetupMiddleware(router, logFile)
 
-	routes.SetupCoreRouter(router, queries, authClient)
+	hub := message.NewHub()
+
+	routes.SetupCoreRouter(router, queries, authClient, hub)
 	router.SetTrustedProxies([]string{"192.168.100.0/24"})
 	router.Run()
 }
