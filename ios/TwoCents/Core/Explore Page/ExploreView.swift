@@ -184,7 +184,8 @@ struct ExploreDetailView: View {
                 
                 VStack(alignment: .leading, spacing: 0) {
                     
-                   
+                   Spacer()
+                        .frame(height:100)
                     
                     // Header with profile image and username.
                     HStack {
@@ -244,11 +245,7 @@ struct ExploreDetailView: View {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .foregroundColor(.black)
-                            .padding(10) // Adjust padding to increase touch area
-                            .background(
-                                Circle()
-                                    .fill(.ultraThinMaterial) // Apply material effect
-                            )
+                            
                     }
                 }
 
