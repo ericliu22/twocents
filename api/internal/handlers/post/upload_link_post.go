@@ -55,7 +55,7 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		var linkRequest Link
-		if err := json.Unmarshal([]byte(postJSON), &linkRequest); err != nil {
+		if err := json.Unmarshal([]byte(linkJSON), &linkRequest); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing JSON: " + err.Error()})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
 			return
