@@ -22,6 +22,7 @@ struct ExploreView: View {
 
                         if let user = users[id: post.userId] {
                             ExploreCard(post: post, user: user, selectedPost: $selectedPost)
+                             
                         }
 
                     }
@@ -65,13 +66,19 @@ struct ExploreView: View {
         }
         .fullScreenCover(item: $selectedPost) { post in
             if let user = users[id: post.userId] {
+                
                 ExploreDetailView(post: post, user: user) {
                     withAnimation(.spring()) {
                         selectedPost = nil
                     }
+                    
                 }
+               
+                
+                
             }
         }
+        
     }
     
     private func loadMoreContent() {
@@ -94,8 +101,7 @@ struct ExploreCard: View {
         VStack(alignment: .leading, spacing: 5) {
             makePostView(post: post)
                 .aspectRatio(3/4, contentMode: .fill)
-//                .frame(width: 150, height: 200)
-                .frame(maxWidth:.infinity)
+                .frame( maxWidth:.infinity,maxHeight: .infinity)
                 .clipped()
                 .cornerRadius(12)
                 .onTapGesture {
@@ -177,6 +183,9 @@ struct ExploreDetailView: View {
                     .ignoresSafeArea()
                 
                 VStack(alignment: .leading, spacing: 0) {
+                    
+                   
+                    
                     // Header with profile image and username.
                     HStack {
                         // For demo purposes, a placeholder URL is used.
@@ -228,16 +237,25 @@ struct ExploreDetailView: View {
                         }
                 )
             }
+            .ignoresSafeArea()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .foregroundColor(.black)
+                            .padding(10) // Adjust padding to increase touch area
+                            .background(
+                                Circle()
+                                    .fill(.ultraThinMaterial) // Apply material effect
+                            )
                     }
                 }
+
             }
         }
         .ignoresSafeArea()
+        .presentationBackground(.clear)
+        
     }
 }
