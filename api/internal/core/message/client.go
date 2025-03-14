@@ -58,7 +58,7 @@ func (client *Client) writePump() {
 
 // ServeWS upgrades the HTTP connection to a WebSocket and registers the client with the Hub.
 // The clientID parameter sets the client's identifier for targeted messaging.
-func ServeWS(hub *Hub, writer http.ResponseWriter, requests *http.Request, clientID uuid.UUID, groups []uuid.UUID) {
+func ServeWS(hub *Hub, writer http.ResponseWriter, requests *http.Request, clientID uuid.UUID) {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
