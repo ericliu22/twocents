@@ -7,19 +7,33 @@
 
 import SwiftUI
 import FirebaseCore
+import TwoCentsInternal
 
 // need viewmodel
 
 struct ProfilePage: View {
+    
+    @Environment(AppModel.self) var appModel
+    
     var body: some View {
         NavigationView {
             VStack {
                 HStack {
                     Spacer()
                     ZStack {
-                        AsyncImage(url: URL(string: "https://media.tacdn.com/media/attractions-splice-spp-674x446/12/62/15/f1.jpg"))
+                        if let profileUrl = URL(string: appModel.currentUser?.profilePic ?? "") {
+                            CachedImage(url: profileUrl) {
+                                AsyncImage(url: URL(string: "https://media.tacdn.com/media/attractions-splice-spp-674x446/12/62/15/f1.jpg"))
+                                    .frame(width: 120, height: 120)
+                                    .cornerRadius(64)
+                            }
                             .frame(width: 120, height: 120)
                             .cornerRadius(64)
+                        } else {
+                            AsyncImage(url: URL(string: "https://media.tacdn.com/media/attractions-splice-spp-674x446/12/62/15/f1.jpg"))
+                                .frame(width: 120, height: 120)
+                                .cornerRadius(64)
+                        }
                     }
                     Spacer()
                     VStack {

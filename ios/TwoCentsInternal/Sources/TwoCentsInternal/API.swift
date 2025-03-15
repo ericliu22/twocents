@@ -85,6 +85,10 @@ public struct Request<T: Encodable> {
         request.setValue(contentType.headerValue, forHTTPHeaderField: "Content-Type")
         let firebaseToken = try await AuthenticationManager.getJwtToken()
         request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
+        
+        request.cachePolicy = .returnCacheDataElseLoad
+        // Optionally, add a Cache-Control header so that intermediaries and URLCache know the caching duration.
+        request.setValue("max-age=60", forHTTPHeaderField: "Cache-Control")
 
         // Set any additional headers
         headers?.forEach { key, value in
@@ -115,6 +119,15 @@ public struct Request<T: Encodable> {
             throw APIError.invalidResponse
         }
         
+        // Handle 304 (Not Modified) which indicates the server accepts the client's cache.
+        if httpResponse.statusCode == 304 {
+            // In this case, URLSession doesn't provide a body.
+            // You may want to return the cached data from your own cache manager.
+            // For simplicity, here we just print and return the empty data.
+            print("304 Not Modified – using cached response")
+            return data
+        }
+
         if httpResponse.statusCode != 200 {
             print(data)
             throw APIError.unexpectedStatusCode(httpResponse.statusCode)

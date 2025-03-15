@@ -2,7 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -28,6 +30,16 @@ func GetCurrentUserHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to retrieve user profile: " + profileErr.Error()))
 			return
 		}
+		userJson, err := json.Marshal(userProfile)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error generating response")
+			return
+		}
+
+		if handled := utils.AttachCacheHeaders(ctx, userJson, 60); handled {
+			return
+		}
+
 		ctx.JSON(http.StatusOK, userProfile)
 	}
 }

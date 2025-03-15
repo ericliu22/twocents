@@ -67,6 +67,9 @@ struct RootView: View {
                 appModel.activeSheet = .signIn
             } else if appModel.currentUser == nil {
                 appModel.currentUser = await UserManager.fetchCurrentUser()
+                print(appModel.currentUser?.userId)
+                print(appModel.currentUser?.username)
+                print(appModel.currentUser?.profilePic)
             }
         }
         .fullScreenCover(item: $appModel.activeSheet) { item in
