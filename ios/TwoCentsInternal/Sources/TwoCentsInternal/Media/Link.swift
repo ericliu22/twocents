@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LinkPresentation
 
 public class LinkUpload: Uploadable {
     
@@ -18,23 +19,7 @@ public class LinkUpload: Uploadable {
     }
     
     public func uploadPost() async throws -> Data {
-        let boundary = UUID()
-        var body = Data()
-        let postData = try TwoCentsEncoder().encode(post)
-        
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"post\"\r\n")
-        body.append("Content-Type: application/json\r\n\r\n")
-        body.append(postData)
-        body.append("\r\n")
-        
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"link\"\r\n")
-        body.append("Content-Type: application/json\r\n\r\n")
-        body.append(data)
-        body.append("\r\n")
-        body.append("--\(boundary)--\r\n")
-        
+        let body = try TwoCentsDecoder().decode([String: String].self, from: data)
         let request = Request (
             method: .POST,
             contentType: .json,
@@ -43,6 +28,7 @@ public class LinkUpload: Uploadable {
         )
         return try await request.sendRequest()
     }
+
     
 }
 
@@ -62,6 +48,63 @@ struct LinkView: PostView {
     }
     
     var body: some View {
-        Text("Not implemented yet")
+        Group {
+            if let link, let url = URL(string: link.mediaUrl) {
+//                LinkPreview(url: url)
+//                    .frame(maxWidth: .infinity, maxHeight:.infinity)
+            } else {
+                ProgressView().progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, maxHeight:.infinity)
+            }
+        }
+        .task {
+            guard let data = try? await PostManager.getMedia(post: post) else {
+                return
+            }
+            let links = try? JSONDecoder().decode([LinkDownload].self, from: data)
+            link = links?.first
+        }
+    }
+}
+
+struct LinkPreview: UIViewRepresentable {
+    
+    let url: URL
+
+    init(url: URL) {
+        self.url = url
+    }
+
+    func makeUIView(context: Context) -> LPLinkView {
+        let view = LPLinkView(url: url)
+        let provider = LPMetadataProvider()
+        provider.startFetchingMetadata(for: url) { metadata, error in
+            guard let metadata = metadata, error == nil else {
+                return
+            }
+            DispatchQueue.main.async {
+                metadata.title = ""
+                view.metadata = metadata
+            }
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: LPLinkView, context: Context) {
+        DispatchQueue.main.async {
+            NSLayoutConstraint.deactivate(uiView.constraints)
+
+            uiView.invalidateIntrinsicContentSize()
+        }
+    }
+
+    private func hideTextSubviews(in view: UIView) {
+        for subview in view.subviews {
+            if let label = subview as? UILabel {
+                label.isHidden = true  // Hide the label
+            } else {
+                hideTextSubviews(in: subview)  // Recursively hide labels in subviews
+            }
+        }
     }
 }

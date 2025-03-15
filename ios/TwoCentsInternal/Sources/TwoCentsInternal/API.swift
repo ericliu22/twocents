@@ -13,6 +13,7 @@ public enum APIError: Error {
     case invalidResponse
     case unexpectedStatusCode(Int)
     case noData
+    
 }
 
 public enum HTTPMethod: String, RawRepresentable, Equatable, Hashable {
@@ -34,6 +35,7 @@ public enum ContentType {
     case textPlain
     case imgJpeg
     case videoMp4
+    case multipart(String)
     case custom(String)
     
     var headerValue: String {
@@ -44,6 +46,8 @@ public enum ContentType {
             return "text/plain"
         case .imgJpeg:
             return "image/jpeg"
+        case .multipart(let boundary):
+            return "multipart/form-data; boundary=\(boundary)"
         case .videoMp4:
             return "video/mp4"
         case .custom(let value):

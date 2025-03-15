@@ -22,11 +22,6 @@ class CreatePostViewModel {
 
     func createPost() async {
         isPosting = true
-        
-        print(caption)
-        print(mediaURL)
-        print(mediaType)
-        print(selectedMedia)
 
         switch mediaType {
         case .IMAGE:
@@ -108,7 +103,8 @@ class CreatePostViewModel {
         }
         
         let body = [
-            "mediaUrl": mediaURL
+            "mediaUrl": mediaURL,
+            "postId": post.id.uuidString
         ]
         guard let data = try? TwoCentsEncoder().encode(body) else {
             print("Failed to encode body")

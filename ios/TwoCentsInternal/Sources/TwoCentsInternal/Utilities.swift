@@ -4,6 +4,7 @@
 //
 //  Created by Eric Liu on 2025/3/9.
 //
+import Foundation
 
 struct IdentifiedCollection<Element: Identifiable & Hashable>:
     RandomAccessCollection
@@ -89,5 +90,19 @@ struct IdentifiedCollection<Element: Identifiable & Hashable>:
         }
         
         return removedElement
+    }
+}
+
+public extension URLRequest {
+    var debugDescription: String {
+        var description = "URL: \(url?.absoluteString ?? "No URL")\n"
+        description += "HTTP Method: \(httpMethod ?? "No HTTP Method")\n"
+        description += "Headers: \(allHTTPHeaderFields ?? [:])\n"
+        if let bodyData = httpBody, let bodyString = String(data: bodyData, encoding: .utf8) {
+            description += "HTTP Body: \(bodyString)\n"
+        } else {
+            description += "No HTTP Body\n"
+        }
+        return description
     }
 }
