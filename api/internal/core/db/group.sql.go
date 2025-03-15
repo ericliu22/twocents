@@ -25,10 +25,10 @@ RETURNING group_id, user_id, joined_at, role
 `
 
 type AddUserToGroupParams struct {
-	GroupID  uuid.UUID   `json:"groupId"`
-	UserID   uuid.UUID   `json:"userId"`
-	JoinedAt pgtype.Date `json:"joinedAt"`
-	Role     GroupRole   `json:"role"`
+	GroupID  uuid.UUID        `json:"groupId"`
+	UserID   uuid.UUID        `json:"userId"`
+	JoinedAt pgtype.Timestamp `json:"joinedAt"`
+	Role     GroupRole        `json:"role"`
 }
 
 func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) (FriendGroupMember, error) {
@@ -123,10 +123,10 @@ RETURNING id, name, date_created, owner_id
 `
 
 type CreateFriendGroupParams struct {
-	ID          uuid.UUID   `json:"id"`
-	Name        string      `json:"name"`
-	DateCreated pgtype.Date `json:"dateCreated"`
-	OwnerID     uuid.UUID   `json:"ownerId"`
+	ID          uuid.UUID        `json:"id"`
+	Name        string           `json:"name"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	OwnerID     uuid.UUID        `json:"ownerId"`
 }
 
 func (q *Queries) CreateFriendGroup(ctx context.Context, arg CreateFriendGroupParams) (FriendGroup, error) {

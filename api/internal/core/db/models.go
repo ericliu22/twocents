@@ -188,17 +188,17 @@ func (ns NullProviderType) Value() (driver.Value, error) {
 }
 
 type FriendGroup struct {
-	ID          uuid.UUID   `json:"id"`
-	Name        string      `json:"name"`
-	DateCreated pgtype.Date `json:"dateCreated"`
-	OwnerID     uuid.UUID   `json:"ownerId"`
+	ID          uuid.UUID        `json:"id"`
+	Name        string           `json:"name"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	OwnerID     uuid.UUID        `json:"ownerId"`
 }
 
 type FriendGroupMember struct {
-	GroupID  uuid.UUID   `json:"groupId"`
-	UserID   uuid.UUID   `json:"userId"`
-	JoinedAt pgtype.Date `json:"joinedAt"`
-	Role     GroupRole   `json:"role"`
+	GroupID  uuid.UUID        `json:"groupId"`
+	UserID   uuid.UUID        `json:"userId"`
+	JoinedAt pgtype.Timestamp `json:"joinedAt"`
+	Role     GroupRole        `json:"role"`
 }
 
 type FriendGroupPost struct {
@@ -210,7 +210,7 @@ type Friendship struct {
 	UserID      uuid.UUID        `json:"userId"`
 	FriendID    uuid.UUID        `json:"friendId"`
 	Status      FriendshipStatus `json:"status"`
-	DateCreated pgtype.Date      `json:"dateCreated"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
 }
 
 type Image struct {
@@ -226,11 +226,11 @@ type Link struct {
 }
 
 type Post struct {
-	ID          uuid.UUID   `json:"id"`
-	UserID      uuid.UUID   `json:"userId"`
-	Media       MediaType   `json:"media"`
-	DateCreated pgtype.Date `json:"dateCreated"`
-	Caption     *string     `json:"caption"`
+	ID          uuid.UUID        `json:"id"`
+	UserID      uuid.UUID        `json:"userId"`
+	Media       MediaType        `json:"media"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	Caption     *string          `json:"caption"`
 }
 
 type Text struct {
@@ -240,13 +240,14 @@ type Text struct {
 }
 
 type User struct {
-	ID          uuid.UUID    `json:"id"`
-	FirebaseUid string       `json:"firebaseUid"`
-	Provider    ProviderType `json:"provider"`
-	DateCreated pgtype.Date  `json:"dateCreated"`
-	Username    string       `json:"username"`
-	Hash        *string      `json:"hash"`
-	Salt        *string      `json:"salt"`
+	ID           uuid.UUID        `json:"id"`
+	FirebaseUid  string           `json:"firebaseUid"`
+	Provider     ProviderType     `json:"provider"`
+	DateCreated  pgtype.Timestamp `json:"dateCreated"`
+	Username     string           `json:"username"`
+	Hash         *string          `json:"hash"`
+	Salt         *string          `json:"salt"`
+	DeviceTokens []string         `json:"deviceTokens"`
 }
 
 type UserProfile struct {

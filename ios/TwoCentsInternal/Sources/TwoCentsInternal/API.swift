@@ -104,6 +104,12 @@ public struct Request<T: Encodable> {
         let urlRequest = try await self.asURLRequest()
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("Response:\n\(responseString)")
+        } else {
+            print("Could not convert response data to a string.")
+        }
+        
         guard let httpResponse = response as? HTTPURLResponse else {
             print(data)
             throw APIError.invalidResponse
@@ -183,7 +189,9 @@ public extension Data {
 public func TwoCentsEncoder() -> JSONEncoder {
     let encoder = JSONEncoder()
     let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     encoder.dateEncodingStrategy = .formatted(dateFormatter)
     return encoder
 }
@@ -191,7 +199,9 @@ public func TwoCentsEncoder() -> JSONEncoder {
 public func TwoCentsDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
     let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"  // Adjust based on your pgtype.Date format
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     decoder.dateDecodingStrategy = .formatted(dateFormatter)
     return decoder
 }

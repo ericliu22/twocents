@@ -56,7 +56,7 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentDate := pgtype.Date{
+		currentTime := pgtype.Timestamp {
 			Time:             time.Now(),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
@@ -65,7 +65,7 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 		addMember := database.AddUserToGroupParams{
 			GroupID:  addRequest.GroupId,
 			UserID:   addRequest.FriendId,
-			JoinedAt: currentDate,
+			JoinedAt: currentTime,
 			Role:     database.GroupRoleMEMBER,
 		}
 

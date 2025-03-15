@@ -81,11 +81,11 @@ RETURNING id, user_id, media, date_created, caption
 `
 
 type CreatePostParams struct {
-	ID          uuid.UUID   `json:"id"`
-	UserID      uuid.UUID   `json:"userId"`
-	Media       MediaType   `json:"media"`
-	DateCreated pgtype.Date `json:"dateCreated"`
-	Caption     *string     `json:"caption"`
+	ID          uuid.UUID        `json:"id"`
+	UserID      uuid.UUID        `json:"userId"`
+	Media       MediaType        `json:"media"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	Caption     *string          `json:"caption"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -228,10 +228,10 @@ WHERE id = $1
 `
 
 type UpdatePostParams struct {
-	ID          uuid.UUID   `json:"id"`
-	Media       MediaType   `json:"media"`
-	DateCreated pgtype.Date `json:"dateCreated"`
-	Caption     *string     `json:"caption"`
+	ID          uuid.UUID        `json:"id"`
+	Media       MediaType        `json:"media"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	Caption     *string          `json:"caption"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {

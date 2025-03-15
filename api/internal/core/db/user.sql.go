@@ -41,17 +41,17 @@ INSERT INTO users (
     $1, $2, $3, $4, $5, $6, $7
 )
 ON CONFLICT (id) DO NOTHING
-RETURNING id, firebase_uid, provider, date_created, username, hash, salt
+RETURNING id, firebase_uid, provider, date_created, username, hash, salt, device_tokens
 `
 
 type CreateUserParams struct {
-	ID          uuid.UUID    `json:"id"`
-	FirebaseUid string       `json:"firebaseUid"`
-	Provider    ProviderType `json:"provider"`
-	DateCreated pgtype.Date  `json:"dateCreated"`
-	Username    string       `json:"username"`
-	Hash        *string      `json:"hash"`
-	Salt        *string      `json:"salt"`
+	ID          uuid.UUID        `json:"id"`
+	FirebaseUid string           `json:"firebaseUid"`
+	Provider    ProviderType     `json:"provider"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	Username    string           `json:"username"`
+	Hash        *string          `json:"hash"`
+	Salt        *string          `json:"salt"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -73,6 +73,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Username,
 		&i.Hash,
 		&i.Salt,
+		&i.DeviceTokens,
 	)
 	return i, err
 }
@@ -134,7 +135,7 @@ func (q *Queries) DeleteUserProfile(ctx context.Context, userID uuid.UUID) error
 }
 
 const getEntireUser = `-- name: GetEntireUser :one
-SELECT users.id, users.firebase_uid, users.provider, users.date_created, users.username, users.hash, users.salt, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+SELECT users.id, users.firebase_uid, users.provider, users.date_created, users.username, users.hash, users.salt, users.device_tokens, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
 FROM users
 JOIN user_profiles ON users.id = user_profiles.user_id
 WHERE users.id = $1
@@ -156,6 +157,7 @@ func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUse
 		&i.User.Username,
 		&i.User.Hash,
 		&i.User.Salt,
+		&i.User.DeviceTokens,
 		&i.UserProfile.UserID,
 		&i.UserProfile.ProfilePic,
 		&i.UserProfile.Username,
@@ -165,7 +167,7 @@ func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUse
 }
 
 const getFirebaseId = `-- name: GetFirebaseId :one
-SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
+SELECT id, firebase_uid, provider, date_created, username, hash, salt, device_tokens FROM users
 WHERE firebase_uid = $1 LIMIT 1
 `
 
@@ -180,12 +182,13 @@ func (q *Queries) GetFirebaseId(ctx context.Context, firebaseUid string) (User, 
 		&i.Username,
 		&i.Hash,
 		&i.Salt,
+		&i.DeviceTokens,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
+SELECT id, firebase_uid, provider, date_created, username, hash, salt, device_tokens FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -200,6 +203,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Username,
 		&i.Hash,
 		&i.Salt,
+		&i.DeviceTokens,
 	)
 	return i, err
 }
@@ -223,7 +227,7 @@ func (q *Queries) GetUserProfile(ctx context.Context, userID uuid.UUID) (UserPro
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, firebase_uid, provider, date_created, username, hash, salt FROM users
+SELECT id, firebase_uid, provider, date_created, username, hash, salt, device_tokens FROM users
 ORDER BY date_created
 `
 
@@ -244,6 +248,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.Username,
 			&i.Hash,
 			&i.Salt,
+			&i.DeviceTokens,
 		); err != nil {
 			return nil, err
 		}
@@ -282,12 +287,12 @@ WHERE id = $1
 `
 
 type UpdateUserParams struct {
-	ID          uuid.UUID    `json:"id"`
-	Provider    ProviderType `json:"provider"`
-	DateCreated pgtype.Date  `json:"dateCreated"`
-	Username    string       `json:"username"`
-	Hash        *string      `json:"hash"`
-	Salt        *string      `json:"salt"`
+	ID          uuid.UUID        `json:"id"`
+	Provider    ProviderType     `json:"provider"`
+	DateCreated pgtype.Timestamp `json:"dateCreated"`
+	Username    string           `json:"username"`
+	Hash        *string          `json:"hash"`
+	Salt        *string          `json:"salt"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {

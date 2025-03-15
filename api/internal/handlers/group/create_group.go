@@ -37,7 +37,7 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentDate := pgtype.Date{
+		currentTime := pgtype.Timestamp {
 			Time:             time.Now(),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
@@ -45,7 +45,7 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 		createGroup := database.CreateFriendGroupParams{
 			ID:          uuid.New(),
 			Name:        createRequest.Name,
-			DateCreated: currentDate,
+			DateCreated: currentTime,
 			OwnerID:     user.ID,
 		}
 
@@ -59,7 +59,7 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 		addUser := database.AddUserToGroupParams{
 			GroupID:  friendGroup.ID,
 			UserID:   user.ID,
-			JoinedAt: currentDate,
+			JoinedAt: currentTime,
 			Role:     database.GroupRoleADMIN,
 		}
 		_, addErr := queries.AddUserToGroup(ctx.Request.Context(), addUser)
