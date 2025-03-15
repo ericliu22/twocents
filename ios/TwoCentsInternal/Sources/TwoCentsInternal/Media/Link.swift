@@ -49,9 +49,9 @@ struct LinkView: PostView {
     
     var body: some View {
         Group {
-            if let link, let url = URL(string: link.mediaUrl) {
-//                LinkPreview(url: url)
-//                    .frame(maxWidth: .infinity, maxHeight:.infinity)
+            if let link {
+                Text(link.mediaUrl)
+                    .frame(maxWidth: .infinity, maxHeight:.infinity)
             } else {
                 ProgressView().progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, maxHeight:.infinity)
@@ -63,48 +63,6 @@ struct LinkView: PostView {
             }
             let links = try? JSONDecoder().decode([LinkDownload].self, from: data)
             link = links?.first
-        }
-    }
-}
-
-struct LinkPreview: UIViewRepresentable {
-    
-    let url: URL
-
-    init(url: URL) {
-        self.url = url
-    }
-
-    func makeUIView(context: Context) -> LPLinkView {
-        let view = LPLinkView(url: url)
-        let provider = LPMetadataProvider()
-        provider.startFetchingMetadata(for: url) { metadata, error in
-            guard let metadata = metadata, error == nil else {
-                return
-            }
-            DispatchQueue.main.async {
-                metadata.title = ""
-                view.metadata = metadata
-            }
-        }
-        return view
-    }
-
-    func updateUIView(_ uiView: LPLinkView, context: Context) {
-        DispatchQueue.main.async {
-            NSLayoutConstraint.deactivate(uiView.constraints)
-
-            uiView.invalidateIntrinsicContentSize()
-        }
-    }
-
-    private func hideTextSubviews(in view: UIView) {
-        for subview in view.subviews {
-            if let label = subview as? UILabel {
-                label.isHidden = true  // Hide the label
-            } else {
-                hideTextSubviews(in: subview)  // Recursively hide labels in subviews
-            }
         }
     }
 }
