@@ -18,23 +18,7 @@ public class TextUpload: Uploadable {
     }
     
     public func uploadPost() async throws -> Data {
-        let boundary = UUID()
-        var body = Data()
-        let postData = try TwoCentsEncoder().encode(post)
-        
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"post\"\r\n")
-        body.append("Content-Type: application/json\r\n\r\n")
-        body.append(postData)
-        body.append("\r\n")
-        
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"link\"\r\n")
-        body.append("Content-Type: application/json\r\n\r\n")
-        body.append(data)
-        body.append("\r\n")
-        body.append("--\(boundary)--\r\n")
-        
+        let body = try TwoCentsDecoder().decode([String: String].self, from: data)
         let request = Request (
             method: .POST,
             contentType: .json,

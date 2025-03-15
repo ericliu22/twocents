@@ -130,6 +130,7 @@ class CreatePostViewModel {
         
         //@TODO: Tentatively use the caption as text
         let body = [
+            "postId": post.id.uuidString,
             "text": caption
         ]
         guard let data = try? TwoCentsEncoder().encode(body) else {

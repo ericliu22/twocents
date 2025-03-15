@@ -56,7 +56,9 @@ public func makeUploadable(post: Post, data: Data) -> any Uploadable {
         return VideoUpload(post: post, data: data)
     case .LINK:
         return LinkUpload(post: post, data: data)
-    default:
+    case .TEXT:
+        return TextUpload(post: post, data: data)
+    case .OTHER:
         return ImageUpload(post: post, data: data)
     }
 }
