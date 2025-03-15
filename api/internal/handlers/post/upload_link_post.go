@@ -10,8 +10,8 @@ import (
 )
 
 type Link struct {
-	PostId uuid.UUID `json:"postId"`
 	MediaUrl string `json:"mediaUrl"`
+	PostId uuid.UUID `json:"postId"`
 }
 
 func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
@@ -23,9 +23,10 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 		var linkRequest Link
-		if bindErr := ctx.ShouldBindJSON(&linkRequest); bindErr != nil {
+		if bindErr := ctx.Bind(&linkRequest); bindErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
 			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
+			return
 		}
 
 		linkParams := database.CreateLinkParams{
