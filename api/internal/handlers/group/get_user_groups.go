@@ -2,7 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +35,16 @@ func GetUserGroupsHandler(queries *database.Queries) gin.HandlerFunc {
 		var groups []database.FriendGroup
 		for _, group := range userGroups {
 			groups = append(groups, group.FriendGroup)
+		}
+		
+		groupsJson, err := json.Marshal(groups)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error generating response")
+			return
+		}
+
+		if handled := utils.AttachCacheHeaders(ctx, groupsJson, 60); handled {
+			return
 		}
 		ctx.JSON(http.StatusOK, groups)
 	}

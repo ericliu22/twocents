@@ -2,7 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,6 +66,17 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 		for _, member := range membersList {
 			members = append(members, member.UserProfile)
 		}
+
+		membersJson, err := json.Marshal(members)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error generating response")
+			return
+		}
+
+		if handled := utils.AttachCacheHeaders(ctx, membersJson, 60); handled {
+			return
+		}
+
 
 		ctx.JSON(http.StatusOK, members)
 	}

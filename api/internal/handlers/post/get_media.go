@@ -2,7 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -70,6 +72,16 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 		if mediaErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch media: "+mediaErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch media: " + mediaErr.Error()))
+			return
+		}
+
+		mediaJson, err := json.Marshal(media)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error generating response")
+			return
+		}
+
+		if handled := utils.AttachCacheHeaders(ctx, mediaJson, 60); handled {
 			return
 		}
 

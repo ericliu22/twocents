@@ -2,7 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +32,17 @@ func GetUserHandler(queries *database.Queries) gin.HandlerFunc {
 		userProfile, err := queries.GetUserProfile(ctx.Request.Context(), userRequest.UserId)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts")
+			return
+		}
+
+		// Generate JSON for posts to compute an ETag
+		profileJson, err := json.Marshal(userProfile)
+		if err != nil {
+			ctx.String(http.StatusInternalServerError, "Error generating response")
+			return
+		}
+
+		if handled := utils.AttachCacheHeaders(ctx, profileJson, 60); handled {
 			return
 		}
 		ctx.JSON(http.StatusOK, userProfile)
