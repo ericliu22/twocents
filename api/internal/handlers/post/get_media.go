@@ -65,7 +65,7 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 		case database.MediaTypeLINK:
 			media, mediaErr = queries.GetLinks(ctx.Request.Context(), postID)
 		case database.MediaTypeTEXT:
-			media, mediaErr = queries.GetLinks(ctx.Request.Context(), postID)
+			media, mediaErr = queries.GetTexts(ctx.Request.Context(), postID)
 		}
 		if mediaErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch media: "+mediaErr.Error())

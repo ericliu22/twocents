@@ -49,6 +49,8 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			media = database.MediaTypeVIDEO
 		case "LINK":
 			media = database.MediaTypeLINK
+		case "TEXT":
+			media = database.MediaTypeTEXT
 		case "OTHER":
 			media = database.MediaTypeOTHER
 		}

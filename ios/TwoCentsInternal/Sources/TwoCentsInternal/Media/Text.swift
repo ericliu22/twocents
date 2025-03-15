@@ -62,6 +62,21 @@ struct TextView: PostView {
     }
     
     var body: some View {
-        Text("Not implemented yet")
+        Group {
+            if let text {
+                Text(text.text)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ProgressView().progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task {
+            guard let data = try? await PostManager.getMedia(post: post) else {
+                return
+            }
+            let texts = try? JSONDecoder().decode([TextDownload].self, from: data)
+            text = texts?.first
+        }
     }
 }
