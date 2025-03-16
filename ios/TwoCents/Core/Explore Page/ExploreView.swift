@@ -38,7 +38,8 @@ struct ExploreView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .navigationTitle("Explore")
+//            .navigationTitle("Explore")
+//            .navigationBarTitleDisplayMode(.large)
         }
         .refreshable(action: {
             do {
@@ -185,7 +186,7 @@ struct ExploreDetailView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     
                    Spacer()
-                        .frame(height:100)
+                        .frame(height:48)
                     
                     // Header with profile image and username.
                     HStack {
@@ -241,7 +242,7 @@ struct ExploreDetailView: View {
             .ignoresSafeArea()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .foregroundColor(.black)

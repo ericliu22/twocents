@@ -43,6 +43,7 @@ struct ProfileView: View {
                             .foregroundColor(Color.accentColor)
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
+                            .truncationMode(.tail)
                     }
                     //            .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
