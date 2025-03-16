@@ -5,7 +5,6 @@ import (
 	"api/internal/core/utils"
 	"api/internal/middleware"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

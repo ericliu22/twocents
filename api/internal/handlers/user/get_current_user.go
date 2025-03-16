@@ -30,6 +30,7 @@ func GetCurrentUserHandler(queries *database.Queries) gin.HandlerFunc {
 			gin.DefaultWriter.Write([]byte("Failed to retrieve user profile: " + profileErr.Error()))
 			return
 		}
+
 		userJson, err := json.Marshal(userProfile)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error generating response")
