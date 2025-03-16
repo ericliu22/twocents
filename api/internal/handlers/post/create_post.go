@@ -55,7 +55,7 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			media = database.MediaTypeOTHER
 		}
 		currentTime := pgtype.Timestamp {
-			Time:             time.Now().UTC(),
+			Time:             time.Now().UTC().Truncate(time.Second),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}

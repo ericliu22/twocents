@@ -41,7 +41,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		currentTime := pgtype.Timestamp {
-			Time:             time.Now().UTC(),
+			Time:             time.Now().UTC().Truncate(time.Second),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}
