@@ -172,6 +172,7 @@ public struct Request<T: Encodable> {
         
         request.httpBody = body
         
+        print(request.debugDescription)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             print(response)
@@ -204,12 +205,15 @@ public extension Data {
 
 public func TwoCentsEncoder() -> JSONEncoder {
     let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
+    let formatter = DateFormatter()
+    encoder.dateEncodingStrategy = .iso8601withFractionalSeconds
     return encoder
 }
 
 public func TwoCentsDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
+    let formatter = DateFormatter()
+    decoder.dateDecodingStrategy = .iso8601withFractionalSeconds
     return decoder
 }
+
