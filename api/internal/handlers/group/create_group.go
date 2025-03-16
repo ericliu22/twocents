@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type CreateGroupRequest struct {
@@ -37,15 +36,10 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentTime := pgtype.Timestamp {
-			Time:             utils.TwoCentsTime(),
-			InfinityModifier: pgtype.Finite,
-			Valid:            true,
-		}
 		createGroup := database.CreateFriendGroupParams{
 			ID:          uuid.New(),
 			Name:        createRequest.Name,
-			DateCreated: currentTime,
+			DateCreated: utils.PGTime(),
 			OwnerID:     user.ID,
 		}
 
@@ -59,7 +53,7 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 		addUser := database.AddUserToGroupParams{
 			GroupID:  friendGroup.ID,
 			UserID:   user.ID,
-			JoinedAt: currentTime,
+			JoinedAt: utils.PGTime(),
 			Role:     database.GroupRoleADMIN,
 		}
 		_, addErr := queries.AddUserToGroup(ctx.Request.Context(), addUser)

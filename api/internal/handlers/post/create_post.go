@@ -54,17 +54,12 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		case "OTHER":
 			media = database.MediaTypeOTHER
 		}
-		currentTime := pgtype.Timestamp{
-			Time:             utils.TwoCentsTime(),
-			InfinityModifier: pgtype.Finite,
-			Valid:            true,
-		}
 		gin.DefaultWriter.Write([]byte("USERID: " + user.ID.String()))
 		postParams := database.CreatePostParams{
 			ID:          uuid.New(),
 			UserID:      user.ID,
 			Media:       media,
-			DateCreated: currentTime,
+			DateCreated: utils.PGTime(),
 			Caption:     createRequest.Caption,
 		}
 

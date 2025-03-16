@@ -56,16 +56,10 @@ func AddMemberHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentTime := pgtype.Timestamp {
-			Time:             utils.TwoCentsTime(),
-			InfinityModifier: pgtype.Finite,
-			Valid:            true,
-		}
-
 		addMember := database.AddUserToGroupParams{
 			GroupID:  addRequest.GroupId,
 			UserID:   addRequest.FriendId,
-			JoinedAt: currentTime,
+			JoinedAt: utils.PGTime(),
 			Role:     database.GroupRoleMEMBER,
 		}
 

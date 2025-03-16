@@ -40,18 +40,13 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		currentTime := pgtype.Timestamp {
-			Time:             utils.TwoCentsTime(),
-			InfinityModifier: pgtype.Finite,
-			Valid:            true,
-		}
 		var newUser database.CreateUserParams
 		uuid := uuid.New()
 		newUser = database.CreateUserParams{
 			ID:          uuid,
 			FirebaseUid: token.UID,
 			Provider:    database.ProviderTypeEMAIL,
-			DateCreated: currentTime,
+			DateCreated: utils.PGTime(),
 			Username:    registerRequest.Username,
 		}
 		_, insertErr := queries.CreateUser(ctx.Request.Context(), newUser)
