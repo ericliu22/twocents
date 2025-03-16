@@ -45,13 +45,13 @@ RETURNING id, firebase_uid, provider, date_created, username, hash, salt, device
 `
 
 type CreateUserParams struct {
-	ID          uuid.UUID        `json:"id"`
-	FirebaseUid string           `json:"firebaseUid"`
-	Provider    ProviderType     `json:"provider"`
-	DateCreated pgtype.Timestamp `json:"dateCreated"`
-	Username    string           `json:"username"`
-	Hash        *string          `json:"hash"`
-	Salt        *string          `json:"salt"`
+	ID          uuid.UUID          `json:"id"`
+	FirebaseUid string             `json:"firebaseUid"`
+	Provider    ProviderType       `json:"provider"`
+	DateCreated pgtype.Timestamptz `json:"dateCreated"`
+	Username    string             `json:"username"`
+	Hash        *string            `json:"hash"`
+	Salt        *string            `json:"salt"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -287,12 +287,12 @@ WHERE id = $1
 `
 
 type UpdateUserParams struct {
-	ID          uuid.UUID        `json:"id"`
-	Provider    ProviderType     `json:"provider"`
-	DateCreated pgtype.Timestamp `json:"dateCreated"`
-	Username    string           `json:"username"`
-	Hash        *string          `json:"hash"`
-	Salt        *string          `json:"salt"`
+	ID          uuid.UUID          `json:"id"`
+	Provider    ProviderType       `json:"provider"`
+	DateCreated pgtype.Timestamptz `json:"dateCreated"`
+	Username    string             `json:"username"`
+	Hash        *string            `json:"hash"`
+	Salt        *string            `json:"salt"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
