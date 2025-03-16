@@ -87,10 +87,10 @@ public struct Request<T: Encodable> {
         request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
         
         // Optionally, add a Cache-Control header so that intermediaries and URLCache know the caching duration.
-        if method == .GET {
-            request.cachePolicy = .returnCacheDataElseLoad
-            request.setValue("max-age=60", forHTTPHeaderField: "Cache-Control")
-        }
+//        if method == .GET {
+//            request.cachePolicy = .returnCacheDataElseLoad
+//            request.setValue("max-age=60", forHTTPHeaderField: "Cache-Control")
+//        }
 
         // Set any additional headers
         headers?.forEach { key, value in

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
 	"net/http"
 	"time"
@@ -38,7 +39,7 @@ func CreateGroupHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		currentTime := pgtype.Timestamp {
-			Time:             time.Now().UTC().Truncate(time.Second),
+			Time:             utils.TwoCentsTime(),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/utils"
 	"api/internal/middleware"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -41,7 +41,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		currentTime := pgtype.Timestamp {
-			Time:             time.Now().UTC().Truncate(time.Second),
+			Time:             utils.TwoCentsTime(),
 			InfinityModifier: pgtype.Finite,
 			Valid:            true,
 		}
