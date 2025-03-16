@@ -2,8 +2,8 @@ package handlers
 
 import (
 	database "api/internal/core/db"
-	"api/internal/middleware"
 	"api/internal/core/utils"
+	"api/internal/middleware"
 	"encoding/json"
 	"net/http"
 

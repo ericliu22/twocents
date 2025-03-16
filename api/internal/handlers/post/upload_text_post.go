@@ -11,7 +11,7 @@ import (
 
 type Text struct {
 	PostId uuid.UUID `json:"postId"`
-	Text string `json:"text"`
+	Text   string    `json:"text"`
 }
 
 func UploadTextPostHandler(queries *database.Queries) gin.HandlerFunc {

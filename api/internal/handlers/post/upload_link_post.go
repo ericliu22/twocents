@@ -10,8 +10,8 @@ import (
 )
 
 type Link struct {
-	MediaUrl string `json:"mediaUrl"`
-	PostId uuid.UUID `json:"postId"`
+	MediaUrl string    `json:"mediaUrl"`
+	PostId   uuid.UUID `json:"postId"`
 }
 
 func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {

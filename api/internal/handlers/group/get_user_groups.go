@@ -36,7 +36,7 @@ func GetUserGroupsHandler(queries *database.Queries) gin.HandlerFunc {
 		for _, group := range userGroups {
 			groups = append(groups, group.FriendGroup)
 		}
-		
+
 		groupsJson, err := json.Marshal(groups)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error generating response")

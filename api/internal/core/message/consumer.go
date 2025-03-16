@@ -37,17 +37,17 @@ func parseKafkaMessage(msg *sarama.ConsumerMessage) (*WSMessage, error) {
 
 	target, parseErr := uuid.Parse(subjectId)
 	if parseErr != nil {
-		return nil, parseErr;
+		return nil, parseErr
 	}
 
 	var message WSMessage
 	if subject == "group" {
-		message = WSMessage {
+		message = WSMessage{
 			Group: &target,
-			Data:   msg.Value,
+			Data:  msg.Value,
 		}
 	} else {
-		message = WSMessage {
+		message = WSMessage{
 			Target: &target,
 			Data:   msg.Value,
 		}

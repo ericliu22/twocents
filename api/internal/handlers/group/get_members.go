@@ -77,7 +77,6 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-
 		ctx.JSON(http.StatusOK, members)
 	}
 }

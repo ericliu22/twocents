@@ -12,7 +12,7 @@ func TwoCentsTime() time.Time {
 }
 
 func PGTime() pgtype.Timestamptz {
-	currentTime := pgtype.Timestamptz {
+	currentTime := pgtype.Timestamptz{
 		Time:             TwoCentsTime(),
 		InfinityModifier: pgtype.Finite,
 		Valid:            true,
