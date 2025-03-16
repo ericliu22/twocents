@@ -16,6 +16,9 @@
 		A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7762D80CDC70079C865 /* TwoCentsInternal */; };
 		A227C7B12D811DC90079C865 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B02D811DC90079C865 /* FirebaseAuth */; };
 		A227C7B32D811DCC0079C865 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B22D811DCC0079C865 /* FirebaseCore */; };
+		A26D5DC42D864E37008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC32D864E37008F990F /* TwoCentsInternal */; };
+		A26D5DC62D864E5E008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
+		A26D5DC82D864E74008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC72D864E74008F990F /* TwoCentsInternal */; };
 		A27A38F12D821C71007F9026 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A227C7A12D811BBB0079C865 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
@@ -159,6 +162,7 @@
 				A2201FC32D81218B0091269A /* FirebaseAuth in Frameworks */,
 				A2201FC52D81218E0091269A /* FirebaseCore in Frameworks */,
 				851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */,
+				A26D5DC62D864E5E008F990F /* TwoCentsInternal in Frameworks */,
 				A22020352D812CA90091269A /* TwoCentsInternal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -167,6 +171,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A26D5DC82D864E74008F990F /* TwoCentsInternal in Frameworks */,
 				A227C7B32D811DCC0079C865 /* FirebaseCore in Frameworks */,
 				A22020392D8130210091269A /* TwoCentsInternal in Frameworks */,
 				A227C7B12D811DC90079C865 /* FirebaseAuth in Frameworks */,
@@ -181,6 +186,7 @@
 				A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */,
 				ABF6A6AC2D7E03D40076DDD6 /* TOCropViewController in Frameworks */,
 				ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */,
+				A26D5DC42D864E37008F990F /* TwoCentsInternal in Frameworks */,
 				A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,6 +277,7 @@
 				A2201FC22D81218B0091269A /* FirebaseAuth */,
 				A2201FC42D81218E0091269A /* FirebaseCore */,
 				A22020342D812CA90091269A /* TwoCentsInternal */,
+				A26D5DC52D864E5E008F990F /* TwoCentsInternal */,
 			);
 			productName = TwoCentsWidgetExtension;
 			productReference = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */;
@@ -296,6 +303,7 @@
 				A227C7B02D811DC90079C865 /* FirebaseAuth */,
 				A227C7B22D811DCC0079C865 /* FirebaseCore */,
 				A22020382D8130210091269A /* TwoCentsInternal */,
+				A26D5DC72D864E74008F990F /* TwoCentsInternal */,
 			);
 			productName = ShareExtension;
 			productReference = A227C7A12D811BBB0079C865 /* ShareExtension.appex */;
@@ -326,6 +334,7 @@
 				ABF6A6A92D7E03D40076DDD6 /* CropViewController */,
 				ABF6A6AB2D7E03D40076DDD6 /* TOCropViewController */,
 				A227C7762D80CDC70079C865 /* TwoCentsInternal */,
+				A26D5DC32D864E37008F990F /* TwoCentsInternal */,
 			);
 			productName = TwoCents;
 			productReference = A2E84B382D6D2C15007B44F7 /* TwoCents.app */;
@@ -1022,6 +1031,18 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		A26D5DC32D864E37008F990F /* TwoCentsInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TwoCentsInternal;
+		};
+		A26D5DC52D864E5E008F990F /* TwoCentsInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TwoCentsInternal;
+		};
+		A26D5DC72D864E74008F990F /* TwoCentsInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TwoCentsInternal;
 		};
 		A2E409452D6F8B8A00E26D73 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

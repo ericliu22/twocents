@@ -45,20 +45,19 @@ class CreatePostViewModel {
         let postRequest = PostRequest(
             media: .IMAGE, caption: caption.isEmpty ? nil : caption,
             groups: groups)
-        guard
-            let post = try? await PostManager.uploadPost(
-                postRequest: postRequest)
-        else {
-            print("Failed to upload post")
-            return
-        }
-        for media in selectedMedia {
-            if let imageData = UIImage(contentsOfFile: media.url.path)?
-                .jpegData(compressionQuality: 1.0)
-            {
-                _ = try? await PostManager.uploadMediaPost(
-                    post: post, data: imageData)
+        do {
+            let post = try await PostManager.uploadPost(
+                    postRequest: postRequest)
+            for media in selectedMedia {
+                if let imageData = UIImage(contentsOfFile: media.url.path)?
+                    .jpegData(compressionQuality: 1.0)
+                {
+                    _ = try? await PostManager.uploadMediaPost(
+                        post: post, data: imageData)
+                }
             }
+        } catch let error {
+            print(error)
         }
     }
 

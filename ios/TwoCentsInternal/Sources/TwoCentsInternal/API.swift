@@ -86,9 +86,11 @@ public struct Request<T: Encodable> {
         let firebaseToken = try await AuthenticationManager.getJwtToken()
         request.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
         
-        request.cachePolicy = .returnCacheDataElseLoad
         // Optionally, add a Cache-Control header so that intermediaries and URLCache know the caching duration.
-        request.setValue("max-age=60", forHTTPHeaderField: "Cache-Control")
+        if method == .GET {
+            request.cachePolicy = .returnCacheDataElseLoad
+            request.setValue("max-age=60", forHTTPHeaderField: "Cache-Control")
+        }
 
         // Set any additional headers
         headers?.forEach { key, value in
@@ -108,13 +110,14 @@ public struct Request<T: Encodable> {
         let urlRequest = try await self.asURLRequest()
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
-//        if let responseString = String(data: data, encoding: .utf8) {
-//            print("Response:\n\(responseString)")
-//        } else {
-//            print("Could not convert response data to a string.")
-//        }
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("Response:\n\(responseString)")
+        } else {
+            print("Could not convert response data to a string.")
+        }
         
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("Invalid response")
             print(data)
             throw APIError.invalidResponse
         }
@@ -129,12 +132,12 @@ public struct Request<T: Encodable> {
         }
 
         if httpResponse.statusCode != 200 {
-            print(data)
+            print("Status code != 200")
             throw APIError.unexpectedStatusCode(httpResponse.statusCode)
         }
         
         if data.isEmpty {
-            print(data)
+            print("Data is empty")
             throw APIError.noData
         }
         
