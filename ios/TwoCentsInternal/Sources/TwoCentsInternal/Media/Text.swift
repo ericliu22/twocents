@@ -30,37 +30,8 @@ public class TextUpload: Uploadable {
     
 }
 
-struct TextDownload: Downloadable {
-    let id: UUID
-    let postId: UUID
-    let text: String
-}
-
-struct TextView: PostView {
-    
-    let post: Post
-    @State var text: TextDownload?
-    
-    init(post: Post) {
-        self.post = post
-    }
-    
-    var body: some View {
-        Group {
-            if let text {
-                Text(text.text)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ProgressView().progressViewStyle(.circular)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .task {
-            guard let data = try? await PostManager.getMedia(post: post) else {
-                return
-            }
-            let texts = try? JSONDecoder().decode([TextDownload].self, from: data)
-            text = texts?.first
-        }
-    }
+public struct TextDownload: Downloadable {
+    public let id: UUID
+    public let postId: UUID
+    public let text: String
 }

@@ -60,8 +60,6 @@ public struct PostManager {
             throw URLError.init(URLError.Code(rawValue: 404))
         }
 
-        print(finalURL.absoluteString)
-        // Should print: https://api.twocentsapp.com/v1/post/get-group-posts?groupId=B343342A-D41B-4C79-A8A8-7E0B142BE6DA
 
         let request: Request = Request<String>(
             method: .GET,
@@ -71,7 +69,7 @@ public struct PostManager {
         return try await request.sendRequest()
     }
 
-    @MainActor static func getMedia(post: Post) async throws -> Data {
+    @MainActor public static func getMedia(post: Post) async throws -> Data {
         let baseURL = POST_URL.appendingPathComponent("get-media")
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
         components.queryItems = [

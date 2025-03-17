@@ -6,13 +6,13 @@
 //
 import Foundation
 
-struct IdentifiedCollection<Element: Identifiable & Hashable>:
+public struct IdentifiedCollection<Element: Identifiable & Hashable>:
     RandomAccessCollection
 {
     private var elements: [Element]
     private var elementsByID: [Element.ID: Int]  // store index for O(1) lookups
 
-    init(_ elements: [Element] = []) {
+    public init(_ elements: [Element] = []) {
         self.elements = elements
         self.elementsByID = Dictionary(
             uniqueKeysWithValues: elements.enumerated().map {
@@ -24,26 +24,26 @@ struct IdentifiedCollection<Element: Identifiable & Hashable>:
 
     // MARK: - RandomAccessCollection
 
-    var startIndex: Int { elements.startIndex }
-    var endIndex: Int { elements.endIndex }
+    public var startIndex: Int { elements.startIndex }
+    public var endIndex: Int { elements.endIndex }
 
-    func index(after i: Int) -> Int {
+    public func index(after i: Int) -> Int {
         elements.index(after: i)
     }
 
-    subscript(position: Int) -> Element {
+    public subscript(position: Int) -> Element {
         elements[position]
     }
 
     // MARK: - Custom lookups
 
-    subscript(id id: Element.ID) -> Element? {
+    public subscript(id id: Element.ID) -> Element? {
         guard let idx = elementsByID[id] else { return nil }
         return elements[idx]
     }
 
     // Example mutation
-    mutating func append(_ element: Element) {
+    public mutating func append(_ element: Element) {
         elements.append(element)
         elementsByID[element.id] = elements.endIndex - 1
     }
@@ -54,7 +54,7 @@ struct IdentifiedCollection<Element: Identifiable & Hashable>:
     /// **Note:** Removing from the middle of the array is O(n),
     /// because we have to shift elements and update their indices.
     @discardableResult
-    mutating func remove(id: Element.ID) -> Element? {
+    public mutating func remove(id: Element.ID) -> Element? {
         guard let index = elementsByID[id] else {
             return nil
         }
@@ -78,7 +78,7 @@ struct IdentifiedCollection<Element: Identifiable & Hashable>:
     /// **Note:** Removing from the middle is O(n) because of shifting elements
     /// and updating dictionary entries for subsequent items.
     @discardableResult
-    mutating func remove(at index: Int) -> Element {
+    public mutating func remove(at index: Int) -> Element {
         precondition(index >= startIndex && index < endIndex, "Index out of range.")
         
         let removedElement = elements.remove(at: index)

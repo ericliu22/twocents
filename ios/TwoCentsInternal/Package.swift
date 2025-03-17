@@ -29,5 +29,6 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk")
             ]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v6]
 )

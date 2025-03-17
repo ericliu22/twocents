@@ -35,9 +35,7 @@ public class Post: Identifiable, Codable {
     }
 }
 
-protocol PostView: View {
-    var post: Post { get }
-}
+
 
 public protocol Uploadable: Identifiable, Codable {
 
@@ -60,34 +58,5 @@ public func makeUploadable(post: Post, data: Data) -> any Uploadable {
         return TextUpload(post: post, data: data)
     case .OTHER:
         return ImageUpload(post: post, data: data)
-    }
-}
-
-@MainActor @ViewBuilder
-public func makePostView(post: Post, isDetail: Bool = false) -> some View {
-    switch post.media {
-    case .IMAGE:
-        ImageView(post: post, isDetail: isDetail)
-    case .VIDEO:
-        VideoView(post: post)
-    case .LINK:
-        LinkView(post: post)
-    case .TEXT:
-        TextView(post: post)
-    default:
-        EmptyPostView(post: post)
-    }
-}
-
-
-struct EmptyPostView: PostView {
-    let post: Post
-
-    init(post: Post) {
-        self.post = post
-    }
-
-    var body: some View {
-        EmptyView()
     }
 }
