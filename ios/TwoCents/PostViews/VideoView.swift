@@ -43,6 +43,7 @@ struct VideoView: PostView {
             let newVideos = try? JSONDecoder().decode(
                 [VideoDownload].self, from: data)
             if let newVideos {
+                videos = []
                 videos.append(contentsOf: newVideos)
             }
         }
