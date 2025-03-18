@@ -146,9 +146,9 @@ struct ExploreCard: View {
                     
                     Spacer()
                    
-                    Label("\(100)", systemImage: "heart.fill")
-                        .font(.caption)
-                        .foregroundColor(.red)
+//                    Label("\(100)", systemImage: "heart.fill")
+//                        .font(.caption)
+//                        .foregroundColor(.red)
                         
                     
                     

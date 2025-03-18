@@ -44,64 +44,70 @@ struct LinkView: PostView {
     }
 }
 
-// Mark the UIViewRepresentable as @MainActor to guarantee its methods run on the main thread.
-@MainActor
-struct LinkPresentationView: UIViewRepresentable {
-    var previewURL: URL
-
-    func makeUIView(context: Context) -> UIView {
-        // Create a container view
-        let containerView = UIView()
-        containerView.backgroundColor = .clear
-
-        // Create the LPLinkView with the preview URL
-        let linkView = LPLinkView(url: previewURL)
-        linkView.translatesAutoresizingMaskIntoConstraints = false
-
-        // Add LPLinkView to the container
-        containerView.addSubview(linkView)
-
-        // Pin linkView to all edges of containerView
-        NSLayoutConstraint.activate([
-            linkView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            linkView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            linkView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            linkView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-        ])
-
-        // Fetch metadata and update the link view without sizeToFit
-        let provider = LPMetadataProvider()
-        provider.startFetchingMetadata(for: previewURL) { (metadata, error) in
-            Task { @MainActor in
-                guard let metadata = metadata, error == nil else { return }
-                linkView.metadata = metadata
-                // Invalidate and re-evaluate the layout on the main actor.
-                linkView.setNeedsLayout()
-                linkView.layoutIfNeeded()
-                // Optionally, if you need to capture the new size:
-                let newSize = linkView.intrinsicContentSize
-                // You can then update a SwiftUI state or binding if required.
-            }
-        }
-
-        return containerView
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // No update logic needed in this case.
-    }
-}
-
-
 struct LinkPreview: View {
     let url: URL
-
+    @State private var metadata: LPLinkMetadata?
+    @State private var previewImage: UIImage?
+    
     var body: some View {
-        VStack {
-            LinkPresentationView(previewURL: url)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(alignment: .leading) {
+            if let metadata = metadata {
+                // If an image is available, show it at the top
+                if let previewImage = previewImage {
+                    Image(uiImage: previewImage)
+                        .resizable()
+                        .scaledToFit()
+                        .clipped()
+                }
+                // Show the title if available
+                if let title = metadata.title {
+                    Text(title)
+                        .font(.headline)
+                        .padding(.top, 4)
+                }
+                // Show the URL text as a subheadline
+                if let linkURL = metadata.url?.absoluteString {
+                    Text(linkURL)
+                        .font(.subheadline)
+                        .foregroundColor(.blue)
+                        .padding(.top, 2)
+                }
+            } else {
+                // Placeholder while metadata is being fetched
+                Text(url.absoluteString)
+                    .foregroundColor(.gray)
+            }
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(10)
+        .onChange(of: metadata) {
+            // Once metadata is updated, load the image from the imageProvider if available.
+            guard let metadata = metadata,
+                  let imageProvider = metadata.imageProvider else { return }
+            
+            imageProvider.loadObject(ofClass: UIImage.self) { object, error in
+                if let error = error {
+                    print("Error loading image: \(error)")
+                } else if let image = object as? UIImage {
+                    DispatchQueue.main.async {
+                        previewImage = image
+                    }
+                }
+            }
+        }
+        .task {
+            // Fetch the LPLinkMetadata asynchronously
+            let provider = LPMetadataProvider()
+            do {
+                let fetchedMetadata = try await provider.startFetchingMetadata(for: url)
+                // Update the metadata on the main thread
+                DispatchQueue.main.async {
+                    metadata = fetchedMetadata
+                }
+            } catch {
+                print("Error fetching metadata: \(error)")
+            }
+        }
     }
-
 }
