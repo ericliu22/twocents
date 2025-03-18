@@ -16,7 +16,8 @@ class CreatePostViewModel {
     var mediaType: Media = .LINK
     var mediaURL: String = ""
     var selectedMedia: [SelectedMedia] = []  // Holds SelectedMedia items
-    var showMediaPicker = false
+    var showPhotoPicker = false
+    var showVideoPicker = false
     var isPosting = false
     var fullScreenMedia: SelectedMedia? = nil  // For full screen preview
 

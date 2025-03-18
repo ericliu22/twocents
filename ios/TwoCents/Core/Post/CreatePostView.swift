@@ -4,12 +4,19 @@ import PhotosUI
 import UniformTypeIdentifiers
 import TwoCentsInternal
 
+// New enum to differentiate between image and video files.
+enum FileMediaType: Equatable {
+    case image
+    case video
+}
+
 // A model to store selected media information.
 struct SelectedMedia: Identifiable, Equatable {
     // Use assetIdentifier if available; otherwise, fall back to the file URL string.
     var id: String { assetIdentifier ?? url.absoluteString }
     let assetIdentifier: String?
     let url: URL
+    let fileMediaType: FileMediaType
 }
 
 struct CreatePostView: View {
@@ -18,7 +25,8 @@ struct CreatePostView: View {
     
     let mediaOptions: [(icon: String, label: String, type: Media)] = [
         ("link", "Link", .LINK),
-        ("photo.fill", "Image/Video", .IMAGE),
+        ("photo.fill", "Image", .IMAGE),
+        ("video.fill", "Video", .VIDEO),
         ("textformat", "Text", .TEXT),
         ("ellipsis", "Other", .OTHER)
     ]
@@ -60,17 +68,15 @@ struct CreatePostView: View {
                                 .keyboardType(.URL)
                                 .autocapitalization(.none)
                             
-                            
                             Button(action: {
                                 if let clipboard = UIPasteboard.general.string {
                                     viewModel.mediaURL = clipboard
                                 }
                             }) {
-                               Text("Paste")
+                                Text("Paste")
                                     .padding(.vertical, 10)
                             }
                             .buttonStyle(.bordered)
-
                             .cornerRadius(10)
                         }
                         
@@ -78,7 +84,7 @@ struct CreatePostView: View {
                         if viewModel.selectedMedia.isEmpty {
                             // Grey box with plus icon to add more images.
                             Button(action: {
-                                viewModel.showMediaPicker.toggle()
+                                viewModel.showPhotoPicker.toggle()
                             }) {
                                 ZStack {
                                     Rectangle()
@@ -87,7 +93,6 @@ struct CreatePostView: View {
                                         .cornerRadius(10)
                                     Image(systemName: "plus")
                                         .font(.title)
-//                                        .foregroundColor(.blue)
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -95,16 +100,16 @@ struct CreatePostView: View {
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
-                                    // Display each selected image.
+                                    // Display each selected image or video.
                                     ForEach(viewModel.selectedMedia) { media in
                                         mediaPreview(for: media)
                                             .onTapGesture {
                                                 viewModel.fullScreenMedia = media
                                             }
                                     }
-                                    // Grey box with plus icon to add more images.
+                                    // Grey box with plus icon to add more media.
                                     Button(action: {
-                                        viewModel.showMediaPicker.toggle()
+                                        viewModel.showPhotoPicker.toggle()
                                     }) {
                                         ZStack {
                                             Rectangle()
@@ -113,10 +118,51 @@ struct CreatePostView: View {
                                                 .cornerRadius(10)
                                             Image(systemName: "plus")
                                                 .font(.title)
-//                                                .foregroundColor(.blue)
                                         }
                                     }
-//                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                    case .VIDEO:
+                        if viewModel.selectedMedia.isEmpty {
+                            // Grey box with plus icon to add more images.
+                            Button(action: {
+                                viewModel.showVideoPicker.toggle()
+                            }) {
+                                ZStack {
+                                    Rectangle()
+                                        .fill(Color(.systemGray6))
+                                        .frame(width: 100, height: 100)
+                                        .cornerRadius(10)
+                                    Image(systemName: "plus")
+                                        .font(.title)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    // Display each selected image or video.
+                                    ForEach(viewModel.selectedMedia) { media in
+                                        mediaPreview(for: media)
+                                            .onTapGesture {
+                                                viewModel.fullScreenMedia = media
+                                            }
+                                    }
+                                    // Grey box with plus icon to add more media.
+                                    Button(action: {
+                                        viewModel.showPhotoPicker.toggle()
+                                    }) {
+                                        ZStack {
+                                            Rectangle()
+                                                .fill(Color(.systemGray6))
+                                                .frame(width: 100, height: 100)
+                                                .cornerRadius(10)
+                                            Image(systemName: "plus")
+                                                .font(.title)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -146,8 +192,6 @@ struct CreatePostView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-//                        .background(Color.blue)
-//                        .foregroundColor(.white)
                         .cornerRadius(10)
                     }
                     .disabled(viewModel.isPosting
@@ -161,10 +205,13 @@ struct CreatePostView: View {
                 .padding(.top)
                 .navigationTitle("Create Post")
                 // Media picker sheet – passes in the already selected asset identifiers.
-                .sheet(isPresented: $viewModel.showMediaPicker) {
-                    MediaPicker(mediaItems: $viewModel.selectedMedia)
+                .sheet(isPresented: $viewModel.showPhotoPicker) {
+                    PhotoPicker(mediaItems: $viewModel.selectedMedia)
                 }
-                // Full screen preview of tapped image.
+                .sheet(isPresented: $viewModel.showVideoPicker) {
+                    VideoPicker(mediaItems: $viewModel.selectedMedia)
+                }
+                // Full screen preview of tapped media.
                 .fullScreenCover(item: $viewModel.fullScreenMedia) { media in
                     FullScreenImageView(selectedMedia: media, onDelete: {
                         if let index = viewModel.selectedMedia.firstIndex(of: media) {
@@ -180,10 +227,8 @@ struct CreatePostView: View {
         }
     }
     
-    
     // Media option button view.
     private func mediaButton(icon: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-       
         VStack(spacing: 8) {
             if isSelected {
                 Button(action: action) {
@@ -192,7 +237,6 @@ struct CreatePostView: View {
                         .frame(width: 48, height: 48)
                 }
                 .buttonBorderShape(.circle)
-         
                 .buttonStyle(.borderedProminent)
             } else {
                 Button(action: action) {
@@ -201,7 +245,6 @@ struct CreatePostView: View {
                         .frame(width: 48, height: 48)
                 }
                 .buttonBorderShape(.circle)
-                
                 .buttonStyle(.bordered)
             }
             
@@ -209,14 +252,12 @@ struct CreatePostView: View {
                 .font(.caption)
                 .foregroundColor(.primary)
         }
-       
-   
     }
     
     // Preview view for each image or video.
     private func mediaPreview(for media: SelectedMedia) -> some View {
         Group {
-            if isVideo(url: media.url) {
+            if media.fileMediaType == .video {
                 VideoPlayer(player: AVPlayer(url: media.url))
                     .cornerRadius(10)
                     .frame(width: 100, height: 100, alignment: .topLeading)
@@ -236,90 +277,5 @@ struct CreatePostView: View {
             }
         }
     }
-    
-    private func isVideo(url: URL) -> Bool {
-        let asset = AVAsset(url: url)
-        return asset.tracks(withMediaType: .video).count > 0
-    }
 }
 
-// Updated MediaPicker that now rebuilds the selection based on the current picker results,
-// so if an image is deselected, it is removed from the selection.
-struct MediaPicker: UIViewControllerRepresentable {
-    @Binding var mediaItems: [SelectedMedia]
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.filter = .images  // Only images are allowed.
-        config.selectionLimit = 0  // 0 for unlimited selection
-        
-        // Set preselectedAssetIdentifiers using those stored in mediaItems.
-        config.preselectedAssetIdentifiers = mediaItems.compactMap { $0.assetIdentifier }
-        
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: MediaPicker
-        
-        init(_ parent: MediaPicker) {
-            self.parent = parent
-        }
-        
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            // Build a new list of media items based solely on the current picker results.
-            var newMediaItems: [SelectedMedia] = []
-            let dispatchGroup = DispatchGroup()
-            
-            for result in results {
-                // If the image was already selected, retain it.
-                if let assetId = result.assetIdentifier,
-                   let existingItem = parent.mediaItems.first(where: { $0.assetIdentifier == assetId }) {
-                    newMediaItems.append(existingItem)
-                } else {
-                    // Otherwise, load the new image.
-                    if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                        dispatchGroup.enter()
-                        result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, error in
-                            if let url = url {
-                                let tempURL = FileManager.default.temporaryDirectory
-                                    .appendingPathComponent(UUID().uuidString)
-                                    .appendingPathExtension("jpg")
-                                do {
-                                    try FileManager.default.copyItem(at: url, to: tempURL)
-                                    let newItem = SelectedMedia(assetIdentifier: result.assetIdentifier, url: tempURL)
-                                    DispatchQueue.main.async {
-                                        newMediaItems.append(newItem)
-                                    }
-                                } catch {
-                                    print("Error copying file: \(error.localizedDescription)")
-                                }
-                            }
-                            dispatchGroup.leave()
-                        }
-                    }
-                }
-            }
-            
-            dispatchGroup.notify(queue: .main) {
-                // Update the binding with the newly selected items.
-                self.parent.mediaItems = newMediaItems
-                picker.dismiss(animated: true)
-            }
-        }
-    }
-}
-
-struct CreatePostView_Previews: PreviewProvider {
-    static var previews: some View {
-        CreatePostView()
-    }
-}
