@@ -16,6 +16,7 @@ var HARDCODED_DATE: Date {
     dateComponents.day = 8
     return Calendar.current.date(from: dateComponents)!
 }
+
 let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
 
 struct TwoCentsTimelineProvider: TimelineProvider{
@@ -40,15 +41,25 @@ struct TwoCentsTimelineProvider: TimelineProvider{
         Task{
             var fetchedPosts: [Post] = []
             do {
-                let postsData = try await PostManager.getGroupPosts(groupId: HARDCODED_GROUP.id)
+                //?
+                var imageDownloads: [ImageDownload] = []
+                let postsData = try await PostManager.getGroupPosts(groupId: group.id) //Hardcoded also don't work
                 fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
                 var entries: [TwoCentsEntry] = []
                 for post in fetchedPosts {
-                    let entry = TwoCentsEntry(date: Date(), posts: [post], id: post.id, userId: post.userId, media: post.media, dateCreated: post.dateCreated, caption: post.caption)
+                    if post.media == .IMAGE {
+                        if let data = try? await PostManager.getMedia(post: post),
+                        let newImages = try? JSONDecoder().decode([ImageDownload].self, from: data) {
+                            imageDownloads = newImages
+                        }
+                    }
+                    print(post.caption ?? "No caption")
+                    let entry = TwoCentsEntry(date: Date(), posts: [post], id: post.id, userId: post.userId, media: post.media, dateCreated: post.dateCreated, caption: post.caption, ImageDownloads: imageDownloads)
+                    print(entry.caption)
                     entries.append(entry)
                     // Add this entry to your timeline or wherever needed
                 }
-                let nextUpdate = Calendar.current.date(byAdding: .hour, value: 2, to: Date())!
+                let nextUpdate = Calendar.current.date(byAdding: .second, value: 10, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
                     completion(timeline)
             } catch {
@@ -75,6 +86,7 @@ struct TwoCentsEntry: TimelineEntry {
     var media: Media
     var dateCreated: Date
     var caption: String?
+    var ImageDownloads: [ImageDownload]?
 }
 
 //enum Media: String, Codable {
@@ -92,7 +104,7 @@ struct TwoCentsWidgetEntryView: View {
         VStack {
             switch entry.media {
             case .IMAGE:
-                ImageWidgetView(entry: entry)
+                ImageWidgetView(entry: Binding.constant(entry))
             case .VIDEO:
                 VideoWidgetView(entry: entry)
             case .LINK:
@@ -134,40 +146,26 @@ extension TwoCentsEntry {
 // Example subviews for different media types
 
 struct ImageWidgetView: View {
-    let entry: TwoCentsEntry
-
+    @Binding var entry: TwoCentsEntry
     var body: some View {
         ZStack(alignment: .bottom) {
             // 1) Background fills entire widget
-            AsyncImage(url: URL(string: "https://media.tacdn.com/media/attractions-splice-spp-674x446/12/62/15/f1.jpg")) { phase in
-                switch phase {
-                case .empty:
-                    // Use a full-size placeholder
-                    Rectangle()
-                        .fill(Color.blue)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ForEach(entry.ImageDownloads!, id: \.id) { imageDownload in
+                if let url = URL(string: imageDownload.mediaUrl) {
+                    CachedImage(url: url)
                         .scaledToFill()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
-                case .failure:
+                } else {
                     Rectangle()
-                        .fill(Color.red)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                @unknown default:
-                    Color.clear
+                        .fill(Color.yellow)
                 }
             }
-
             // 2) A fixed-height bottom bar
             //    so the bottom edge never moves,
             //    even if the text changes length.
             VStack {
                 if let caption = entry.caption {
-                    Text(caption)
+                    Text("Image")
                         .foregroundColor(.white)
                         .lineLimit(2)   // or however many lines you want
                         .truncationMode(.tail)
@@ -196,7 +194,7 @@ struct VideoWidgetView: View {
                 case .empty:
                     // Use a full-size placeholder
                     Rectangle()
-                        .fill(Color.blue)
+                        .fill(Color.red)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .scaledToFill()
                 case .success(let image):
@@ -219,7 +217,7 @@ struct VideoWidgetView: View {
             //    even if the text changes length.
             VStack {
                 if let caption = entry.caption {
-                    Text(caption)
+                    Text("Video")
                         .foregroundColor(.white)
                         .lineLimit(2)   // or however many lines you want
                         .truncationMode(.tail)
@@ -247,7 +245,53 @@ struct LinkWidgetView: View {
                 case .empty:
                     // Use a full-size placeholder
                     Rectangle()
-                        .fill(Color.blue)
+                        .fill(Color.green)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .scaledToFill()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                case .failure:
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                @unknown default:
+                    Color.clear
+                }
+            }
+
+            // 2) A fixed-height bottom bar
+            //    so the bottom edge never moves,
+            //    even if the text changes length.
+            VStack {
+                Text("why caption blurry")
+            }
+            // This frame ensures the bar is always the same height
+            .frame(height: 50)                // <--- Adjust as needed
+            .frame(maxWidth: .infinity)
+            .background(.ultraThinMaterial)   // blur effect         // space from the bottom edge
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Ensures the ZStack itself spans the widget
+        .containerBackground(.clear, for: .widget)
+    }
+}
+
+struct TextWidgetView: View {
+    let entry: TwoCentsEntry
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // 1) Background fills entire widget
+            AsyncImage(url: URL(string: "https://media.tacdn.com/media/attractions-splice-spp-674x446/12/62/15/f1.jpg")) { phase in
+                switch phase {
+                case .empty:
+                    // Use a full-size placeholder
+                    Rectangle()
+                        .fill(Color.purple)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .scaledToFill()
                 case .success(let image):
@@ -270,7 +314,7 @@ struct LinkWidgetView: View {
             //    even if the text changes length.
             VStack {
                 if let caption = entry.caption {
-                    Text(caption)
+                    Text("Text")
                         .foregroundColor(.white)
                         .lineLimit(2)   // or however many lines you want
                         .truncationMode(.tail)
@@ -298,7 +342,7 @@ struct DefaultWidgetView: View {
                 case .empty:
                     // Use a full-size placeholder
                     Rectangle()
-                        .fill(Color.blue)
+                        .fill(Color.orange)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .scaledToFill()
                 case .success(let image):
@@ -320,12 +364,7 @@ struct DefaultWidgetView: View {
             //    so the bottom edge never moves,
             //    even if the text changes length.
             VStack {
-                if let caption = entry.caption {
-                    Text(caption)
-                        .foregroundColor(.white)
-                        .lineLimit(2)   // or however many lines you want
-                        .truncationMode(.tail)
-                }
+                Text("why is caption blurry")
             }
             // This frame ensures the bar is always the same height
             .frame(height: 50)                // <--- Adjust as needed
