@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F248E2D6E8C9500A08134 /* WidgetKit.framework */; };
 		851F24912D6E8C9500A08134 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F24902D6E8C9500A08134 /* SwiftUI.framework */; };
+		A219EDB72D8B29E300E7F267 /* TwoCentsInternal in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A227C7762D80CDC70079C865 /* TwoCentsInternal */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A2201FC32D81218B0091269A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2201FC22D81218B0091269A /* FirebaseAuth */; };
 		A2201FC52D81218E0091269A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2201FC42D81218E0091269A /* FirebaseCore */; };
 		A22020352D812CA90091269A /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A22020342D812CA90091269A /* TwoCentsInternal */; };
@@ -16,8 +17,6 @@
 		A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7762D80CDC70079C865 /* TwoCentsInternal */; };
 		A227C7B12D811DC90079C865 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B02D811DC90079C865 /* FirebaseAuth */; };
 		A227C7B32D811DCC0079C865 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B22D811DCC0079C865 /* FirebaseCore */; };
-		A26D5DC42D864E37008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC32D864E37008F990F /* TwoCentsInternal */; };
-		A26D5DC62D864E5E008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
 		A26D5DC82D864E74008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC72D864E74008F990F /* TwoCentsInternal */; };
 		A27A38F12D821C71007F9026 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A227C7A12D811BBB0079C865 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -59,9 +58,40 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A219EDB22D8B285700E7F267 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A219EDB72D8B29E300E7F267 /* TwoCentsInternal in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A219EDB42D8B285E00E7F267 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A219EDB62D8B286200E7F267 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A27A38EB2D821C52007F9026 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
@@ -69,7 +99,7 @@
 				A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -95,19 +125,14 @@
 			);
 			target = A2E84B372D6D2C15007B44F7 /* TwoCents */;
 		};
-		851F24A32D6E8C9600A08134 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */ = {
+		A219EDBF2D8B2AA400E7F267 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AppIntent.swift,
 				Info.plist,
-				TwoCentsWidget.swift,
-				TwoCentsWidgetBundle.swift,
-				TwoCentsWidgetControl.swift,
-				TwoCentsWidgetLiveActivity.swift,
 			);
 			target = 851F248B2D6E8C9500A08134 /* TwoCentsWidgetExtension */;
 		};
-		A227C7AF2D811BBB0079C865 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
+		A219EDC02D8B2AA700E7F267 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -120,7 +145,7 @@
 		851F24922D6E8C9500A08134 /* TwoCentsWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				851F24A32D6E8C9600A08134 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */,
+				A219EDBF2D8B2AA400E7F267 /* Exceptions for "TwoCentsWidget" folder in "TwoCentsWidgetExtension" target */,
 			);
 			path = TwoCentsWidget;
 			sourceTree = "<group>";
@@ -128,7 +153,7 @@
 		A227C7A22D811BBB0079C865 /* ShareExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A227C7AF2D811BBB0079C865 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
+				A219EDC02D8B2AA700E7F267 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
 			);
 			path = ShareExtension;
 			sourceTree = "<group>";
@@ -162,7 +187,6 @@
 				A2201FC32D81218B0091269A /* FirebaseAuth in Frameworks */,
 				A2201FC52D81218E0091269A /* FirebaseCore in Frameworks */,
 				851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */,
-				A26D5DC62D864E5E008F990F /* TwoCentsInternal in Frameworks */,
 				A22020352D812CA90091269A /* TwoCentsInternal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -186,7 +210,6 @@
 				A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */,
 				ABF6A6AC2D7E03D40076DDD6 /* TOCropViewController in Frameworks */,
 				ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */,
-				A26D5DC42D864E37008F990F /* TwoCentsInternal in Frameworks */,
 				A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -264,6 +287,7 @@
 				851F24882D6E8C9500A08134 /* Sources */,
 				851F24892D6E8C9500A08134 /* Frameworks */,
 				851F248A2D6E8C9500A08134 /* Resources */,
+				A219EDB42D8B285E00E7F267 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -290,6 +314,7 @@
 				A227C79D2D811BBB0079C865 /* Sources */,
 				A227C79E2D811BBB0079C865 /* Frameworks */,
 				A227C79F2D811BBB0079C865 /* Resources */,
+				A219EDB62D8B286200E7F267 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -317,6 +342,7 @@
 				A2E84B352D6D2C15007B44F7 /* Frameworks */,
 				A2E84B362D6D2C15007B44F7 /* Resources */,
 				A27A38EB2D821C52007F9026 /* Embed Foundation Extensions */,
+				A219EDB22D8B285700E7F267 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -334,7 +360,6 @@
 				ABF6A6A92D7E03D40076DDD6 /* CropViewController */,
 				ABF6A6AB2D7E03D40076DDD6 /* TOCropViewController */,
 				A227C7762D80CDC70079C865 /* TwoCentsInternal */,
-				A26D5DC32D864E37008F990F /* TwoCentsInternal */,
 			);
 			productName = TwoCents;
 			productReference = A2E84B382D6D2C15007B44F7 /* TwoCents.app */;
@@ -1039,10 +1064,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
-		};
-		A26D5DC32D864E37008F990F /* TwoCentsInternal */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TwoCentsInternal;
 		};
 		A26D5DC52D864E5E008F990F /* TwoCentsInternal */ = {
 			isa = XCSwiftPackageProductDependency;

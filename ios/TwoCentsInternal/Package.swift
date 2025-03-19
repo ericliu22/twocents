@@ -12,7 +12,7 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "TwoCentsInternal",
-            type: .static,  // <-- This line specifies a static library.
+            type: .dynamic,  // <-- This line specifies a static library.
             targets: ["TwoCentsInternal"]),
     ],
     dependencies: [
