@@ -18,7 +18,18 @@ func SetupKafkaConsumer(hub *Hub) {
 	// The topic to consume post events from.
 
 	// Create a new consumer.
-	consumer, err := sarama.NewConsumer(brokers, config)
+	var consumer sarama.Consumer
+	var err error
+
+	for i := 0; i < 10; i++ {
+		consumer, err = sarama.NewConsumer(brokers, config)
+		if err == nil {
+			break
+		}
+		log.Printf("Attempt %d: Error creating Kafka consumer: %v\n", i+1, err)
+		time.Sleep(5 * time.Second)  // Wait before retrying
+	}
+
 	if err != nil {
 		log.Printf("Error creating kafka consumer" + err.Error())
 		return
