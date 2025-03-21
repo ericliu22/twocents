@@ -22,7 +22,7 @@ func SetupKafkaConsumer(hub *Hub) {
 	var consumer sarama.Consumer
 	var err error
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		consumer, err = sarama.NewConsumer(brokers, config)
 		if err == nil {
 			break
@@ -32,7 +32,7 @@ func SetupKafkaConsumer(hub *Hub) {
 	}
 
 	if err != nil {
-		log.Printf("Error creating kafka consumer" + err.Error())
+		log.Printf("Error creating kafka consumer %s", err.Error())
 		return
 	}
 
