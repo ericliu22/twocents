@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
 
 @main
 struct TwoCentsApp: App {
@@ -27,6 +28,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        do {
+            try Auth.auth().useUserAccessGroup("TEAMID.com.example.group1")
+        } catch let error as NSError {
+            print("Error changing user access group: %@", error)
+        }
         appModel = AppModel()
 
         return true

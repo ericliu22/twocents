@@ -20,6 +20,7 @@
 		A26D5DC82D864E74008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC72D864E74008F990F /* TwoCentsInternal */; };
 		A27A38F12D821C71007F9026 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A227C7A12D811BBB0079C865 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A2DF090B2D8DECD000A52147 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
 		A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409472D6F8BC700E26D73 /* FirebaseCore */; };
 		ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = ABF6A6A92D7E03D40076DDD6 /* CropViewController */; };
@@ -112,6 +113,7 @@
 		A220203A2D8130650091269A /* ContactsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ContactsUI.framework; path = System/Library/Frameworks/ContactsUI.framework; sourceTree = SDKROOT; };
 		A227C7A12D811BBB0079C865 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A26479EC2D80C464002509EB /* TwoCentsInternal */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = TwoCentsInternal; sourceTree = "<group>"; };
+		A2DF097F2D8DFC0F00A52147 /* TwoCentsWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TwoCentsWidgetExtension.entitlements; sourceTree = "<group>"; };
 		A2E84B382D6D2C15007B44F7 /* TwoCents.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TwoCents.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B482D6D2C18007B44F7 /* TwoCentsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E84B522D6D2C18007B44F7 /* TwoCentsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwoCentsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,6 +185,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2DF090B2D8DECD000A52147 /* TwoCentsInternal in Frameworks */,
 				851F24912D6E8C9500A08134 /* SwiftUI.framework in Frameworks */,
 				A2201FC32D81218B0091269A /* FirebaseAuth in Frameworks */,
 				A2201FC52D81218E0091269A /* FirebaseCore in Frameworks */,
@@ -254,6 +257,7 @@
 		A2E84B2F2D6D2C15007B44F7 = {
 			isa = PBXGroup;
 			children = (
+				A2DF097F2D8DFC0F00A52147 /* TwoCentsWidgetExtension.entitlements */,
 				A26479EC2D80C464002509EB /* TwoCentsInternal */,
 				A2E84B7A2D6D2CEF007B44F7 /* TwoCents */,
 				A2E84B4B2D6D2C18007B44F7 /* TwoCentsTests */,
@@ -582,6 +586,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TwoCentsWidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -612,6 +617,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TwoCentsWidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -640,6 +646,7 @@
 		A227C7AD2D811BBB0079C865 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -668,6 +675,7 @@
 		A227C7AE2D811BBB0079C865 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
