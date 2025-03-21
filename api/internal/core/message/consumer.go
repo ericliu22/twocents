@@ -20,7 +20,7 @@ func SetupKafkaConsumer(hub *Hub) {
 	// Create a new consumer.
 	consumer, err := sarama.NewConsumer(brokers, config)
 	if err != nil {
-		log.Fatal("Error creating kafka consumer" + err.Error())
+		log.Printf("Error creating kafka consumer" + err.Error())
 		return
 	}
 
