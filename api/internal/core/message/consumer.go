@@ -3,6 +3,7 @@ package message
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
