@@ -20,5 +20,5 @@ func SetupCoreRouter(
 	SetupUserRoutes(r, queries, authClient)
 	SetupPostRoutes(r, queries, authClient)
 	SetupGroupRoutes(r, queries, authClient)
-	//message.SetupKafkaConsumer(hub)
+	message.SetupKafkaConsumer(hub)
 }
