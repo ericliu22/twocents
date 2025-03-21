@@ -3,7 +3,6 @@ package message
 import (
 	"log"
 	"strings"
-	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
@@ -19,18 +18,7 @@ func SetupKafkaConsumer(hub *Hub) {
 	// The topic to consume post events from.
 
 	// Create a new consumer.
-	var consumer sarama.Consumer
-	var err error
-
-	for i := range 10 {
-		consumer, err = sarama.NewConsumer(brokers, config)
-		if err == nil {
-			break
-		}
-		log.Printf("Attempt %d: Error creating Kafka consumer: %v\n", i+1, err)
-		time.Sleep(5 * time.Second)  // Wait before retrying
-	}
-
+	consumer, err := sarama.NewConsumer(brokers, config)
 	if err != nil {
 		log.Printf("Error creating kafka consumer %s", err.Error())
 		return
