@@ -198,6 +198,7 @@ struct CreatePostView: View {
                               || (viewModel.mediaType == .LINK && viewModel.mediaURL.isEmpty)
                               || (viewModel.mediaType == .IMAGE && viewModel.selectedMedia.isEmpty)
                               || (viewModel.mediaType == .TEXT && viewModel.caption.isEmpty)
+                              || (viewModel.mediaType == .VIDEO && viewModel.selectedMedia.isEmpty)
                     )
                     .buttonStyle(.bordered)
                 }
