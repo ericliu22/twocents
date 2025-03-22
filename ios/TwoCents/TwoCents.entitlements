@@ -11,6 +11,8 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)TwoCents.TwoCents</string>
+		<string>$(AppIdentifierPrefix)TwoCents.TwoCents.ShareExtension</string>
+		<string>$(AppIdentifierPrefix)TwoCents.TwoCents.TwoCentsWidgetExtension</string>
 	</array>
 </dict>
 </plist>
