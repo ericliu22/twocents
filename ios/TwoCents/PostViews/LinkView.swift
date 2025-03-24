@@ -43,48 +43,63 @@ struct LinkView: PostView {
         }
     }
 }
-
 struct LinkPreview: View {
     let url: URL
     @State private var metadata: LPLinkMetadata?
     @State private var previewImage: UIImage?
     
+    // Fixed height for the image container.
+//    private let imageContainerHeight: CGFloat = 200
+
     var body: some View {
-        VStack(alignment: .leading) {
-            if let metadata = metadata {
-                // If an image is available, show it at the top
+        VStack(spacing: 0) {
+            // Image container with a fixed height.
+            Group {
                 if let previewImage = previewImage {
                     Image(uiImage: previewImage)
                         .resizable()
-                        .scaledToFit()
-                        .clipped()
+                        .scaledToFit() // Ensures the entire image is visible without stretching.
+                        .frame(maxWidth:.infinity, maxHeight: .infinity )
+                      
+                } else {
+                    // A placeholder when no image is available.
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(maxWidth:.infinity, maxHeight: .infinity )
+                        .overlay(
+                            Image(systemName: "photo")
+                                .foregroundColor(.white)
+                                .font(.largeTitle)
+                        )
                 }
-                // Show the title if available
-                if let title = metadata.title {
-                    Text(title)
-                        .font(.headline)
-                        .padding(.top, 4)
-                }
-                // Show the URL text as a subheadline
-                if let linkURL = metadata.url?.absoluteString {
-                    Text(linkURL)
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
-                        .padding(.top, 2)
-                }
-            } else {
-                // Placeholder while metadata is being fetched
-                Text(url.absoluteString)
-                    .foregroundColor(.gray)
             }
+            
+            // Text container below the image.
+            VStack(alignment: .leading, spacing: 4) {
+                if let title = metadata?.title {
+                    Text(title)
+                        .font(.subheadline)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                } else {
+                    Text(url.absoluteString)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 5)
+            .padding(.vertical)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(UIColor.secondarySystemBackground))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(Color(UIColor.systemBackground))
         .cornerRadius(10)
-        .onChange(of: metadata) {
-            // Once metadata is updated, load the image from the imageProvider if available.
-            guard let metadata = metadata,
-                  let imageProvider = metadata.imageProvider else { return }
+//        .shadow(radius: 2)
+        .onChange(of: metadata) { newMetadata in
+            // Once metadata is updated, attempt to load the preview image.
+            guard let newMetadata = newMetadata,
+                  let imageProvider = newMetadata.imageProvider else { return }
             
             imageProvider.loadObject(ofClass: UIImage.self) { object, error in
                 if let error = error {
@@ -97,11 +112,10 @@ struct LinkPreview: View {
             }
         }
         .task {
-            // Fetch the LPLinkMetadata asynchronously
+            // Asynchronously fetch the LPLinkMetadata.
             let provider = LPMetadataProvider()
             do {
                 let fetchedMetadata = try await provider.startFetchingMetadata(for: url)
-                // Update the metadata on the main thread
                 DispatchQueue.main.async {
                     metadata = fetchedMetadata
                 }

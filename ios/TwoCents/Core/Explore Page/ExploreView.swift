@@ -110,8 +110,9 @@ struct ExploreCard: View {
                         selectedPost = post
                     }
                 }
+                .background(.blue)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 if let caption = post.caption {
                     Text(caption)
                         .font(.system(size: 14, weight: .medium))
@@ -154,7 +155,7 @@ struct ExploreCard: View {
                     
                 }
             }
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 5)
         }
      
         .ignoresSafeArea()
