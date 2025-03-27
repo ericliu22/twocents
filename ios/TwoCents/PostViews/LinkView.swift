@@ -30,7 +30,7 @@ struct LinkView: PostView {
             if let link {
                 if let url = URL(string: link.mediaUrl) {
                     LinkPreview(url: url, isDetail: isDetail)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity/*, maxHeight: .infinity*/)
                 }
             } else {
                 ProgressView()
@@ -98,17 +98,34 @@ struct LinkPreview: View {
 
             
             // Text container below the image.
-            VStack(alignment: .leading, spacing: 4) {
-                if let title = metadata?.title {
-                    Text(title)
-                        .font(.subheadline)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                } else {
-                    Text(url.absoluteString)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .lineLimit(1)
+            VStack(alignment: .leading, spacing: 0) {
+                
+                HStack {
+                    if let title = metadata?.title {
+                        Text(title)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    } else {
+                        Text(url.absoluteString)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .lineLimit(1)
+                    }
+                    
+                    if isDetail {
+                        Button(action: {
+                            
+                            UIApplication.shared.open(url)
+                            
+                        }) {
+                            Image(systemName: "arrow.up.right.square")
+                        }
+                        .padding(.leading, 5)
+                        
+                        
+                        
+                    }
                 }
             }
             .padding(.horizontal, 5)
@@ -116,8 +133,8 @@ struct LinkPreview: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(UIColor.secondarySystemBackground))
             
-            Spacer()
-                .frame(height: isDetail ? .infinity : 0)
+//            Spacer()
+//                .frame(height: isDetail ? .infinity : 0)
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(10)
