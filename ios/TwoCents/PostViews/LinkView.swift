@@ -13,15 +13,23 @@ struct LinkView: PostView {
     let post: Post
     @State var link: LinkDownload?
     
-    init(post: Post) {
+    
+    let isDetail: Bool
+ 
+
+
+    
+    
+    init(post: Post, isDetail: Bool = false) {
         self.post = post
+        self.isDetail = isDetail
     }
     
     var body: some View {
         Group {
             if let link {
                 if let url = URL(string: link.mediaUrl) {
-                    LinkPreview(url: url)
+                    LinkPreview(url: url, isDetail: isDetail)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
@@ -47,6 +55,7 @@ struct LinkPreview: View {
     let url: URL
     @State private var metadata: LPLinkMetadata?
     @State private var previewImage: UIImage?
+    let isDetail: Bool
     
     // Fixed height for the image container.
 //    private let imageContainerHeight: CGFloat = 200
@@ -56,16 +65,29 @@ struct LinkPreview: View {
             // Image container with a fixed height.
             Group {
                 if let previewImage = previewImage {
-                    Image(uiImage: previewImage)
-                        .resizable()
-                        .scaledToFit() // Ensures the entire image is visible without stretching.
-                        .frame(maxWidth:.infinity, maxHeight: .infinity )
-                      
+                    VStack(spacing: 0) {
+                        Image(uiImage: previewImage)
+                            .resizable()
+                            .scaledToFit() // Maintain aspect ratio
+                            .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity) // Allow full width, flexible height
+                            
+                            .background(
+                                ZStack {
+                                    Color.black
+                                    Image(uiImage: previewImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                        .blur(radius: 5)
+                                        .opacity(0.3)
+                                }
+                            )
+                    }
                 } else {
-                    // A placeholder when no image is available.
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
-                        .frame(maxWidth:.infinity, maxHeight: .infinity )
+                        .frame(maxWidth: .infinity, maxHeight: isDetail ? (UIScreen.main.bounds.width / 16) * 9 : .infinity)
                         .overlay(
                             Image(systemName: "photo")
                                 .foregroundColor(.white)
@@ -73,6 +95,7 @@ struct LinkPreview: View {
                         )
                 }
             }
+
             
             // Text container below the image.
             VStack(alignment: .leading, spacing: 4) {
@@ -92,6 +115,9 @@ struct LinkPreview: View {
             .padding(.vertical)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(UIColor.secondarySystemBackground))
+            
+            Spacer()
+                .frame(height: isDetail ? .infinity : 0)
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(10)

@@ -27,7 +27,7 @@ public func makePostView(post: Post, isDetail: Bool = false) -> some View {
     case .VIDEO:
         VideoView(post: post)
     case .LINK:
-        LinkView(post: post)
+        LinkView(post: post, isDetail: isDetail)
     case .TEXT:
         TextView(post: post)
     default:
