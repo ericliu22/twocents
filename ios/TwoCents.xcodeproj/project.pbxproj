@@ -9,17 +9,17 @@
 /* Begin PBXBuildFile section */
 		851F248F2D6E8C9500A08134 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F248E2D6E8C9500A08134 /* WidgetKit.framework */; };
 		851F24912D6E8C9500A08134 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 851F24902D6E8C9500A08134 /* SwiftUI.framework */; };
-		A219EDB72D8B29E300E7F267 /* TwoCentsInternal in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A227C7762D80CDC70079C865 /* TwoCentsInternal */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A2201FC32D81218B0091269A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2201FC22D81218B0091269A /* FirebaseAuth */; };
 		A2201FC52D81218E0091269A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2201FC42D81218E0091269A /* FirebaseCore */; };
 		A22020352D812CA90091269A /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A22020342D812CA90091269A /* TwoCentsInternal */; };
 		A22020392D8130210091269A /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A22020382D8130210091269A /* TwoCentsInternal */; };
-		A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7762D80CDC70079C865 /* TwoCentsInternal */; };
 		A227C7B12D811DC90079C865 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B02D811DC90079C865 /* FirebaseAuth */; };
 		A227C7B32D811DCC0079C865 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A227C7B22D811DCC0079C865 /* FirebaseCore */; };
 		A26D5DC82D864E74008F990F /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC72D864E74008F990F /* TwoCentsInternal */; };
 		A27A38F12D821C71007F9026 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A227C7A12D811BBB0079C865 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A27B73BC2D90B1EF00BCD66C /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; };
+		A27B73BD2D90B1EF00BCD66C /* TwoCentsInternal in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A2DF090B2D8DECD000A52147 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
 		A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409472D6F8BC700E26D73 /* FirebaseCore */; };
@@ -65,7 +65,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A219EDB72D8B29E300E7F267 /* TwoCentsInternal in Embed Frameworks */,
+				A27B73BD2D90B1EF00BCD66C /* TwoCentsInternal in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -213,7 +213,7 @@
 				A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */,
 				ABF6A6AC2D7E03D40076DDD6 /* TOCropViewController in Frameworks */,
 				ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */,
-				A227C7772D80CDC70079C865 /* TwoCentsInternal in Frameworks */,
+				A27B73BC2D90B1EF00BCD66C /* TwoCentsInternal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,7 +363,7 @@
 				A2E409472D6F8BC700E26D73 /* FirebaseCore */,
 				ABF6A6A92D7E03D40076DDD6 /* CropViewController */,
 				ABF6A6AB2D7E03D40076DDD6 /* TOCropViewController */,
-				A227C7762D80CDC70079C865 /* TwoCentsInternal */,
+				A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */,
 			);
 			productName = TwoCents;
 			productReference = A2E84B382D6D2C15007B44F7 /* TwoCents.app */;
@@ -590,7 +590,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCentsWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCentsWidget;
@@ -602,7 +602,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.TwoCentsWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -621,7 +621,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCentsWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCentsWidget;
@@ -633,7 +633,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.TwoCentsWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -650,7 +650,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -662,7 +662,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -679,7 +679,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -691,7 +691,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.ShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -826,17 +826,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TwoCents/TwoCents.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your friends would love to see you";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to select profile images.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -848,8 +850,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -862,17 +865,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TwoCents/TwoCents.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 857HQ99479;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your friends would love to see you";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to select profile images.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -884,8 +889,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCents;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -898,10 +904,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCentsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -916,10 +923,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCentsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -933,10 +941,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCentsUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -950,10 +959,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 432WVK3797;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = TwoCents.TwoCentsUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twocentsapp.newcents.TwoCentsUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1059,10 +1069,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = TwoCentsInternal;
 		};
-		A227C7762D80CDC70079C865 /* TwoCentsInternal */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TwoCentsInternal;
-		};
 		A227C7B02D811DC90079C865 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -1078,6 +1084,10 @@
 			productName = TwoCentsInternal;
 		};
 		A26D5DC72D864E74008F990F /* TwoCentsInternal */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TwoCentsInternal;
+		};
+		A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TwoCentsInternal;
 		};

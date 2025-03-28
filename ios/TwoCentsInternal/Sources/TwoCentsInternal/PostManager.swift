@@ -22,7 +22,7 @@ public struct PostRequest: Encodable {
 //CanvasWidget: Post
 //Media: Image
 
-public struct PostManager {
+public struct PostManager: Sendable {
     
     private init() {}
     
@@ -69,7 +69,7 @@ public struct PostManager {
         return try await request.sendRequest()
     }
 
-    @MainActor public static func getMedia(post: Post) async throws -> Data {
+    public static func getMedia(post: Post) async throws -> Data {
         let baseURL = POST_URL.appendingPathComponent("get-media")
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
         components.queryItems = [

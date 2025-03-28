@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseAuth
 
-let APP_GROUP = "TwoCents.TwoCents"
+let APP_GROUP = "com.twocentsapp.newcents.keychain-group"
 // The share extension view controller.
 class ShareViewController: SLComposeServiceViewController {
 
@@ -21,7 +21,6 @@ class ShareViewController: SLComposeServiceViewController {
         } catch {
             let message = "Error changing user access group \(error.localizedDescription)"
             print(error)
-            fatalError(message)
         }
 
         // Process the extension’s input items.

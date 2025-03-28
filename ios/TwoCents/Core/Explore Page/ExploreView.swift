@@ -110,7 +110,6 @@ struct ExploreCard: View {
                         selectedPost = post
                     }
                 }
-                .background(.blue)
 
             VStack(alignment: .leading, spacing: 5) {
                 if let caption = post.caption {

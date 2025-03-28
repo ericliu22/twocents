@@ -4,15 +4,13 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
-	<key>com.apple.developer.associated-domains</key>
+	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>webcredentials:api.twocentsapp.com</string>
+		<string>group.com.twocentsapp.newcents</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)TwoCents.TwoCents</string>
-		<string>$(AppIdentifierPrefix)TwoCents.TwoCents.ShareExtension</string>
-		<string>$(AppIdentifierPrefix)TwoCents.TwoCents.TwoCentsWidgetExtension</string>
+		<string>$(AppIdentifierPrefix)com.twocentsapp.newcents.keychain-group</string>
 	</array>
 </dict>
 </plist>
