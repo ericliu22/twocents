@@ -3,22 +3,18 @@
 //  TwoCents
 //
 //  Created by Eric Liu on 2025/3/17.
+//  Updated on 2025/3/27 to integrate embedding.
 //
+
 import TwoCentsInternal
 import SwiftUI
 import LinkPresentation
+import WebKit
 
 struct LinkView: PostView {
-    
     let post: Post
     @State var link: LinkDownload?
-    
-    
     let isDetail: Bool
- 
-
-
-    
     
     init(post: Post, isDetail: Bool = false) {
         self.post = post
@@ -29,8 +25,15 @@ struct LinkView: PostView {
         Group {
             if let link {
                 if let url = URL(string: link.mediaUrl) {
-                    LinkPreview(url: url, isDetail: isDetail)
-                        .frame(maxWidth: .infinity/*, maxHeight: .infinity*/)
+                    // If the URL is one of the known embeddable providers, show an embedded view.
+                    if let embedURL = embedURL(for: url), isDetail {
+                        WebView(url: embedURL)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        // Otherwise, fall back to the LinkPreview.
+                        LinkPreview(url: url, isDetail: isDetail)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
             } else {
                 ProgressView()
@@ -39,51 +42,105 @@ struct LinkView: PostView {
             }
         }
         .task {
-            // Fetch media data asynchronously
+            // Fetch media data asynchronously.
             guard let data = try? await PostManager.getMedia(post: post) else {
                 return
             }
             let links = try? JSONDecoder().decode([LinkDownload].self, from: data)
-            // Ensure state updates are performed on the main thread.
+            // Update state on the main thread.
             await MainActor.run {
                 link = links?.first
             }
         }
     }
+    
+    // MARK: - Helper Methods for Embedding
+    
+    /// Returns an embed URL for known providers (YouTube, Instagram, TikTok).
+    private func embedURL(for url: URL) -> URL? {
+        let absoluteString = url.absoluteString.lowercased()
+        if absoluteString.contains("youtube.com") || absoluteString.contains("youtu.be") {
+            if let videoID = extractYouTubeID(from: url) {
+                return URL(string: "https://www.youtube.com/embed/\(videoID)")
+            }
+        } else if absoluteString.contains("instagram.com") {
+            // Instagram embed: Depending on your needs, you might need additional parameters.
+            return url
+        } else if absoluteString.contains("tiktok.com") {
+            // TikTok embed: Use the URL directly if embedding is supported.
+            return url
+        }
+        return nil
+    }
+    
+    /// Extracts the YouTube video ID from a URL using common URL patterns.
+    private func extractYouTubeID(from url: URL) -> String? {
+        let patterns = [
+            "youtube\\.com/watch\\?v=([^&]+)",
+            "youtu\\.be/([^?&]+)"
+        ]
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                let range = NSRange(location: 0, length: url.absoluteString.utf16.count)
+                if let match = regex.firstMatch(in: url.absoluteString, options: [], range: range),
+                   let range1 = Range(match.range(at: 1), in: url.absoluteString) {
+                    return String(url.absoluteString[range1])
+                }
+            }
+        }
+        return nil
+    }
 }
+
+// MARK: - WebView for Embedded Content
+
+/// A simple wrapper around WKWebView to load and display embedded content.
+struct WebView: UIViewRepresentable {
+    let url: URL
+    
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.scrollView.isScrollEnabled = true
+        webView.allowsBackForwardNavigationGestures = false
+        return webView
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        let request = URLRequest(url: url)
+        uiView.load(request)
+    }
+}
+
+// MARK: - Fallback LinkPreview
+
+/// A link preview using LPLinkMetadata that fetches metadata and displays an image and title.
 struct LinkPreview: View {
     let url: URL
+    let isDetail: Bool
     @State private var metadata: LPLinkMetadata?
     @State private var previewImage: UIImage?
-    let isDetail: Bool
     
-    // Fixed height for the image container.
-//    private let imageContainerHeight: CGFloat = 200
-
     var body: some View {
         VStack(spacing: 0) {
-            // Image container with a fixed height.
+            // Image container.
             Group {
                 if let previewImage = previewImage {
-                    VStack(spacing: 0) {
-                        Image(uiImage: previewImage)
-                            .resizable()
-                            .scaledToFit() // Maintain aspect ratio
-                            .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity) // Allow full width, flexible height
-                            
-                            .background(
-                                ZStack {
-                                    Color.black
-                                    Image(uiImage: previewImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                        .blur(radius: 5)
-                                        .opacity(0.3)
-                                }
-                            )
-                    }
+                    Image(uiImage: previewImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity)
+                        .background(
+                            ZStack {
+                                Color.black
+                                Image(uiImage: previewImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                                    .blur(radius: 5)
+                                    .opacity(0.3)
+                            }
+                        )
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
@@ -95,11 +152,9 @@ struct LinkPreview: View {
                         )
                 }
             }
-
             
             // Text container below the image.
             VStack(alignment: .leading, spacing: 0) {
-                
                 HStack {
                     if let title = metadata?.title {
                         Text(title)
@@ -115,17 +170,12 @@ struct LinkPreview: View {
                     
                     if isDetail {
                         Button(action: {
-                            
                             UIApplication.shared.open(url)
-                            
                         }) {
                             Image(systemName: "arrow.up.right.square")
                                 .foregroundColor(.gray)
                         }
                         .padding(.leading, 5)
-                        
-                        
-                        
                     }
                 }
             }
@@ -133,18 +183,13 @@ struct LinkPreview: View {
             .padding(.vertical)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(UIColor.secondarySystemBackground))
-            
-//            Spacer()
-//                .frame(height: isDetail ? .infinity : 0)
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(10)
-//        .shadow(radius: 2)
         .onChange(of: metadata) { newMetadata in
-            // Once metadata is updated, attempt to load the preview image.
+            // Load the preview image once metadata is available.
             guard let newMetadata = newMetadata,
                   let imageProvider = newMetadata.imageProvider else { return }
-            
             imageProvider.loadObject(ofClass: UIImage.self) { object, error in
                 if let error = error {
                     print("Error loading image: \(error)")
@@ -156,7 +201,6 @@ struct LinkPreview: View {
             }
         }
         .task {
-            // Asynchronously fetch the LPLinkMetadata.
             let provider = LPMetadataProvider()
             do {
                 let fetchedMetadata = try await provider.startFetchingMetadata(for: url)
