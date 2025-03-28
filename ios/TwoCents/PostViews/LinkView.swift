@@ -120,6 +120,7 @@ struct LinkPreview: View {
                             
                         }) {
                             Image(systemName: "arrow.up.right.square")
+                                .foregroundColor(.gray)
                         }
                         .padding(.leading, 5)
                         
