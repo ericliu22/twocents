@@ -3,6 +3,7 @@ package handlers
 import (
 	database "api/internal/core/db"
 	"api/internal/middleware"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ func UploadLinkPostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
+		log.Printf("Link request: ", linkRequest)
 		linkParams := database.CreateLinkParams{
 			ID:       uuid.New(),
 			PostID:   linkRequest.PostId,

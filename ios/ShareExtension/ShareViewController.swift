@@ -6,7 +6,8 @@ import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseAuth
 
-let APP_GROUP = "com.twocentsapp.newcents.keychain-group"
+let APP_GROUP = "432WVK3797.com.twocentsapp.newcents.keychain-group"
+let groups: [UUID] = [UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!]
 // The share extension view controller.
 class ShareViewController: SLComposeServiceViewController {
 
@@ -166,10 +167,11 @@ class ShareViewController: SLComposeServiceViewController {
             // Step 2. Build a PostRequest.
             // You can pass additional details (e.g. groups) as needed.
             let caption = self.contentText
-            let groups: [UUID] = []  // Replace with appropriate group IDs if available.
             let postRequest = PostRequest(
                 media: media, caption: caption, groups: groups)
 
+            print("GROUPS")
+            print(groups)
             do {
                 // Step 3. Upload the post and decode the response into a Post object.
                 let post = try await PostManager.uploadPost(
@@ -216,11 +218,13 @@ class ShareViewController: SLComposeServiceViewController {
                 continue
             }
             let body = [
-                "mediaUrl": linkURL
+                "mediaUrl": linkURL.absoluteString,
+                "postId": post.id.uuidString
             ]
             guard let data = try? TwoCentsEncoder().encode(body) else {
                 continue
             }
+            print(post.id)
             _ = try? await PostManager.uploadMediaPost(post: post, data: data)
         }
     }
@@ -231,7 +235,8 @@ class ShareViewController: SLComposeServiceViewController {
                 continue
             }
             let body = [
-                "text": text
+                "text": text,
+                "postId": post.id.uuidString
             ]
             guard let data = try? TwoCentsEncoder().encode(body) else {
                 continue
@@ -241,6 +246,7 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     func handleVideo(post: Post) async {
+        print("VIDEO")
         for item in sharedItems {
             guard let videoURL = item as? URL else {
                 continue

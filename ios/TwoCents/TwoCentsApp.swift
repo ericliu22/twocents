@@ -29,9 +29,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         do {
-            try Auth.auth().useUserAccessGroup("com.twocentsapp.newcents.keychain-group")
+            try Auth.auth().useUserAccessGroup("432WVK3797.com.twocentsapp.newcents.keychain-group")
         } catch let error as NSError {
-            print("Error changing user access group: %@", error)
+            print("Error changing user access group: ", error)
         }
         appModel = AppModel()
 
