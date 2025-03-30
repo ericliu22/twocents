@@ -55,7 +55,7 @@ struct TwoCentsTimelineProvider: TimelineProvider{
                     }
                     print(post.caption ?? "No caption")
                     let entry = TwoCentsEntry(date: Date(), posts: [post], id: post.id, userId: post.userId, media: post.media, dateCreated: post.dateCreated, caption: post.caption, ImageDownloads: imageDownloads)
-                    print(entry.caption)
+                    print(entry.caption!)
                     entries.append(entry)
                     // Add this entry to your timeline or wherever needed
                 }
