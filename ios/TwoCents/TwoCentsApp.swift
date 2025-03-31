@@ -22,7 +22,7 @@ struct TwoCentsApp: App {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
     var appModel: AppModel?
     
@@ -34,49 +34,43 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         } catch let error as NSError {
             print("Error changing user access group: ", error)
         }
-        UNUserNotificationCenter.current().delegate = self
-        
-        requestNotificationAuthorization()
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            print("Notification authorization status: \(settings.authorizationStatus)")
-        }
         appModel = AppModel()
+        UNUserNotificationCenter.current().delegate = self
+
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+          options: authOptions,
+          completionHandler: { _, _ in }
+        )
+
+        application.registerForRemoteNotifications()
 
         return true
     }
     
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = parseDeviceToken(from: deviceToken)
+        print("DEVICE TOKEN \(token)")
+    }
+
+    func parseDeviceToken(from data: Data) -> String {
+        return data.map { String(format: "%02.2hhx", $0) }.joined()
+    }
+
     func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        // Convert token to string
-        print("RAN delegate THIS")
-        
-        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-        
-        let tokenString = tokenParts.joined()
-        
-        print("Device Token: \(tokenString)")
-        
-        // TODO: Send this token to your server, e.g. via an HTTPS request.
-        Task {
-            try await UserManager.uploadDeviceToken(token: tokenString)
-        }
+                     didFailToRegisterForRemoteNotificationsWithError
+                     error: Error) {
+        // Try again later.
     }
 
 }
-extension AppDelegate: UNUserNotificationCenterDelegate {
+extension AppDelegate {
     // This is called if a notification is delivered while the app is in the foreground.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Decide how to present alert, sound, badge, etc.
         completionHandler([.banner, .sound, .badge])
-    }
-    
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("Failed to register: \(error)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
-            UIApplication.shared.registerForRemoteNotifications()
-        }
     }
     
 }
