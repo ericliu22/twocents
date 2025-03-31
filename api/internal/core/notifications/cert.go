@@ -3,6 +3,7 @@ package notifications
 import (
 	"crypto/tls"
 	"log"
+	"os"
 	"sync"
 
 	"github.com/sideshow/apns2/certificate"
@@ -18,7 +19,8 @@ var (
 func InitCertificate(certFile string) error {
 	var err error
 	initOnce.Do(func() {
-		cert, err = certificate.FromPemFile("/root/aps_cert.pem", "")
+		password := os.Getenv("APS_CERT_PASSWORD")
+		cert, err = certificate.FromP12File("/root/aps_cert.p12", password)
 		if err != nil {
 			log.Printf("Failed to load certificate: %v", err)
 		}

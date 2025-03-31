@@ -24,7 +24,7 @@ services:
     volumes:
       - ./logs:/root/logs
       - ./twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json:/root/twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json:ro
-      - ./aps_cert.pem:/root/aps_cert.pem:ro
+      - ./aps_cert.p12:/root/aps_cert.p12:ro
   reverse-proxy:
     image: nginx:alpine
     restart: always
