@@ -51,6 +51,7 @@ struct SignInEmailView: View {
                 Task {
                     do {
                         appModel.currentUser = try await viewModel.signIn()
+                        requestNotificationAuthorization()
                         appModel.activeSheet = nil
                     } catch {
                         viewModel.errorMessage = error.localizedDescription

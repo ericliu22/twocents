@@ -103,7 +103,15 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		body := notifications.APSBody{
 			APSAlert: alert,
 		}
-		notifications.SendNotification(user.DeviceTokens, "com.twocentsapp.newcents", body)
+
+		deviceTokens, err := queries.GetDeviceTokens(ctx.Request.Context(), createRequest.Groups)
+		if err != nil {
+			ctx.JSON(http.StatusOK, post)
+			gin.DefaultWriter.Write([]byte("Failed to get device tokens: " + err.Error()))
+			return
+		}
+		tokens := utils.Flatten(deviceTokens)
+		notifications.SendNotification(tokens, "com.twocentsapp.newcents", body)
 
 		ctx.JSON(http.StatusOK, post)
 	}

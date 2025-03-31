@@ -14,32 +14,23 @@ struct SignOutView: View {
     var body: some View {
         @Bindable var appModel = appModel
         VStack {
-            Text("hello")
             Button {
                 do {
                     try AuthenticationManager.signOut()
+                    
+                    UIApplication.shared.unregisterForRemoteNotifications()
+                    Task {
+                        try await UserManager.removeDeviceToken()
+                        appModel.activeSheet = .signIn
+                    }
                 } catch let error {
                     print("Failed to sign out \(error.localizedDescription)")
                 }
             } label: {
                 Text("Sign Out")
+                    .foregroundStyle(.red)
             }
         }
         .padding()
-        .onAppear{
-            let authUser = try? AuthenticationManager.getAuthenticatedUser()
-            
-            if authUser == nil {
-                appModel.activeSheet = .signIn
-            }
-        }
-        .fullScreenCover(item: $appModel.activeSheet) { item in
-            NavigationStack {
-                switch item {
-                case .signIn:
-                    AuthenticationView()
-                }
-            }
-        }
     }
 }

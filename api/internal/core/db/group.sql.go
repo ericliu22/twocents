@@ -156,6 +156,32 @@ func (q *Queries) DeleteFriendGroup(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getDeviceTokens = `-- name: GetDeviceTokens :many
+SELECT device_tokens FROM users
+JOIN friend_group_members ON friend_group_members.user_id = users.id
+WHERE friend_group_members.group_id IN ($1::uuid[])
+`
+
+func (q *Queries) GetDeviceTokens(ctx context.Context, dollar_1 []uuid.UUID) ([][]string, error) {
+	rows, err := q.db.Query(ctx, getDeviceTokens, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items [][]string
+	for rows.Next() {
+		var device_tokens []string
+		if err := rows.Scan(&device_tokens); err != nil {
+			return nil, err
+		}
+		items = append(items, device_tokens)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFriendGroup = `-- name: GetFriendGroup :one
 SELECT
     id,

@@ -65,6 +65,37 @@ struct UserManager {
         return user
     }
     
+    static func uploadDeviceToken(token: String) async throws {
+        let body = [
+            "deviceToken": token,
+        ]
+        let request = Request (
+            method: .POST,
+            contentType: .json,
+            url: USER_URL.appending(path: "register-device-token"),
+            body: body
+        )
+        _ = try await request.sendRequest()
+    }
+    
+    static func removeDeviceToken() async throws {
+        
+        // Retrieve the stored device token.
+        if let token = UserDefaults.standard.string(forKey: "DeviceToken") {
+            // Call your API endpoint to remove the token from your server.
+            let body = [
+                "deviceToken": token,
+            ]
+            let request = Request (
+                method: .POST,
+                contentType: .json,
+                url: USER_URL.appending(path: "remove-device-token"),
+                body: body
+            )
+            _ = try await request.sendRequest()
+        }
+    }
+    
     static func updateProfilePic(imageData: Data) async throws {
         //We use a boundary because we don't want any part of the image data to contain said boundary or else it escapes early -Eric
         let boundary: UUID = UUID()

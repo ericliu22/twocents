@@ -18,6 +18,7 @@ var HARDCODED_DATE: Date {
 let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
 struct RootView: View {
     @Environment(AppModel.self) var appModel
+    @AppStorage("didRequestNotifications") private var didRequestNotifications: Bool = false
     
     var body: some View {
         @Bindable var appModel = appModel
@@ -49,7 +50,7 @@ struct RootView: View {
             
             
             //CameraPickerView()
-            Text("placeholder")
+            SignOutView()
                 .tabItem{
                     Image(systemName: "plus.app")
                 }
@@ -67,6 +68,11 @@ struct RootView: View {
                 appModel.activeSheet = .signIn
             } else if appModel.currentUser == nil {
                 appModel.currentUser = await UserManager.fetchCurrentUser()
+            } else {
+                if !didRequestNotifications {
+                    requestNotificationAuthorization()
+                    didRequestNotifications = true
+                }
             }
         }
         .fullScreenCover(item: $appModel.activeSheet) { item in

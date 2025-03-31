@@ -11,7 +11,7 @@ import SwiftUI
 struct RegisterEmailView: View {
     @Environment(\.presentationMode) var presentation
     @Environment(AppModel.self) var appModel
-    
+
     @State private var viewModel = RegisterEmailViewModel()
     @State private var doneRegistering = false
     
@@ -84,6 +84,7 @@ struct RegisterEmailView: View {
                     do {
                         appModel.currentUser = try await viewModel.signUp()
                         appModel.activeSheet  = nil
+                        requestNotificationAuthorization()
                         doneRegistering = true
                     } catch {
                         viewModel.errorMessage = error.localizedDescription
