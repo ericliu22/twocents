@@ -276,6 +276,22 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const removeDeviceToken = `-- name: RemoveDeviceToken :exec
+UPDATE users
+SET device_tokens = ARRAY_REMOVE(device_tokens, $1)
+WHERE id = $2
+`
+
+type RemoveDeviceTokenParams struct {
+	ArrayRemove interface{} `json:"arrayRemove"`
+	ID          uuid.UUID   `json:"id"`
+}
+
+func (q *Queries) RemoveDeviceToken(ctx context.Context, arg RemoveDeviceTokenParams) error {
+	_, err := q.db.Exec(ctx, removeDeviceToken, arg.ArrayRemove, arg.ID)
+	return err
+}
+
 const updateProfilePic = `-- name: UpdateProfilePic :exec
 UPDATE user_profiles
 SET profile_pic = $2

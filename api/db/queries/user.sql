@@ -80,3 +80,9 @@ WHERE user_id = $1;
 UPDATE users
 SET device_tokens = ARRAY_APPEND(device_tokens, $1)
 WHERE id = $2;
+
+-- name: RemoveDeviceToken :exec
+UPDATE users
+SET device_tokens = ARRAY_REMOVE(device_tokens, $1)
+WHERE id = $2;
+
