@@ -51,6 +51,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let token = parseDeviceToken(from: deviceToken)
         print("DEVICE TOKEN \(token)")
+        Task {
+            try await UserManager.uploadDeviceToken(token: token)
+        }
     }
 
     func parseDeviceToken(from data: Data) -> String {
