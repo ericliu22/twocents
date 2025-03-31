@@ -2,6 +2,7 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/notifications"
 	"api/internal/core/utils"
 	"api/internal/middleware"
 	"net/http"
@@ -95,6 +96,14 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 				return
 			}
 		}
+		alert := notifications.Alert{
+			Title: "New post from " + user.Username,
+			Body:  post.Caption,
+		}
+		body := notifications.APSBody{
+			APSAlert: alert,
+		}
+		notifications.SendNotification(user.DeviceTokens, "com.twocentsapp.newcents", body)
 
 		ctx.JSON(http.StatusOK, post)
 	}

@@ -8,6 +8,7 @@ import (
 
 	"api/internal/core/db"
 	"api/internal/core/message"
+	"api/internal/core/notifications"
 	"api/internal/middleware"
 	"api/internal/routes"
 
@@ -45,6 +46,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("error initializing Auth client: %v", err)
 	}
+	if err := notifications.InitCertificate("aps_cert.pem", "aps_key.pem"); err != nil {
+		log.Fatalf("Could not initialize APNS certificate: %v", err)
+	}
 
 	var logFile *os.File
 	defer logFile.Close()
@@ -53,7 +57,12 @@ func main() {
 
 	hub := message.NewHub()
 
-	routes.SetupCoreRouter(router, queries, authClient, hub)
+	routes.SetupCoreRouter(
+		router,
+		queries,
+		authClient,
+		hub,
+	)
 	router.SetTrustedProxies([]string{"192.168.100.0/24"})
 	router.Run()
 }

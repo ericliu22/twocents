@@ -12,6 +12,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addDeviceToken = `-- name: AddDeviceToken :exec
+UPDATE users
+SET device_tokens = ARRAY_APPEND(device_tokens, $1)
+WHERE id = $2
+`
+
+type AddDeviceTokenParams struct {
+	ArrayAppend interface{} `json:"arrayAppend"`
+	ID          uuid.UUID   `json:"id"`
+}
+
+func (q *Queries) AddDeviceToken(ctx context.Context, arg AddDeviceTokenParams) error {
+	_, err := q.db.Exec(ctx, addDeviceToken, arg.ArrayAppend, arg.ID)
+	return err
+}
+
 const checkFirebaseId = `-- name: CheckFirebaseId :one
 SELECT EXISTS(SELECT 1 FROM users WHERE firebase_uid = $1)
 `

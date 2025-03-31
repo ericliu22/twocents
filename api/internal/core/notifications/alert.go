@@ -4,6 +4,6 @@ package notifications
 type Alert struct {
 	Title       string  `json:"title" binding:"required"`
 	Subtitle    *string `json:"subtitle"`
-	Body        string  `json:"body" binding:"required"`
+	Body        *string `json:"body"`
 	LaunchImage *string `json:"launch-image"`
 }

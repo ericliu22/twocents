@@ -1,14 +1,12 @@
 package notifications
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
-	"io"
-	"net/http"
+	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sideshow/apns2"
 )
 
 // https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification
@@ -21,32 +19,31 @@ type APSBody struct {
 	ContentAvailable *int    `json:"content-available"`
 }
 
-func SendNotification(ctx context.Context, deviceToken string, aps APSBody) {
-	var apn_url string
-	if os.Getenv("STAGE") == "PRODUCTION" {
-		apn_url = "https://api.push.apple.com"
-	} else {
-		apn_url = "https://api.sandbox.push.apple.com"
-	}
-	jsonBytes, err := json.Marshal(aps)
-	if err != nil {
-		gin.DefaultWriter.Write([]byte("Failed writing json"))
-		return
-	}
-	jsonReader := bytes.NewReader(jsonBytes)
-	buf := make([]byte, len(jsonBytes))
-	if _, err := io.ReadFull(jsonReader, buf); err != nil {
-		gin.DefaultWriter.Write([]byte("Failed reading json"))
-		return
-	}
+func SendNotification(deviceTokens []string, topic string, body APSBody) {
 
-	response, err := http.Post(apn_url, "application/json", jsonReader)
-	if err != nil {
-		gin.DefaultWriter.Write([]byte("Failed to send notification" + err.Error()))
+	payload, encodingErr := json.Marshal(body)
+	if encodingErr != nil {
+		gin.DefaultWriter.Write([]byte("Error encoding payload: " + encodingErr.Error()))
 		return
 	}
-	if response.StatusCode != http.StatusOK {
-		gin.DefaultWriter.Write([]byte("Invalid server response"))
-		return
+	for _, token := range deviceTokens {
+		notification := &apns2.Notification{
+			DeviceToken: token,
+			Topic:       topic,
+			Payload:     payload,
+		}
+
+		var client *apns2.Client
+		if os.Getenv("DEPLOYMENT_ENVIORNMENT") == "PRODUCTION" {
+			client = apns2.NewClient(cert).Production()
+		} else {
+			client = apns2.NewClient(cert).Development()
+		}
+		res, err := client.Push(notification)
+
+		if err != nil {
+			gin.DefaultWriter.Write([]byte("Error sending notification: " + err.Error()))
+		}
+		fmt.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 	}
 }

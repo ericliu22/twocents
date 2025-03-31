@@ -21,4 +21,5 @@ func SetupUserRoutes(
 	r.POST("/friend-request", handlers.FriendRequestHandler(queries))
 	r.POST("/accept-friend-request", handlers.AcceptFriendRequestHandler(queries))
 	r.POST("/update-profile-pic", handlers.UpdateProfilePicHandler(queries))
+	r.POST("/register-device-token", handlers.RegisterDeviceTokenHandler(queries))
 }
