@@ -9,7 +9,7 @@ import (
 )
 
 type RegisterDeviceTokenRequest struct {
-	DeviceToken string `json:"device_token" binding:"required"`
+	DeviceToken string `json:"deviceToken" binding:"required"`
 }
 
 func RegisterDeviceTokenHandler(queries *database.Queries) gin.HandlerFunc {
