@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error initializing Auth client: %v", err)
 	}
-	if err := notifications.InitCertificate("aps_cert.pem", "aps_key.pem"); err != nil {
+	if err := notifications.InitCertificate("aps_cert.pem"); err != nil {
 		log.Fatalf("Could not initialize APNS certificate: %v", err)
 	}
 
