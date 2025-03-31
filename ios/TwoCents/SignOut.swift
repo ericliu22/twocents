@@ -19,6 +19,7 @@ struct SignOutView: View {
                     try AuthenticationManager.signOut()
                     
                     UIApplication.shared.unregisterForRemoteNotifications()
+                    print("Unregistered for remote notifications")
                     Task {
                         try await UserManager.removeDeviceToken()
                         appModel.activeSheet = .signIn

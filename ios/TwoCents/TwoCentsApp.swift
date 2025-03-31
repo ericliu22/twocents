@@ -35,11 +35,33 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             print("Error changing user access group: ", error)
         }
         UNUserNotificationCenter.current().delegate = self
+        
+        requestNotificationAuthorization()
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            print("Notification authorization status: \(settings.authorizationStatus)")
+        }
         appModel = AppModel()
 
         return true
     }
     
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Convert token to string
+        print("RAN delegate THIS")
+        
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        
+        let tokenString = tokenParts.joined()
+        
+        print("Device Token: \(tokenString)")
+        
+        // TODO: Send this token to your server, e.g. via an HTTPS request.
+        Task {
+            try await UserManager.uploadDeviceToken(token: tokenString)
+        }
+    }
+
 }
 extension AppDelegate: UNUserNotificationCenterDelegate {
     // This is called if a notification is delivered while the app is in the foreground.
@@ -52,23 +74,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("Failed to register: \(error)")
-    }
-    
-    func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        // Convert token to string
-        print("RAN delegate THIS")
-        
-        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-        let tokenString = tokenParts.joined()
-        
-        print("Device Token: \(tokenString)")
-        
-        // TODO: Send this token to your server, e.g. via an HTTPS request.
-        Task {
-            try await UserManager.uploadDeviceToken(token: tokenString)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+            UIApplication.shared.registerForRemoteNotifications()
         }
     }
+    
 }
 
 func requestNotificationAuthorization() {
