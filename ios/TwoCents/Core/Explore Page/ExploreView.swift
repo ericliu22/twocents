@@ -100,24 +100,70 @@ struct ExploreCard: View {
                         // Use the factory to generate the appropriate view for each post.
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            makePostView(post: post)
-                .aspectRatio(3/4, contentMode: .fill)
-                .frame( maxWidth: (UIScreen.main.bounds.width - 15 ) / 2 )
-                .clipped()
-                .cornerRadius(12)
-                .onTapGesture {
-                    withAnimation(.spring()) {
-                        selectedPost = post
+            
+            ZStack(alignment: .bottom) {
+                // Post content (image or view)
+                makePostView(post: post)
+                    .aspectRatio(3/4, contentMode: .fill)
+                    .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
+                    .clipped()
+                    .cornerRadius(12)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            selectedPost = post
+                        }
                     }
-                }
 
-            VStack(alignment: .leading, spacing: 5) {
-                if let caption = post.caption {
-                    Text(caption)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(2)
-                        .foregroundColor(.primary)
+                // Blurred background behind caption
+                
+                
+
+                // Caption text
+                if let caption = post.caption, !caption.isEmpty {
+                  
+                        
+                        
+                        
+                        
+                        
+                        Text(caption)
+                            .font(.system(size: 14, weight: .medium))
+                            .lineLimit(2)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 30)
+                            .background(
+                                
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+//                                    .fill(.red)
+        //                            .frame(height: 100)
+                                //                    .blur(radius: 10)
+                                    .mask(
+                                        LinearGradient(
+                                            gradient: Gradient(stops: [
+                                                .init(color: .black.opacity(1), location: 0),
+                                                .init(color: .black.opacity(1), location:0.5),
+                                                .init(color: .clear, location: 1)
+                                            ]),
+                                            startPoint: .bottom,
+                                            endPoint: .top
+                                        )
+                                    )
+                                    .frame(maxHeight: .infinity, alignment: .bottom)
+                                 
+                            )
+                    
                 }
+            }
+
+            
+            
+            
+            VStack(alignment: .leading, spacing: 5) {
+
+                    
                 
                 HStack (spacing: 0){
                     if let url = URL(string: user.profilePic ?? "") {
@@ -148,6 +194,7 @@ struct ExploreCard: View {
                     
                     
                 }
+                .background(Color.green)
             }
             .padding(.horizontal, 5)
         }

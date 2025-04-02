@@ -20,9 +20,10 @@ struct ImageView: PostView {
     var body: some View {
         Group {
             if images.isEmpty {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight:.infinity)
-                
+                Image(systemName: "photo")
+                    .foregroundColor(.white)
+                    .font(.largeTitle)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 TabView {
                     ForEach(images, id: \.id) { imageDownload in

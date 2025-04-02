@@ -185,7 +185,7 @@ struct LinkPreview: View {
                         .fill(Color.gray.opacity(0.3))
                         .frame(maxWidth: .infinity, maxHeight: isDetail ? (UIScreen.main.bounds.width / 16) * 9 : .infinity)
                         .overlay(
-                            Image(systemName: "photo")
+                            Image(systemName: "link")
                                 .foregroundColor(.white)
                                 .font(.largeTitle)
                         )
