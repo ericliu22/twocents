@@ -113,8 +113,8 @@ struct PostContainer {
     
     /// Load an image for a given post from the images folder.
     static func loadImage(for post: Post) -> UIImage? {
-        guard let fileName = post.,
-              let folderURL = folderURL(for: .IMAGE) else { return nil }
+        let fileName = post.id
+        guard let folderURL = folderURL(for: .IMAGE) else { return nil }
         let fileURL = folderURL.appendingPathComponent(fileName.uuidString)
         do {
             let data = try Data(contentsOf: fileURL)

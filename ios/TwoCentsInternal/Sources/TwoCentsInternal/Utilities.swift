@@ -5,6 +5,7 @@
 //  Created by Eric Liu on 2025/3/9.
 //
 import Foundation
+import SwiftUI
 
 public struct IdentifiedCollection<Element: Identifiable & Hashable>:
     RandomAccessCollection
@@ -146,5 +147,27 @@ public extension JSONEncoder.DateEncodingStrategy {
     static let iso8601withFractionalSeconds = custom {
         var container = $1.singleValueContainer()
         try container.encode($0.iso8601withFractionalSeconds)
+    }
+}
+
+public extension UIImage {
+    func resized(to targetSize: CGSize) -> UIImage {
+        let size = self.size
+
+        // Determine scale factor that preserves the aspect ratio
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        let scaleFactor = min(widthRatio, heightRatio)
+
+        // Compute new size based on the scale factor
+        let newSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
+
+        // Render the new image
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage ?? self
     }
 }
