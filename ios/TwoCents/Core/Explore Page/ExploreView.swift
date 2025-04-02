@@ -124,36 +124,46 @@ struct ExploreCard: View {
                         
                         
                         
+                    ZStack{
                         
+                        makePostView(post: post)
+                            .aspectRatio(3/4, contentMode: .fill)
+                            .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
+                            .clipped()
+                            .cornerRadius(12)
+                            .onTapGesture {
+                                withAnimation(.spring()) {
+                                    selectedPost = post
+                                }
+                            }
+                            .blur(radius: 10)
+                            .mask(
+                                LinearGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: .black.opacity(1), location: 0),
+                                        .init(color: .black.opacity(1), location: 0.3   ),
+                                        .init(color: .clear, location: 0.5)
+                                    ]),
+                                    startPoint: .bottom,
+                                    endPoint: .top
+                                )
+                            )
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                            .clipShape(
+                                RoundedCorner(radius: 12, corners: [.bottomLeft, .bottomRight])
+                            )
                         
                         Text(caption)
                             .font(.system(size: 14, weight: .medium))
                             .lineLimit(2)
                             .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 30)
-                            .background(
-                                
-                                Rectangle()
-                                    .fill(.ultraThinMaterial)
-//                                    .fill(.red)
-        //                            .frame(height: 100)
-                                //                    .blur(radius: 10)
-                                    .mask(
-                                        LinearGradient(
-                                            gradient: Gradient(stops: [
-                                                .init(color: .black.opacity(1), location: 0),
-                                                .init(color: .black.opacity(1), location:0.5),
-                                                .init(color: .clear, location: 1)
-                                            ]),
-                                            startPoint: .bottom,
-                                            endPoint: .top
-                                        )
-                                    )
-                                    .frame(maxHeight: .infinity, alignment: .bottom)
-                                 
-                            )
+                            .padding(.horizontal, 5)
+                            .padding(.bottom)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                          
+                            
+                        
+                    }
                     
                 }
             }
@@ -297,5 +307,20 @@ struct ExploreDetailView: View {
         .ignoresSafeArea()
         .presentationBackground(.clear)
         
+    }
+}
+
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = 0
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
     }
 }
