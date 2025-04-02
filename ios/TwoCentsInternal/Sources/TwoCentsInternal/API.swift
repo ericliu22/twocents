@@ -204,14 +204,12 @@ public extension Data {
 
 public func TwoCentsEncoder() -> JSONEncoder {
     let encoder = JSONEncoder()
-    let formatter = DateFormatter()
     encoder.dateEncodingStrategy = .iso8601withFractionalSeconds
     return encoder
 }
 
 public func TwoCentsDecoder() -> JSONDecoder {
     let decoder = JSONDecoder()
-    let formatter = DateFormatter()
     decoder.dateDecodingStrategy = .iso8601withFractionalSeconds
     return decoder
 }
