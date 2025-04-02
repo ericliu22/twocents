@@ -125,22 +125,61 @@ struct LinkPreview: View {
             // Image container.
             Group {
                 if let previewImage = previewImage {
-                    Image(uiImage: previewImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity)
-                        .background(
-                            ZStack {
-                                Color.black
-                                Image(uiImage: previewImage)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .blur(radius: 5)
-                                    .opacity(0.3)
-                            }
-                        )
+                    
+                    
+                   
+                    if url.absoluteString.contains("tiktok.com") {
+                        //zoom in for tiktok thumbnails to look better for ui
+                        Image(uiImage: previewImage)
+                            .resizable()
+                            .scaledToFit()
+                            .scaleEffect(2.55)
+                            .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity)
+                            .clipped()
+                            
+                            .background(
+//                                ZStack {
+//                                    Color.black
+//                                    Image(uiImage: previewImage)
+//                                        .resizable()
+//                                        .scaledToFill()
+//                                        .frame(maxWidth: .infinity)
+//                                        .clipped()
+//                                        .blur(radius: 5)
+//                                        .opacity(0.3)
+//                                }
+                                Color.red
+                            )
+                            .contentShape(Rectangle())
+                        
+                    } else {
+                        
+                        Image(uiImage: previewImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: isDetail ? nil : .infinity)
+                            .clipped()
+                            
+                            .background(
+                                ZStack {
+                                    Color.black
+                                    Image(uiImage: previewImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(maxWidth: .infinity)
+                                        .clipped()
+                                        .blur(radius: 5)
+                                        .opacity(0.3)
+                                }
+                            )
+                            .contentShape(Rectangle())
+                        
+                    }
+                    
+                    
+                    
+                    
+                    
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
@@ -152,23 +191,29 @@ struct LinkPreview: View {
                         )
                 }
             }
-            
+            if isDetail {
             // Text container below the image.
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    if let title = metadata?.title {
-                        Text(title)
-                            .font(.subheadline)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                    } else {
-                        Text(url.absoluteString)
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .lineLimit(1)
-                    }
                     
-                    if isDetail {
+                    //title of the link
+                    
+                    
+                 
+                        
+                        
+                        if let title = metadata?.title {
+                            Text(title)
+                                .font(.subheadline)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                        } else {
+                            Text(url.absoluteString)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .lineLimit(1)
+                        }
+                        
                         Button(action: {
                             UIApplication.shared.open(url)
                         }) {
@@ -178,14 +223,16 @@ struct LinkPreview: View {
                         .padding(.leading, 5)
                     }
                 }
-            }
             .padding(.horizontal, 5)
             .padding(.vertical)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(UIColor.secondarySystemBackground))
+            }
+           
         }
         .background(Color(UIColor.systemBackground))
         .cornerRadius(10)
+        .contentShape(Rectangle())
         .onChange(of: metadata) { newMetadata in
             // Load the preview image once metadata is available.
             guard let newMetadata = newMetadata,
