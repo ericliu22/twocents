@@ -102,7 +102,7 @@ struct ExploreCard: View {
         VStack(alignment: .leading, spacing: 5) {
             makePostView(post: post)
                 .aspectRatio(3/4, contentMode: .fill)
-                .frame( maxWidth:.infinity,maxHeight: .infinity)
+                .frame( maxWidth: (UIScreen.main.bounds.width - 15 ) / 2 )
                 .clipped()
                 .cornerRadius(12)
                 .onTapGesture {
@@ -114,11 +114,6 @@ struct ExploreCard: View {
             VStack(alignment: .leading, spacing: 5) {
                 if let caption = post.caption {
                     Text(caption)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(2)
-                        .foregroundColor(.primary)
-                } else {
-                    Text("")
                         .font(.system(size: 14, weight: .medium))
                         .lineLimit(2)
                         .foregroundColor(.primary)
