@@ -118,7 +118,7 @@ class CreatePostViewModel {
     
     func createText() async {
         let postRequest = PostRequest(
-            media: .TEXT, caption: caption.isEmpty ? nil : caption,
+            media: .TEXT, caption: nil,
             groups: groups)
         guard
             let post = try? await PostManager.uploadPost(

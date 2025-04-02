@@ -42,7 +42,7 @@ public protocol Uploadable: Identifiable, Codable {
     func uploadPost() async throws -> Data
 }
 
-protocol Downloadable: Identifiable, Codable {
+public protocol Downloadable: Identifiable, Codable {
 
 }
 
