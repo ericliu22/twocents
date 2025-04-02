@@ -81,8 +81,18 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.springboard">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "851F248B2D6E8C9500A08134"
+            BuildableName = "TwoCentsWidgetExtension.appex"
+            BlueprintName = "TwoCentsWidgetExtension"
+            ReferencedContainer = "container:TwoCents.xcodeproj">
+         </BuildableReference>
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A2E84B372D6D2C15007B44F7"
@@ -90,7 +100,7 @@
             BlueprintName = "TwoCents"
             ReferencedContainer = "container:TwoCents.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCWidgetKind"
