@@ -48,7 +48,6 @@ public struct PostManager: Sendable {
     }
     
     public static func getGroupPosts(groupId: UUID, limit: Int = 10, offset: UUID? = nil) async throws -> Data {
-        print("RAN")
         let baseURL = POST_URL.appendingPathComponent("get-group-posts")
         var queryItems = [
             URLQueryItem(name: "groupId", value: groupId.uuidString),
@@ -72,7 +71,6 @@ public struct PostManager: Sendable {
             contentType: .textPlain,
             url: finalURL
         )
-        print(request.url)
         return try await request.sendRequest()
     }
     

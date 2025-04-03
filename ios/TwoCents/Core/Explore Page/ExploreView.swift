@@ -93,9 +93,7 @@ struct ExploreView: View {
         
         // Then fetch the first page of posts
         let postsData = try await PostManager.getGroupPosts(groupId: group.id)
-        print("Posts data")
         let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
-        print(response.posts.count)
         
         postsWithMedia = response.posts
         offset = response.offset
@@ -215,6 +213,8 @@ struct ExploreCard: View {
                 HStack (spacing: 0){
                     if let url = URL(string: user.profilePic ?? "") {
                         KFImage(url)
+                            .resizable()
+                            .clipped()
                             .scaledToFill()
                             .frame(width: 24, height: 24)
                             .clipShape(Circle())
@@ -282,6 +282,8 @@ struct ExploreDetailView: View {
                         // For demo purposes, a placeholder URL is used.
                         if let url = URL(string: user.profilePic ?? "") {
                             KFImage(url)
+                                .resizable()
+                                .clipped()
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())

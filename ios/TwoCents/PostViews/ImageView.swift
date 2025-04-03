@@ -32,11 +32,15 @@ struct ImageView: PostView {
                         if let url = URL(string: imageDownload.mediaUrl) {
                             if isDetail {
                                 KFImage(url)
+                                    .resizable()
+                                    .clipped()
                                     .scaledToFit() // ensures full image is visible, stretching width naturally.
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .background(Color(UIColor.systemGray6))
                             } else {
                                 KFImage(url)
+                                    .resizable()
+                                    .clipped()
                                     .scaledToFill() // fills the frame even if it means cropping.
                                     .frame(maxWidth: .infinity, maxHeight:.infinity)
                                     .aspectRatio(3/4, contentMode: .fill)

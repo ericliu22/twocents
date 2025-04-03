@@ -82,27 +82,21 @@ public struct PostWithMedia: Identifiable, Decodable {
         post = try container.decode(Post.self, forKey: .post)
         
         // Dynamically decode the media based on post.media type
-        let mediaContainer = try container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .media)
         switch post.media {
         case .IMAGE:
-            let images = try mediaContainer.decode([ImageDownload].self, forKey: DynamicCodingKeys(stringValue: "")!)
-            download = images
+            download = try container.decode([ImageDownload].self, forKey: .media)
         case .VIDEO:
-            let videos = try mediaContainer.decode([VideoDownload].self, forKey: DynamicCodingKeys(stringValue: "")!)
-            download = videos
+            download = try container.decode([VideoDownload].self, forKey: .media)
         case .LINK:
-            let links = try mediaContainer.decode([LinkDownload].self, forKey: DynamicCodingKeys(stringValue: "")!)
-            download = links
+            download = try container.decode([LinkDownload].self, forKey: .media)
         case .TEXT:
-            let texts = try mediaContainer.decode([TextDownload].self, forKey: DynamicCodingKeys(stringValue: "")!)
-            download = texts
+            download = try container.decode([TextDownload].self, forKey: .media)
         case .OTHER:
             download = []
         }
         self.id = post.id
     }
 }
-
 // Helper for dynamic key decoding
 public struct DynamicCodingKeys: CodingKey {
     public var stringValue: String

@@ -14,7 +14,15 @@ struct VideoView: PostView {
 
     init(post: PostWithMedia) {
         self.post = post
-        self.videos = post.download as? [VideoDownload] ?? []
+        print(post.download)
+        if let downloadArray = post.download as? [Any] {
+            self._videos = State(initialValue: downloadArray.compactMap { $0 as? VideoDownload })
+        } else {
+            self._videos = State(initialValue: [])
+        }
+        if videos.isEmpty {
+            print("FUCKING EMPTY")
+        }
     }
 
     var body: some View {
