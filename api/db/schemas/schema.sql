@@ -106,4 +106,4 @@ CREATE TABLE friend_group_posts (
     post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     score   DECIMAL NOT NULL DEFAULT 0,
     PRIMARY KEY (group_id, post_id)
-    package score
+);

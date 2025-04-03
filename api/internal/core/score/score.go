@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,13 +43,21 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 	for _, post := range posts {
 		score := calcluateScore(post.Post)
 		var numeric pgtype.Numeric
-		if err := numeric.Scan(score); err != nil {
-			log.Printf("Failed to scan score into numeric type")
-			return 
+		numeric, err := Float64ToPgNumeric(score)
+		if err != nil {
+			log.Printf("Failed to convert score to pgtype.Numeric: %v", err)
+			return
 		}
 		updateScore := database.UpdatePostScoreParams {
 			Score: numeric,
 		}
 		queries.UpdatePostScore(context.Background(), updateScore)
 	}
+}
+
+func Float64ToPgNumeric(f float64) (pgtype.Numeric, error) {
+    str := strconv.FormatFloat(f, 'g', 17, 64)
+    var numeric pgtype.Numeric
+    err := numeric.Scan(str)
+    return numeric, err
 }

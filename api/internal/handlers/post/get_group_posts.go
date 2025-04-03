@@ -33,11 +33,13 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		token, tokenErr := middleware.GetAuthToken(ctx)
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized access: " + tokenErr.Error()))
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
 
@@ -45,11 +47,13 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		groupIDStr := ctx.Query("groupId")
 		if groupIDStr == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
+			gin.DefaultWriter.Write([]byte("groupId is required"))
 			return
 		}
 		groupID, err := uuid.Parse(groupIDStr)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
+			gin.DefaultWriter.Write([]byte("Invalid groupId: " + err.Error()))
 			return
 		}
 
