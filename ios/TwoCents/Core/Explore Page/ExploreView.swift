@@ -93,7 +93,9 @@ struct ExploreView: View {
         
         // Then fetch the first page of posts
         let postsData = try await PostManager.getGroupPosts(groupId: group.id)
+        print("Posts data")
         let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
+        print(response.posts.count)
         
         postsWithMedia = response.posts
         offset = response.offset

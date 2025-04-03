@@ -131,6 +131,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			Posts:   postsWithMedia,
 			HasMore: hasMore,
 		}
+		gin.DefaultWriter.Write([]byte("Fetched posts for group: " + response.Posts[len(response.Posts)-1].Post.ID.String()))
 
 		// Only include nextCursor if there are more posts
 		if hasMore {
