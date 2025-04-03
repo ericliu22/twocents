@@ -6,6 +6,7 @@ import (
 	"api/internal/core/utils"
 	"api/internal/middleware"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -34,12 +35,14 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		if tokenErr != nil {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			gin.DefaultWriter.Write([]byte("Unauthorized access: " + tokenErr.Error()))
+			log.Println("Unauthorized access: " + tokenErr.Error())
 			return
 		}
 		user, userErr := queries.GetFirebaseId(ctx.Request.Context(), token.UID)
 		if userErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch user: "+userErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
+			log.Println("Failed to fetch user: " + userErr.Error())
 			return
 		}
 
@@ -48,12 +51,14 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		if groupIDStr == "" {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "groupId is required"})
 			gin.DefaultWriter.Write([]byte("groupId is required"))
+			log.Println("groupId is required")
 			return
 		}
 		groupID, err := uuid.Parse(groupIDStr)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
 			gin.DefaultWriter.Write([]byte("Invalid groupId: " + err.Error()))
+			log.Println("Invalid groupId: " + err.Error())
 			return
 		}
 
@@ -66,14 +71,15 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		if checkErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
 			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
+			log.Println("Failed to check membership: " + checkErr.Error())
 			return
 		}
 		if !isMember {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			gin.DefaultWriter.Write([]byte("Unauthorized access: User is not a member of the group"))
+			log.Println("Unauthorized access: User is not a member of the group")
 			return
 		}
-
 		// Get pagination parameters
 		limitStr := ctx.DefaultQuery("limit", "10")
 		limit, err := strconv.Atoi(limitStr)
@@ -89,6 +95,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			if convErr != nil {
 				ctx.String(http.StatusBadRequest, "Invalid cursor")
 				gin.DefaultWriter.Write([]byte("Invalid cursor: " + convErr.Error()))
+				log.Println("Invalid cursor: " + convErr.Error())
 				return
 			}
 		}
@@ -104,6 +111,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts: "+err.Error())
 			gin.DefaultWriter.Write([]byte("Error: Failed to retrieve posts: " + err.Error()))
+			log.Println("Error: Failed to retrieve posts: " + err.Error())
 			return
 		}
 
@@ -151,6 +159,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error generating response")
 			gin.DefaultWriter.Write([]byte("Error generating response: " + err.Error()))
+			log.Println("Error generating response: " + err.Error())
 			return
 		}
 
