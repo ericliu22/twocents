@@ -98,6 +98,15 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 				log.Println("Invalid cursor: " + convErr.Error())
 				return
 			}
+		} else {
+			topPost, topErr := queries.GetTopPost(ctx.Request.Context(), groupID)
+			if topErr != nil {
+				ctx.String(http.StatusInternalServerError, "Failed to fetch top post: "+topErr.Error())
+				gin.DefaultWriter.Write([]byte("Failed to fetch top post: " + topErr.Error()))
+				log.Println("Failed to fetch top post: " + topErr.Error())
+				return
+			}
+			offset = topPost.Post.ID
 		}
 		// Create pagination params for the database query
 		params := database.ListPaginatedPostsForGroupParams{
