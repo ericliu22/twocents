@@ -65,10 +65,12 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		isMember, checkErr := queries.CheckUserMembership(ctx.Request.Context(), checkMembership)
 		if checkErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to check membership: "+checkErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to check membership: " + checkErr.Error()))
 			return
 		}
 		if !isMember {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
+			gin.DefaultWriter.Write([]byte("Unauthorized access: User is not a member of the group"))
 			return
 		}
 
@@ -86,6 +88,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			offset, convErr = uuid.Parse(offsetString) // Convert cursor to int if needed
 			if convErr != nil {
 				ctx.String(http.StatusBadRequest, "Invalid cursor")
+				gin.DefaultWriter.Write([]byte("Invalid cursor: " + convErr.Error()))
 				return
 			}
 		}
@@ -100,6 +103,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		postLists, err := queries.ListPaginatedPostsForGroup(ctx.Request.Context(), params)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts: "+err.Error())
+			gin.DefaultWriter.Write([]byte("Error: Failed to retrieve posts: " + err.Error()))
 			return
 		}
 
@@ -146,6 +150,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		responseJSON, err := json.Marshal(response)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Error generating response")
+			gin.DefaultWriter.Write([]byte("Error generating response: " + err.Error()))
 			return
 		}
 
