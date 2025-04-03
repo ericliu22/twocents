@@ -12,12 +12,13 @@ import LinkPresentation
 import WebKit
 
 struct LinkView: PostView {
-    let post: Post
+    let post: PostWithMedia
     @State var link: LinkDownload?
     let isDetail: Bool
     
-    init(post: Post, isDetail: Bool = false) {
+    init(post: PostWithMedia, isDetail: Bool = false) {
         self.post = post
+        self.link = post.download.first as? LinkDownload
         self.isDetail = isDetail
     }
     
@@ -39,17 +40,6 @@ struct LinkView: PostView {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .task {
-            // Fetch media data asynchronously.
-            guard let data = try? await PostManager.getMedia(post: post) else {
-                return
-            }
-            let links = try? JSONDecoder().decode([LinkDownload].self, from: data)
-            // Update state on the main thread.
-            await MainActor.run {
-                link = links?.first
             }
         }
     }
@@ -248,14 +238,17 @@ struct LinkPreview: View {
             }
         }
         .task {
-            let provider = LPMetadataProvider()
             do {
-                let fetchedMetadata = try await provider.startFetchingMetadata(for: url)
+                // 1) Fetch or retrieve cached LPLinkMetadata.
+                let cachedMetadata = try await CacheManager.fetchCachedLinkMetadata(for: url)
+                
+                // 2) Update the state to trigger UI refresh.
                 DispatchQueue.main.async {
-                    metadata = fetchedMetadata
+                    metadata = cachedMetadata
                 }
             } catch {
-                print("Error fetching metadata: \(error)")
+                print("Error fetching metadata from cache: \(error)")
+                // As a fallback, you might keep the old approach or show an error state.
             }
         }
     }

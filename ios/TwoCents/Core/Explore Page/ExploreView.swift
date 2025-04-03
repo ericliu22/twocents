@@ -1,35 +1,46 @@
 import SwiftUI
 import TwoCentsInternal
+import Kingfisher
 
 struct ExploreView: View {
     let group: FriendGroup
-    @State private var posts: [Post] = []         // Now using backend Post objects
+    @State private var postsWithMedia: [PostWithMedia] = []
     @State private var users: IdentifiedCollection<User> = IdentifiedCollection()
     @State private var isLoading = false
-    @State private var selectedPost: Post? = nil    // For full screen detail
+    @State private var selectedPost: PostWithMedia? = nil    // For full screen detail
+    @State private var offset: UUID?
+    @State private var hasMore = true
     
     let columns = [
         GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5),
         GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5)
     ]
-
+    
     
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 5) {
-                    ForEach(posts, id: \.id) {     post in
-
-                        if let user = users[id: post.userId] {
+                    ForEach(postsWithMedia, id: \.post.id) {     post in
+                        
+                        if let user = users[id: post.post.userId] {
                             ExploreCard(post: post, user: user, selectedPost: $selectedPost)
-                             
+                                .onAppear {
+                                    // If we're nearing the end of the current posts, load more
+                                    if let lastPostId = postsWithMedia.last?.post.id,
+                                       post.post.id == lastPostId,
+                                       hasMore && !isLoading {
+                                        loadMoreContent()
+                                    }
+                                }
+                            
                         }
-
+                        
                     }
                     .padding(.bottom, 5)
                 }
                 .padding(.horizontal, 5)
-               
+                
                 
                 
                 if isLoading {
@@ -38,35 +49,27 @@ struct ExploreView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-//            .navigationTitle("Explore")
-//            .navigationBarTitleDisplayMode(.large)
+            //            .navigationTitle("Explore")
+            //            .navigationBarTitleDisplayMode(.large)
         }
-        .refreshable(action: {
+        .refreshable {
+            // Reset pagination and fetch first page
+            offset = nil
             do {
-                // Fetch posts from the backend
-                let postsData = try await PostManager.getGroupPosts(groupId: group.id)
-                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
-                posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
-                let members = try await GroupManager.fetchGroupMembers(groupId: group.id)
-                users = IdentifiedCollection(members)
+                try await fetchInitialPosts()
             } catch {
-                print("Error fetching posts: \(error)")
+                print("Error refreshing posts: \(error)")
             }
-        })
+        }
         .task {
             do {
-                // Fetch posts from the backend
-                let postsData = try await PostManager.getGroupPosts(groupId: group.id)
-                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
-                posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
-                let members = try await GroupManager.fetchGroupMembers(groupId: group.id)
-                users = IdentifiedCollection(members)
+                try await fetchInitialPosts()
             } catch {
-                print("Error fetching posts: \(error)")
+                print("Error fetching initial posts: \(error)")
             }
         }
         .fullScreenCover(item: $selectedPost) { post in
-            if let user = users[id: post.userId] {
+            if let user = users[id: post.post.userId] {
                 
                 ExploreDetailView(post: post, user: user) {
                     withAnimation(.spring()) {
@@ -74,29 +77,61 @@ struct ExploreView: View {
                     }
                     
                 }
-               
+                
                 
                 
             }
         }
         
+        
     }
     
+    private func fetchInitialPosts() async throws {
+        // Fetch users first to display them properly with posts
+        let members = try await GroupManager.fetchGroupMembers(groupId: group.id)
+        users = IdentifiedCollection(members)
+        
+        // Then fetch the first page of posts
+        let postsData = try await PostManager.getGroupPosts(groupId: group.id)
+        let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
+        
+        postsWithMedia = response.posts
+        offset = response.offset
+        hasMore = response.hasMore
+    }
+
+       
     private func loadMoreContent() {
-        guard !isLoading else { return }
+        guard !isLoading && hasMore, let cursor = offset else { return }
+        
         isLoading = true
         
-        // Simulate load-more delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
+        Task {
+            do {
+                let postsData = try await PostManager.getGroupPosts(groupId: group.id, offset: cursor)
+                let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
+                
+                // Update state on the main thread
+                await MainActor.run {
+                    postsWithMedia.append(contentsOf: response.posts)
+                    offset = response.offset
+                    hasMore = response.hasMore
+                    isLoading = false
+                }
+            } catch {
+                print("Error loading more posts: \(error)")
+                await MainActor.run {
+                    isLoading = false
+                }
+            }
         }
     }
 }
 
 struct ExploreCard: View {
-    let post: Post
+    let post: PostWithMedia
     let user: User
-    @Binding var selectedPost: Post?
+    @Binding var selectedPost: PostWithMedia?
                         // Use the factory to generate the appropriate view for each post.
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -119,7 +154,7 @@ struct ExploreCard: View {
                 
 
                 // Caption text
-                if let caption = post.caption, !caption.isEmpty {
+                if let caption = post.post.caption, !caption.isEmpty {
                   
                         
                         
@@ -177,7 +212,7 @@ struct ExploreCard: View {
                 
                 HStack (spacing: 0){
                     if let url = URL(string: user.profilePic ?? "") {
-                        CachedImage(url: url)
+                        KFImage(url)
                             .scaledToFill()
                             .frame(width: 24, height: 24)
                             .clipShape(Circle())
@@ -216,7 +251,7 @@ struct ExploreCard: View {
 }
 
 struct ExploreDetailView: View {
-    let post: Post
+    let post: PostWithMedia
     let user: User
     var onDismiss: () -> Void
     
@@ -244,7 +279,7 @@ struct ExploreDetailView: View {
                     HStack {
                         // For demo purposes, a placeholder URL is used.
                         if let url = URL(string: user.profilePic ?? "") {
-                            CachedImage(url: url)
+                            KFImage(url)
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
                                 .clipShape(Circle())
@@ -259,7 +294,7 @@ struct ExploreDetailView: View {
                     makePostView(post: post, isDetail: true)
 
                     // Optionally show the caption, if any.
-                    if let caption = post.caption {
+                    if let caption = post.post.caption {
                         Text(caption)
                             .font(.headline)
                             .padding()

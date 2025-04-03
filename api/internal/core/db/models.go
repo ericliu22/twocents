@@ -202,8 +202,9 @@ type FriendGroupMember struct {
 }
 
 type FriendGroupPost struct {
-	GroupID uuid.UUID `json:"groupId"`
-	PostID  uuid.UUID `json:"postId"`
+	GroupID uuid.UUID      `json:"groupId"`
+	PostID  uuid.UUID      `json:"postId"`
+	Score   pgtype.Numeric `json:"score"`
 }
 
 type Friendship struct {

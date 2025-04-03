@@ -3,6 +3,7 @@ package handlers
 import (
 	database "api/internal/core/db"
 	"api/internal/core/notifications"
+	"api/internal/core/score"
 	"api/internal/core/utils"
 	"api/internal/middleware"
 	"net/http"
@@ -114,5 +115,12 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		notifications.SendNotification(tokens, "com.twocentsapp.newcents", body)
 
 		ctx.JSON(http.StatusOK, post)
+		for _, groupID := range createRequest.Groups {
+			go score.RunScoreCalculation(groupID, queries)
+		}
 	}
+}
+
+func sendNotifications(queries *database.Queries) {
+
 }

@@ -38,21 +38,14 @@ struct TwoCentsTimelineProvider: TimelineProvider{
         Task{
             do {
                 //@TODO: Make a route for fetching only the top post
-                let postsData = try await PostManager.getGroupPosts(groupId: HARDCODED_GROUP.id) //Hardcoded also don't work
-                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
-                let posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
-                print(fetchedPosts.count)
-                guard let post = posts.first else {
-                    return
-                }
+                let postData = try await PostManager.getTopPost(groupId: HARDCODED_GROUP.id) //Hardcoded also don't work
+                let fetchedPost = try TwoCentsDecoder().decode(PostWithMedia.self, from: postData)
                 
-                print(post.id)
-                print(post.media)
                 var fetchedMedia: [FetchableMedia]
-                let download = try await PostManager.getMedia(post: post)
+                let download = fetchedPost.download
                 let entry: TwoCentsEntry
-                fetchedMedia = await fetchMedia(download: download, media: post.media)
-                entry = TwoCentsEntry.init(date: Date(), post: post, fetchedMedia: fetchedMedia)
+                fetchedMedia = await fetchMedia(download: download, media: fetchedPost.post.media)
+                entry = TwoCentsEntry.init(date: Date(), post: fetchedPost.post, fetchedMedia: fetchedMedia)
                 let entries = [entry]
                 let nextUpdate = Calendar.current.date(byAdding: .second, value: 10, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))

@@ -37,7 +37,7 @@ func GetCurrentUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		if handled := utils.AttachCacheHeaders(ctx, userJson, 60); handled {
+		if handled := utils.AttachCacheHeaders(ctx, userJson, 600); handled {
 			return
 		}
 

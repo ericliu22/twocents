@@ -16,6 +16,7 @@ func SetupPostRoutes(
 ) {
 	r := router.Group("/post", middleware.AuthMiddleware(authClient))
 	r.GET("/get-group-posts", handlers.GetGroupPostsHandler(queries))
+	r.GET("/get-top-post", handlers.GetTopPostHandler(queries))
 	r.GET("/get-media", handlers.GetMediaHandler(queries))
 	r.POST("/create-post", handlers.CreatePostHandler(queries))
 	r.POST("/upload-image-post", handlers.UploadImagePostHandler(queries))

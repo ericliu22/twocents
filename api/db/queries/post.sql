@@ -45,6 +45,15 @@ FROM friend_group_posts
 JOIN posts ON friend_group_posts.post_id = posts.id
 WHERE friend_group_posts.group_id = $1;
 
+-- name: ListPaginatedPostsForGroup :many
+SELECT sqlc.embed(posts)
+FROM friend_group_posts fgp
+JOIN posts ON posts.id = fgp.post_id
+WHERE fgp.group_id = $1
+AND fgp.post_id < $2
+ORDER BY fgp.score DESC
+LIMIT $3;
+
 -- name: CheckPostOwner :one
 SELECT EXISTS(SELECT 1 FROM posts WHERE user_id = $1 and id = $2);
 
@@ -58,3 +67,15 @@ SELECT EXISTS (
     LIMIT 1
 );
 
+-- name: GetTopPost :one
+SELECT sqlc.embed(posts)
+FROM friend_group_posts fgp
+JOIN posts on fgp.post_id = posts.id
+WHERE fgp.group_id = $1
+ORDER BY fgp.score DESC
+LIMIT 1;
+
+-- name: UpdatePostScore :exec
+UPDATE friend_group_posts
+SET score = $2
+WHERE post_id = $1;

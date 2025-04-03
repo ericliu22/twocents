@@ -6,14 +6,16 @@
 //
 import SwiftUI
 import TwoCentsInternal
+import Kingfisher
 
 struct ImageView: PostView {
-    let post: Post
+    let post: PostWithMedia
     let isDetail: Bool
     @State var images: [ImageDownload] = []
 
-    init(post: Post, isDetail: Bool = false) {
+    init(post: PostWithMedia, isDetail: Bool = false) {
         self.post = post
+        self.images = post.download as? [ImageDownload] ?? []
         self.isDetail = isDetail
     }
 
@@ -29,12 +31,12 @@ struct ImageView: PostView {
                     ForEach(images, id: \.id) { imageDownload in
                         if let url = URL(string: imageDownload.mediaUrl) {
                             if isDetail {
-                                CachedImage(url: url)
+                                KFImage(url)
                                     .scaledToFit() // ensures full image is visible, stretching width naturally.
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .background(Color(UIColor.systemGray6))
                             } else {
-                                CachedImage(url: url)
+                                KFImage(url)
                                     .scaledToFill() // fills the frame even if it means cropping.
                                     .frame(maxWidth: .infinity, maxHeight:.infinity)
                                     .aspectRatio(3/4, contentMode: .fill)
@@ -51,14 +53,6 @@ struct ImageView: PostView {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-            }
-        }
-        .task {
-            guard let data = try? await PostManager.getMedia(post: post) else {
-                return
-            }
-            if let newImages = try? JSONDecoder().decode([ImageDownload].self, from: data) {
-                images = newImages
             }
         }
     }

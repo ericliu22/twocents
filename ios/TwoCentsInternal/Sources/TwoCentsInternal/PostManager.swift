@@ -47,27 +47,55 @@ public struct PostManager: Sendable {
         return data
     }
     
-    public static func getGroupPosts(groupId: UUID) async throws -> Data {
-        // Base URL: https://api.twocentsapp.com/v1/post/get-group-posts
+    public static func getGroupPosts(groupId: UUID, limit: Int = 10, offset: UUID? = nil) async throws -> Data {
         let baseURL = POST_URL.appendingPathComponent("get-group-posts")
-        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
-        components.queryItems = [
-            URLQueryItem(name: "groupId", value: groupId.uuidString)
+        var queryItems = [
+            URLQueryItem(name: "groupId", value: groupId.uuidString),
+            URLQueryItem(name: "limit", value: String(limit))
         ]
+        
+        if let offset = offset {
+            queryItems.append(URLQueryItem(name: "offset", value: offset.uuidString))
+        }
+        
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        components.queryItems = queryItems
         
         guard let finalURL = components.url else {
             print("failed to construct url")
-            throw URLError.init(URLError.Code(rawValue: 404))
+            throw URLError(.badURL)
         }
-
-
-        let request: Request = Request<String>(
+        
+        let request = Request<String>(
             method: .GET,
             contentType: .textPlain,
             url: finalURL
         )
         return try await request.sendRequest()
     }
+    
+    public static func getTopPost(groupId: UUID) async throws -> Data {
+        let baseURL = POST_URL.appendingPathComponent("get-top-post")
+        var queryItems = [
+            URLQueryItem(name: "groupId", value: groupId.uuidString),
+        ]
+        
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        components.queryItems = queryItems
+        
+        guard let finalURL = components.url else {
+            print("failed to construct url")
+            throw URLError(.badURL)
+        }
+        
+        let request = Request<String>(
+            method: .GET,
+            contentType: .textPlain,
+            url: finalURL
+        )
+        return try await request.sendRequest()
+    }
+
 
     public static func getMedia(post: Post) async throws -> Data {
         let baseURL = POST_URL.appendingPathComponent("get-media")

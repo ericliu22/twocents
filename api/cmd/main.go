@@ -9,6 +9,7 @@ import (
 	"api/internal/core/db"
 	"api/internal/core/message"
 	"api/internal/core/notifications"
+	"api/internal/core/score"
 	"api/internal/middleware"
 	"api/internal/routes"
 
@@ -57,6 +58,7 @@ func main() {
 
 	hub := message.NewHub()
 
+	go score.InitialScore(queries)
 	routes.SetupCoreRouter(
 		router,
 		queries,

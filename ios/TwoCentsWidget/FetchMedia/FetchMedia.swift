@@ -21,12 +21,12 @@ struct TwoCentsLinkMetadata: Identifiable, FetchableMedia {
     let url: URL
 }
 
-func fetchMedia(download: Data, media: Media) async -> [FetchableMedia] {
+func fetchMedia(download: [any Downloadable], media: Media) async -> [FetchableMedia] {
     
     do {
         switch media {
         case .IMAGE:
-            let imageDownloads = try TwoCentsDecoder().decode([ImageDownload].self, from: download)
+            let imageDownloads = download as? [ImageDownload] ?? []
             var images: [UIImage] = []
             
             for imageDownload in imageDownloads {
@@ -35,7 +35,7 @@ func fetchMedia(download: Data, media: Media) async -> [FetchableMedia] {
             }
             return images
         case .VIDEO:
-            let videoDownloads = try TwoCentsDecoder().decode([VideoDownload].self, from: download)
+            let videoDownloads = download as? [VideoDownload] ?? []
             var videos: [AVAsset] = []
             
             for videoDownload in videoDownloads {
@@ -44,7 +44,7 @@ func fetchMedia(download: Data, media: Media) async -> [FetchableMedia] {
             }
             return videos
         case .TEXT:
-            let textDownloads = try TwoCentsDecoder().decode([TextDownload].self, from: download)
+            let textDownloads = download as? [TextDownload] ?? []
             var texts: [String] = []
             
             for textDownload in textDownloads {
@@ -53,7 +53,7 @@ func fetchMedia(download: Data, media: Media) async -> [FetchableMedia] {
             }
             return texts
         case .LINK:
-            let linkDownloads = try TwoCentsDecoder().decode([LinkDownload].self, from: download)
+            let linkDownloads = download as? [LinkDownload] ?? []
             var links: [TwoCentsLinkMetadata] = []
             
             for linkDownload in linkDownloads {
