@@ -14,7 +14,7 @@ import (
 
 // calculateScore computes the score based on the given post.
 func calcluateScore(post database.Post) float64 {
-	freshnessScore := math.Exp(-0.1 * time.Since(post.DateCreated.Time).Seconds())
+	freshnessScore := math.Exp(-0.1 * time.Since(post.DateCreated.Time).Hours())
 
 	//score := (engagementScore*0.5 + freshnessScore*0.3 + interactionVelocity*0.2) * diversityPenalty
 	return freshnessScore
@@ -61,8 +61,9 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 }
 
 func Float64ToPgNumeric(f float64) (pgtype.Numeric, error) {
-    str := strconv.FormatFloat(f, 'g', 17, 64)
-    var numeric pgtype.Numeric
-    err := numeric.Scan(str)
-    return numeric, err
+	str := strconv.FormatFloat(f, 'f', -1, 64)
+
+	var numeric pgtype.Numeric
+	err := numeric.Scan(str)
+	return numeric, err
 }
