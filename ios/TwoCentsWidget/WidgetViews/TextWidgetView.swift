@@ -20,12 +20,10 @@ struct TextWidgetView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
 
-            ScrollView(.vertical) {
-                LazyVStack(alignment: .leading) {
-                    ForEach(lines, id: \.self) { line in
-                        Text(line)
-                            .padding(.vertical, 2)
-                    }
+            LazyVStack(alignment: .leading) {
+                ForEach(lines, id: \.self) { line in
+                    Text(line)
+                        .padding(.vertical, 2)
                 }
             }
             
