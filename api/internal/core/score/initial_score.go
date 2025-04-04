@@ -10,6 +10,7 @@ import (
 
 func InitialScore(queries *database.Queries) {
 	friendGroups, err := queries.ListFriendGroups(context.Background())
+	log.Printf("Fetched friend groups for calculation job")
 	if err != nil {
 		log.Printf("Failed to fetch friend groups for calculation job")
 		gin.DefaultWriter.Write([]byte("Failed to fetch friend groups for calculation job"))

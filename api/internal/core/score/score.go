@@ -14,7 +14,7 @@ import (
 
 // calculateScore computes the score based on the given post.
 func calcluateScore(post database.Post) float64 {
-	freshnessScore := math.Exp(-0.1 * float64(time.Since(post.DateCreated.Time)))
+	freshnessScore := math.Exp(-0.1 * time.Since(post.DateCreated.Time).Seconds())
 
 	//score := (engagementScore*0.5 + freshnessScore*0.3 + interactionVelocity*0.2) * diversityPenalty
 	return freshnessScore
