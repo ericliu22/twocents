@@ -44,8 +44,8 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 		return
 	}
 	for _, post := range posts {
-		log.Printf("Calculating score for post %s", post.Post.ID.String())
 		score := calcluateScore(post.Post)
+		log.Printf("Score for post %s: %f", post.Post.ID.String(), score)
 		var numeric pgtype.Numeric
 		numeric, err := Float64ToPgNumeric(score)
 		if err != nil {
