@@ -47,7 +47,6 @@ struct TwoCentsTimelineProvider: TimelineProvider{
                 fetchedMedia = await fetchMedia(download: download, media: fetchedPost.post.media)
                 entry = TwoCentsEntry.init(date: Date(), post: fetchedPost.post, fetchedMedia: fetchedMedia)
                 let entries = [entry]
-                let nextUpdate = Calendar.current.date(byAdding: .second, value: 10, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
                 completion(timeline)
             } catch {
@@ -55,7 +54,6 @@ struct TwoCentsTimelineProvider: TimelineProvider{
             }
         }
         }
-
 }
 
 //IDK?????
