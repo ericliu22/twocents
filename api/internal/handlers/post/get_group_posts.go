@@ -54,11 +54,11 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			log.Println("groupId is required")
 			return
 		}
-		groupID, err := uuid.Parse(groupIDStr)
-		if err != nil {
+		groupID, groupIdParseErr := uuid.Parse(groupIDStr)
+		if groupIdParseErr != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid groupId"})
-			gin.DefaultWriter.Write([]byte("Invalid groupId: " + err.Error()))
-			log.Println("Invalid groupId: " + err.Error())
+			gin.DefaultWriter.Write([]byte("Invalid groupId: " + groupIdParseErr.Error()))
+			log.Println("Invalid groupId: " + groupIdParseErr.Error())
 			return
 		}
 
@@ -82,59 +82,76 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		// Get pagination parameters
 		limitStr := ctx.DefaultQuery("limit", "10")
-		limit, err := strconv.Atoi(limitStr)
-		if err != nil || limit <= 0 || limit > 20 {
+		limit, limitErr := strconv.Atoi(limitStr)
+		if limitErr != nil || limit <= 0 || limit > 20 {
 			limit = 10 // Default to 10 if invalid
 		}
 
 		offsetString := ctx.Query("offset") // Empty if not provided
-		var offset uuid.UUID
+		// Create pagination params for the database query
+		var (
+			postLists []database.Post // Adjust type as necessary
+		)
+
 		if offsetString != "" {
+			var offset uuid.UUID
 			var convErr error
-			offset, convErr = uuid.Parse(offsetString) // Convert cursor to int if needed
+			offset, convErr = uuid.Parse(offsetString)
 			if convErr != nil {
 				ctx.String(http.StatusBadRequest, "Invalid cursor")
 				gin.DefaultWriter.Write([]byte("Invalid cursor: " + convErr.Error()))
 				log.Println("Invalid cursor: " + convErr.Error())
 				return
 			}
-		} else {
-			topPost, topErr := queries.GetTopPost(ctx.Request.Context(), groupID)
-			log.Print("Top post: ", topPost)
-			if topErr != nil {
-				ctx.String(http.StatusInternalServerError, "Failed to fetch top post: "+topErr.Error())
-				gin.DefaultWriter.Write([]byte("Failed to fetch top post: " + topErr.Error()))
-				log.Println("Failed to fetch top post: " + topErr.Error())
+
+			// Fetch score for the provided offset
+			postScoreParam := database.GetPostScoreParams{
+				GroupID: groupID,
+				PostID:  offset,
+			}
+			score, fetchPostErr := queries.GetPostScore(ctx.Request.Context(), postScoreParam)
+			if fetchPostErr != nil {
+				ctx.String(http.StatusInternalServerError, "Failed to fetch post: "+fetchPostErr.Error())
+				gin.DefaultWriter.Write([]byte("Failed to fetch post: " + fetchPostErr.Error()))
+				log.Println("Failed to fetch post: " + fetchPostErr.Error())
 				return
 			}
-			offset = topPost.Post.ID
-		}
-		// Create pagination params for the database query
-		postScoreParam := database.GetPostScoreParams {
-			GroupID: groupID,
-			PostID:  offset,
-		}
-		score, fetchPostErr := queries.GetPostScore(ctx.Request.Context(), postScoreParam)
-		if fetchPostErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to fetch post: "+fetchPostErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to fetch post: " + fetchPostErr.Error()))
-			log.Println("Failed to fetch post: " + fetchPostErr.Error())
-			return
-		}
-		params := database.ListPaginatedPostsForGroupParams{
-			GroupID: groupID,
-			Score: score,
-			Column3: offset,
-			Limit:   int32(limit + 1), // Fetch one extra to determine if there are more posts
-		}
 
-		// Retrieve posts for the group with pagination
-		postLists, err := queries.ListPaginatedPostsForGroup(ctx.Request.Context(), params)
-		if err != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts: "+err.Error())
-			gin.DefaultWriter.Write([]byte("Error: Failed to retrieve posts: " + err.Error()))
-			log.Println("Error: Failed to retrieve posts: " + err.Error())
-			return
+			params := database.ListPaginatedPostsForGroupParams{
+				GroupID: groupID,
+				Score:   score,
+				Column3: offset,
+				Limit:   int32(limit + 1),
+			}
+
+			rows, listPaginatedErr := queries.ListPaginatedPostsForGroup(ctx.Request.Context(), params)
+			if listPaginatedErr != nil {
+				ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts: "+listPaginatedErr.Error())
+				gin.DefaultWriter.Write([]byte("Error: Failed to retrieve posts: " + listPaginatedErr.Error()))
+				log.Println("Error: Failed to retrieve posts: " + listPaginatedErr.Error())
+				return
+			}
+			postLists = make([]database.Post, 0, len(rows))
+			for _, row := range rows {
+				postLists = append(postLists, row.Post)
+			}
+		} else {
+			// Initial fetch without offset
+			params := database.InitialPostsForGroupParams{
+				GroupID: groupID,
+				Limit:   int32(limit + 1),
+			}
+			rows, initalErr := queries.InitialPostsForGroup(ctx.Request.Context(), params)
+			if initalErr != nil {
+				ctx.String(http.StatusInternalServerError, "Error: Failed to retrieve posts: "+initalErr.Error())
+				gin.DefaultWriter.Write([]byte("Error: Failed to retrieve posts: " + initalErr.Error()))
+				log.Println("Error: Failed to retrieve posts: " + initalErr.Error())
+				return
+			}
+			postLists = make([]database.Post, 0, len(rows))
+			for _, row := range rows {
+				postLists = append(postLists, row.Post)
+			}
 		}
 
 		// Check if there are more posts
@@ -151,15 +168,15 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 		for i, post := range postLists {
 			// Remember the last post ID for cursor
 			if i == len(postLists)-1 {
-				nextOffset = post.Post.ID
+				nextOffset = post.ID
 			}
 
 			// Fetch media for the post
 			var media any
 
-			media = fetch.FetchMedia(ctx.Request.Context(), queries, post.Post)
+			media = fetch.FetchMedia(ctx.Request.Context(), queries, post)
 			postsWithMedia = append(postsWithMedia, PostWithMedia{
-				Post:  post.Post,
+				Post:  post,
 				Media: media,
 			})
 		}

@@ -45,6 +45,14 @@ FROM friend_group_posts
 JOIN posts ON friend_group_posts.post_id = posts.id
 WHERE friend_group_posts.group_id = $1;
 
+-- name: InitialPostsForGroup :many
+SELECT sqlc.embed(posts)
+FROM friend_group_posts fgp
+JOIN posts ON posts.id = fgp.post_id
+WHERE fgp.group_id = $1
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $2;
+
 -- name: ListPaginatedPostsForGroup :many
 SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp

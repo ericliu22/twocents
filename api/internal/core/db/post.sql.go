@@ -211,6 +211,50 @@ func (q *Queries) GetTopPost(ctx context.Context, groupID uuid.UUID) (GetTopPost
 	return i, err
 }
 
+const initialPostsForGroup = `-- name: InitialPostsForGroup :many
+SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
+FROM friend_group_posts fgp
+JOIN posts ON posts.id = fgp.post_id
+WHERE fgp.group_id = $1
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $2
+`
+
+type InitialPostsForGroupParams struct {
+	GroupID uuid.UUID `json:"groupId"`
+	Limit   int32     `json:"limit"`
+}
+
+type InitialPostsForGroupRow struct {
+	Post Post `json:"post"`
+}
+
+func (q *Queries) InitialPostsForGroup(ctx context.Context, arg InitialPostsForGroupParams) ([]InitialPostsForGroupRow, error) {
+	rows, err := q.db.Query(ctx, initialPostsForGroup, arg.GroupID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []InitialPostsForGroupRow
+	for rows.Next() {
+		var i InitialPostsForGroupRow
+		if err := rows.Scan(
+			&i.Post.ID,
+			&i.Post.UserID,
+			&i.Post.Media,
+			&i.Post.DateCreated,
+			&i.Post.Caption,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listPaginatedPostsForGroup = `-- name: ListPaginatedPostsForGroup :many
 SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
 FROM friend_group_posts fgp
