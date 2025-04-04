@@ -135,6 +135,25 @@ func (q *Queries) GetPost(ctx context.Context, id uuid.UUID) (Post, error) {
 	return i, err
 }
 
+const getPostScore = `-- name: GetPostScore :one
+SELECT score
+FROM friend_group_posts
+WHERE group_id = $1
+  AND post_id = $2
+`
+
+type GetPostScoreParams struct {
+	GroupID uuid.UUID `json:"groupId"`
+	PostID  uuid.UUID `json:"postId"`
+}
+
+func (q *Queries) GetPostScore(ctx context.Context, arg GetPostScoreParams) (pgtype.Numeric, error) {
+	row := q.db.QueryRow(ctx, getPostScore, arg.GroupID, arg.PostID)
+	var score pgtype.Numeric
+	err := row.Scan(&score)
+	return score, err
+}
+
 const getPosts = `-- name: GetPosts :many
 SELECT id, user_id, media, date_created, caption FROM posts
 ORDER BY date_created
@@ -197,15 +216,16 @@ SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
 FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
 WHERE fgp.group_id = $1
-AND fgp.post_id < $2
-ORDER BY fgp.score DESC
-LIMIT $3
+  AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $4
 `
 
 type ListPaginatedPostsForGroupParams struct {
-	GroupID uuid.UUID `json:"groupId"`
-	PostID  uuid.UUID `json:"postId"`
-	Limit   int32     `json:"limit"`
+	GroupID uuid.UUID      `json:"groupId"`
+	Score   pgtype.Numeric `json:"score"`
+	Column3 uuid.UUID      `json:"column3"`
+	Limit   int32          `json:"limit"`
 }
 
 type ListPaginatedPostsForGroupRow struct {
@@ -213,7 +233,12 @@ type ListPaginatedPostsForGroupRow struct {
 }
 
 func (q *Queries) ListPaginatedPostsForGroup(ctx context.Context, arg ListPaginatedPostsForGroupParams) ([]ListPaginatedPostsForGroupRow, error) {
-	rows, err := q.db.Query(ctx, listPaginatedPostsForGroup, arg.GroupID, arg.PostID, arg.Limit)
+	rows, err := q.db.Query(ctx, listPaginatedPostsForGroup,
+		arg.GroupID,
+		arg.Score,
+		arg.Column3,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

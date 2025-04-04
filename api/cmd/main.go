@@ -59,6 +59,7 @@ func main() {
 	hub := message.NewHub()
 
 	go score.InitialScore(queries)
+
 	routes.SetupCoreRouter(
 		router,
 		queries,

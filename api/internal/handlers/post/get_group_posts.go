@@ -109,9 +109,21 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			offset = topPost.Post.ID
 		}
 		// Create pagination params for the database query
+		postScoreParam := database.GetPostScoreParams {
+			GroupID: groupID,
+			PostID:  offset,
+		}
+		score, fetchPostErr := queries.GetPostScore(ctx.Request.Context(), postScoreParam)
+		if fetchPostErr != nil {
+			ctx.String(http.StatusInternalServerError, "Failed to fetch post: "+fetchPostErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to fetch post: " + fetchPostErr.Error()))
+			log.Println("Failed to fetch post: " + fetchPostErr.Error())
+			return
+		}
 		params := database.ListPaginatedPostsForGroupParams{
 			GroupID: groupID,
-			PostID: offset,
+			Score: score,
+			Column3: offset,
 			Limit:   int32(limit + 1), // Fetch one extra to determine if there are more posts
 		}
 

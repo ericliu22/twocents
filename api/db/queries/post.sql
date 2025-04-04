@@ -50,9 +50,15 @@ SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
 WHERE fgp.group_id = $1
-AND fgp.post_id < $2
-ORDER BY fgp.score DESC
-LIMIT $3;
+  AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $4;
+
+-- name: GetPostScore :one
+SELECT score
+FROM friend_group_posts
+WHERE group_id = $1
+  AND post_id = $2;
 
 -- name: CheckPostOwner :one
 SELECT EXISTS(SELECT 1 FROM posts WHERE user_id = $1 and id = $2);
