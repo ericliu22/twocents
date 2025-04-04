@@ -93,7 +93,7 @@ struct TwoCentsWidgetEntryView: View {
             //Don't touch this padding, otherwise caption breaks widget
         }
             .containerBackground(for: .widget) {
-                Color(UIColor.systemBackground)
+                Color(.white)
             }
     }
 }
