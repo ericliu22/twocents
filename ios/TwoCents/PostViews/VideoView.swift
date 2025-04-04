@@ -14,7 +14,6 @@ struct VideoView: PostView {
 
     init(post: PostWithMedia) {
         self.post = post
-        print(post.download)
         if let downloadArray = post.download as? [Any] {
             self._videos = State(initialValue: downloadArray.compactMap { $0 as? VideoDownload })
         } else {

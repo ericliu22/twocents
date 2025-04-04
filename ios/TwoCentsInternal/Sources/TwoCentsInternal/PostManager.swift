@@ -55,6 +55,8 @@ public struct PostManager: Sendable {
         ]
         
         if let offset = offset {
+            print("OFFSET")
+            print(offset.uuidString)
             queryItems.append(URLQueryItem(name: "offset", value: offset.uuidString))
         }
         

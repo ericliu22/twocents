@@ -25,6 +25,7 @@ func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
 	defer ticker.Stop()
 
 	// Run immediately if needed:
+	RunScoreCalculation(groupId, queries)
 	for {
 		select {
 		case <-ticker.C:
@@ -51,7 +52,11 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 		updateScore := database.UpdatePostScoreParams {
 			Score: numeric,
 		}
-		queries.UpdatePostScore(context.Background(), updateScore)
+		if err := queries.UpdatePostScore(context.Background(), updateScore); err != nil {
+			log.Printf("Failed to update post score: %v", err)
+			return
+		}
+
 	}
 }
 
