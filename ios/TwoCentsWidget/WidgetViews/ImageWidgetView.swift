@@ -52,6 +52,7 @@ struct ImageWidgetView: View {
                 .background(.ultraThinMaterial)
             }
         }
+        .background(Color(UIColor.systemBackground))
     }
 }
 

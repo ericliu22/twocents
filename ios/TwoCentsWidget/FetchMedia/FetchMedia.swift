@@ -11,7 +11,6 @@ import LinkPresentation
 
 protocol FetchableMedia { }
 extension UIImage: FetchableMedia { }
-extension AVAsset: FetchableMedia { }
 extension String: FetchableMedia { }
 
 struct TwoCentsLinkMetadata: Identifiable, FetchableMedia {
@@ -36,13 +35,13 @@ func fetchMedia(download: [any Downloadable], media: Media) async -> [FetchableM
             return images
         case .VIDEO:
             let videoDownloads = download as? [VideoDownload] ?? []
-            var videos: [AVAsset] = []
+            var videoPreviews: [UIImage] = []
             
             for videoDownload in videoDownloads {
                 let video = try await fetchVideo(from: videoDownload.mediaUrl)
-                videos.append(video)
+                videoPreviews.append(video)
             }
-            return videos
+            return videoPreviews
         case .TEXT:
             let textDownloads = download as? [TextDownload] ?? []
             var texts: [String] = []
@@ -84,7 +83,8 @@ func fetchImage(from urlString: String) async throws -> UIImage {
     return image
 }
 
-func fetchVideo(from urlString: String) async throws -> AVAsset {
+func fetchVideo(from urlString: String) async throws -> UIImage {
+    /*
     guard let url = URL(string: urlString) else {
         throw URLError(.badURL)
     }
@@ -94,8 +94,17 @@ func fetchVideo(from urlString: String) async throws -> AVAsset {
     
     // Create an AVURLAsset from the local file URL.
     let asset = AVURLAsset(url: fileURL)
-    return asset
+
+    let generator = AVAssetImageGenerator(asset: asset)
+    generator.appliesPreferredTrackTransform = true
+
+    let timestamp = CMTime(seconds: 1, preferredTimescale: 60)
+
+    let (imageRef, _) = try await generator.image(at: timestamp)
+     */
+    return UIImage(systemName: "video")!
 }
+
 
 func fetchLink(from urlString: String) async throws -> TwoCentsLinkMetadata {
     guard let url = URL(string: urlString) else {

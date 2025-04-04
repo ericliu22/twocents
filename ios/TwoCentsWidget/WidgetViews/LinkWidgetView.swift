@@ -50,6 +50,7 @@ struct LinkWidgetView: View {
         // Ensures the ZStack itself spans the widget
         .containerBackground(.clear, for: .widget)
     }
+    
 }
 
 struct IdentifiableLink: Identifiable {

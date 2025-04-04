@@ -42,6 +42,7 @@ struct VideoView: PostView {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                
             }
         }
     }
