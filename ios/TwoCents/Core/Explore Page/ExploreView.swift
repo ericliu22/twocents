@@ -166,36 +166,35 @@ struct ExploreCard: View {
                         makePostView(post: post)
                             .aspectRatio(3/4, contentMode: .fill)
                             .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
-                            .clipped()
-                            .cornerRadius(12)
-                            .onTapGesture {
-                                withAnimation(.spring()) {
-                                    selectedPost = post
-                                }
-                            }
-                            .blur(radius: 10)
+                            .overlay(
+                                    Color.black.opacity(0.2) // Adjust opacity to control darkness
+                                )
                             .mask(
                                 LinearGradient(
                                     gradient: Gradient(stops: [
                                         .init(color: .black.opacity(1), location: 0),
-                                        .init(color: .black.opacity(1), location: 0.3   ),
-                                        .init(color: .clear, location: 0.5)
+                                        .init(color: .black.opacity(1), location: 0.2),
+                                        .init(color: .clear, location: 0.3)
                                     ]),
                                     startPoint: .bottom,
                                     endPoint: .top
                                 )
                             )
-                            .frame(maxHeight: .infinity, alignment: .bottom)
+                          
+                            .compositingGroup() // ← flatten it first
+                            .blur(radius: 1.5) // ← then blur the entire result
                             .clipShape(
                                 RoundedCorner(radius: 12, corners: [.bottomLeft, .bottomRight])
                             )
+                          
+                            
                         
                         Text(caption)
                             .font(.system(size: 14, weight: .medium))
                             .lineLimit(2)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 5)
-                            .padding(.bottom)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 12)
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                           
                             
