@@ -53,13 +53,13 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 			return
 		}
 		updateScore := database.UpdatePostScoreParams {
+			PostID:    post.Post.ID,
 			Score: numeric,
 		}
 		if err := queries.UpdatePostScore(context.Background(), updateScore); err != nil {
 			log.Printf("Failed to update post score: %v", err)
 			return
 		}
-
 	}
 }
 
