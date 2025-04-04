@@ -22,12 +22,10 @@ struct LinkWidgetView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
 
-            if let link = linkMetadatas.first {
-                Image(uiImage: link.linkMetadata.image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            Image(uiImage: linkMetadatas.first!.linkMetadata.image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             if let caption = entry.post.caption {
                     

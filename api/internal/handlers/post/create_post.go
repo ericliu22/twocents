@@ -105,6 +105,11 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			APSAlert: alert,
 		}
 
+		ctx.JSON(http.StatusOK, post)
+		for _, groupID := range createRequest.Groups {
+			go score.RunScoreCalculation(groupID, queries)
+		}
+
 		deviceTokens, err := queries.GetDeviceTokens(ctx.Request.Context(), createRequest.Groups)
 		if err != nil {
 			ctx.JSON(http.StatusOK, post)
@@ -113,11 +118,6 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		tokens := utils.Flatten(deviceTokens)
 		notifications.SendNotification(tokens, "com.twocentsapp.newcents", body)
-
-		ctx.JSON(http.StatusOK, post)
-		for _, groupID := range createRequest.Groups {
-			go score.RunScoreCalculation(groupID, queries)
-		}
 	}
 }
 

@@ -29,12 +29,10 @@ struct VideoWidgetView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            if let image = images.first {
-                Image(uiImage: image.image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            Image(uiImage: images.first!.image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Caption overlay remains unchanged
             if let caption = entry.post.caption {
