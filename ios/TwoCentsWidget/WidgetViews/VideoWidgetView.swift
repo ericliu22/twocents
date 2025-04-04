@@ -29,18 +29,11 @@ struct VideoWidgetView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            GeometryReader { geometry in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 0) {
-                        ForEach(images) { image in
-                            Image(uiImage: image.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: geometry.size.width)
-                        }
-                    }
-                }
-                .scrollTargetBehavior(.paging)  // Enable paging
+            if let image = images.first {
+                Image(uiImage: image.image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
             // Caption overlay remains unchanged

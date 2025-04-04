@@ -91,7 +91,10 @@ struct TwoCentsWidgetEntryView: View {
                 DefaultWidgetView(entry: entry)
             }
             //Don't touch this padding, otherwise caption breaks widget
-        }.padding(EdgeInsets(top: -16, leading: 0, bottom: -16, trailing: 0))
+        }
+            .containerBackground(for: .widget) {
+                Color(UIColor.systemBackground)
+            }
     }
 }
 

@@ -73,7 +73,7 @@ func GetMembersHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		if handled := utils.AttachCacheHeaders(ctx, membersJson, 600); handled {
+		if handled := utils.AttachCacheHeaders(ctx, membersJson, 30); handled {
 			return
 		}
 

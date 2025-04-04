@@ -54,6 +54,7 @@ struct ExploreView: View {
         }
         .refreshable {
             // Reset pagination and fetch first page
+            print("RAN REFRESH")
             offset = nil
             do {
                 try await fetchInitialPosts()
@@ -96,6 +97,7 @@ struct ExploreView: View {
         let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
         
         postsWithMedia = response.posts
+        print(postsWithMedia.first)
         offset = response.offset
         hasMore = response.hasMore
     }
@@ -241,7 +243,6 @@ struct ExploreCard: View {
                     
                     
                 }
-                .background(Color.green)
             }
             .padding(.horizontal, 5)
         }

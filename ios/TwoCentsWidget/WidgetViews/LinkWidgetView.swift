@@ -22,20 +22,13 @@ struct LinkWidgetView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
 
-            GeometryReader { geometry in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 0) {
-                        ForEach(linkMetadatas) { link in
-                            Image(uiImage: link.linkMetadata.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: geometry.size.width)
-                        }
-                    }
-                }
-                .scrollTargetBehavior(.paging)  // Enable paging
+            if let link = linkMetadatas.first {
+                Image(uiImage: link.linkMetadata.image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        
+            
             if let caption = entry.post.caption {
                     
                 VStack {

@@ -42,7 +42,7 @@ func GetUserHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		if handled := utils.AttachCacheHeaders(ctx, profileJson, 600); handled {
+		if handled := utils.AttachCacheHeaders(ctx, profileJson, 30); handled {
 			return
 		}
 		ctx.JSON(http.StatusOK, userProfile)
