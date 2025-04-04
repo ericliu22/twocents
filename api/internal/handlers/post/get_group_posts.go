@@ -100,6 +100,7 @@ func GetGroupPostsHandler(queries *database.Queries) gin.HandlerFunc {
 			}
 		} else {
 			topPost, topErr := queries.GetTopPost(ctx.Request.Context(), groupID)
+			log.Print("Top post: ", topPost)
 			if topErr != nil {
 				ctx.String(http.StatusInternalServerError, "Failed to fetch top post: "+topErr.Error())
 				gin.DefaultWriter.Write([]byte("Failed to fetch top post: " + topErr.Error()))
