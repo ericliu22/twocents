@@ -25,6 +25,7 @@ func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
 	defer ticker.Stop()
 
 	// Run immediately if needed:
+	log.Printf("Running initial score calc %s", groupId)
 	RunScoreCalculation(groupId, queries)
 	for {
 		select {
@@ -36,12 +37,14 @@ func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
 
 func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 	//@TODO: Make an actual context for this bitch
+	log.Printf("Running score calculation for group %s", groupId)
 	posts, err := queries.ListPostsForGroup(context.Background(), groupId)
 	if err != nil {
 		log.Printf("Failed to fetch posts for calculation job")
 		return
 	}
 	for _, post := range posts {
+		log.Printf("Calculating score for post %s", post.Post.ID.String())
 		score := calcluateScore(post.Post)
 		var numeric pgtype.Numeric
 		numeric, err := Float64ToPgNumeric(score)
