@@ -138,74 +138,42 @@ struct ExploreCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             
-            ZStack(alignment: .bottom) {
-                // Post content (image or view)
+            ZStack {
+                // Main post image
                 makePostView(post: post)
                     .aspectRatio(3/4, contentMode: .fill)
                     .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
                     .clipped()
                     .cornerRadius(12)
-//                    .onTapGesture {
-//                        withAnimation(.spring()) {
-//                            selectedPost = post
-//                        }
-//                    }
 
-                // Blurred background behind caption
-                
-                
-
-                // Caption text
+                // Caption overlay
                 if let caption = post.post.caption, !caption.isEmpty {
-                  
-                        
-                        
-                        
-                    ZStack{
-                        
-                        makePostView(post: post)
-                            .aspectRatio(3/4, contentMode: .fill)
-                            .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
+                    VStack {
+                        Spacer()
+
+                        // Blurred glass background for caption
+                        VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
+                            .frame(height: 50)
+                            .frame(maxWidth: .infinity)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(
-                                    Color.black.opacity(0.2) // Adjust opacity to control darkness
-                                )
-                            .mask(
-                                LinearGradient(
-                                    gradient: Gradient(stops: [
-                                        .init(color: .black.opacity(1), location: 0),
-                                        .init(color: .black.opacity(1), location: 0.2),
-                                        .init(color: .clear, location: 0.3)
-                                    ]),
-                                    startPoint: .bottom,
-                                    endPoint: .top
-                                )
+                                Text(caption)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .lineLimit(2)
+                                    .padding(.horizontal, 12)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             )
-                          
-                            .compositingGroup() // ← flatten it first
-                            .blur(radius: 1.5) // ← then blur the entire result
-                            .clipShape(
-                                RoundedCorner(radius: 12, corners: [.bottomLeft, .bottomRight])
-                            )
-                          
-                            
-                        
-                        Text(caption)
-                            .font(.system(size: 14, weight: .medium))
-                            .lineLimit(2)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.bottom, 12)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-                          
-                            
-                        
+                            .padding(6) // Add padding from image edges
                     }
-                    .onTapGesture {
-                                           withAnimation(.spring()) {
-                                               selectedPost = post
-                                           }
-                                       }
-                    
+                    .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2, maxHeight: .infinity)
+                   
+                }
+            }
+            
+            .onTapGesture {
+                withAnimation(.spring()) {
+                    selectedPost = post
                 }
             }
 
@@ -367,4 +335,16 @@ struct RoundedCorner: Shape {
         )
         return Path(path.cgPath)
     }
+}
+
+import SwiftUI
+
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 }
