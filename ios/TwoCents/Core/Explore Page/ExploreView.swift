@@ -145,11 +145,11 @@ struct ExploreCard: View {
                     .frame(maxWidth: (UIScreen.main.bounds.width - 15) / 2)
                     .clipped()
                     .cornerRadius(12)
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            selectedPost = post
-                        }
-                    }
+//                    .onTapGesture {
+//                        withAnimation(.spring()) {
+//                            selectedPost = post
+//                        }
+//                    }
 
                 // Blurred background behind caption
                 
@@ -200,6 +200,11 @@ struct ExploreCard: View {
                             
                         
                     }
+                    .onTapGesture {
+                                           withAnimation(.spring()) {
+                                               selectedPost = post
+                                           }
+                                       }
                     
                 }
             }
