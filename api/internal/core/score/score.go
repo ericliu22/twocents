@@ -21,7 +21,7 @@ func calcluateScore(post database.Post) float64 {
 }
 
 func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
 	// Run immediately if needed:
@@ -45,6 +45,7 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 	for _, post := range posts {
 		score := calcluateScore(post.Post)
 		var numeric pgtype.Numeric
+		log.Printf("Running initial score calc %s", groupId)
 		numeric, err := Float64ToPgNumeric(score)
 		if err != nil {
 			log.Printf("Failed to convert score to pgtype.Numeric: %v", err)
