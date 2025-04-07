@@ -30,7 +30,7 @@ func ObjectUpload(filename string, file *multipart.File, contentType string) err
 		ContentType: aws.String(contentType),
 	})
 	if putErr != nil {
-		return nil, putErr
+		return putErr
 	}
 
 	// 7. Generate CloudFront URL
