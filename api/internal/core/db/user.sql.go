@@ -14,7 +14,7 @@ import (
 
 const addDeviceToken = `-- name: AddDeviceToken :exec
 UPDATE users
-SET device_tokens = ARRAY_APPEND(device_tokens, $1::TEXT[])
+SET device_tokens = ARRAY_CAT(device_tokens, $1::TEXT[])
 WHERE id = $2
 `
 
