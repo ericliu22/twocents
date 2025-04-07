@@ -17,35 +17,35 @@ var HARDCODED_DATE: Date {
     return Calendar.current.date(from: dateComponents)!
 }
 
-let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+let HARDCODED_GROUP = FriendGroup(
+    id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!,
+    name: "TwoCents",
+    dateCreated: HARDCODED_DATE,
+    ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!
+)
 
 let requiresFetching: [Media] = [.IMAGE, .VIDEO, .LINK]
 
-struct TwoCentsTimelineProvider: TimelineProvider{
+struct TwoCentsTimelineProvider: TimelineProvider {
     let group: FriendGroup
     func placeholder(in context: Context) -> TwoCentsEntry {
-//            TwoCentsEntry((date: Date(), id: UUID(), userId: UUID(), media: .OTHER, dateCreated: Date(), caption: "Placeholder"))
         return TwoCentsEntry.dummy
-        //replace with empty list
     }
 
     func getSnapshot(in context: Context, completion: @escaping (TwoCentsEntry) -> ()) {
         completion(TwoCentsEntry.dummy)
-        //empty view
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<TwoCentsEntry>) -> ()) {
-        Task{
+        Task {
             do {
-                //@TODO: Make a route for fetching only the top post
-                let postData = try await PostManager.getTopPost(groupId: HARDCODED_GROUP.id) //Hardcoded also don't work
+                // @TODO: Make a route for fetching only the top post
+                let postData = try await PostManager.getTopPost(groupId: HARDCODED_GROUP.id)
                 let fetchedPost = try TwoCentsDecoder().decode(PostWithMedia.self, from: postData)
                 
-                var fetchedMedia: [FetchableMedia]
                 let download = fetchedPost.download
-                let entry: TwoCentsEntry
-                fetchedMedia = await fetchMedia(download: download, media: fetchedPost.post.media)
-                entry = TwoCentsEntry.init(date: Date(), post: fetchedPost.post, fetchedMedia: fetchedMedia)
+                let fetchedMedia = await fetchMedia(download: download, media: fetchedPost.post.media)
+                let entry = TwoCentsEntry(date: Date(), post: fetchedPost.post, fetchedMedia: fetchedMedia)
                 let entries = [entry]
                 let nextUpdate = Calendar.current.date(byAdding: .second, value: 60, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
@@ -54,10 +54,9 @@ struct TwoCentsTimelineProvider: TimelineProvider{
                 print("Error fetching data")
             }
         }
-        }
+    }
 }
 
-//IDK?????
 struct TwoCentsEntry: TimelineEntry {
     let date: Date
     let post: Post
@@ -70,8 +69,6 @@ struct TwoCentsEntry: TimelineEntry {
     }
 }
 
-
-//wtf going on with the UI
 struct TwoCentsWidgetEntryView: View {
     let entry: TwoCentsEntry
 
@@ -89,49 +86,42 @@ struct TwoCentsWidgetEntryView: View {
             case .OTHER:
                 DefaultWidgetView(entry: entry)
             }
-            //Don't touch this padding, otherwise caption breaks widget
+            // Don't modify the padding below; it's needed for the caption.
         }
-            .containerBackground(for: .widget) {
-                Color(.white)
-            }
+        .containerBackground(for: .widget) {
+            Color(.white)
+        }
     }
 }
 
 extension TwoCentsEntry {
     static var dummy: TwoCentsEntry {
-        // Create a dummy post for the sake of the dummy entry.
         let dummyPost = Post(
             id: UUID(),
             userId: UUID(),
-            media: .TEXT, // Use any Media type that fits
+            media: .TEXT,
             dateCreated: Date(),
             caption: "Placeholder"
         )
-        
-        // Build the dummy entry.
         return TwoCentsEntry(
             date: Date(),
             post: dummyPost,
-            fetchedMedia: ["This is widget shows the top post of the day"]
+            fetchedMedia: ["This widget shows the top post of the day"]
         )
     }
 }
-
-// Example subviews for different media types
 
 struct DefaultWidgetView: View {
     let entry: TwoCentsEntry
     @State var posts: [Post] = []
     @State var users: IdentifiedCollection<User> = IdentifiedCollection()
     
-
     var body: some View {
         ZStack(alignment: .bottom) {
-                Text("No post")
+            Text("No post")
                 .font(.largeTitle)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // Ensures the ZStack itself spans the widget
         .containerBackground(.clear, for: .widget)
     }
 }
@@ -142,7 +132,9 @@ struct TwoCentsWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: TwoCentsTimelineProvider(group: HARDCODED_GROUP)) { entry in
             TwoCentsWidgetEntryView(entry: entry)
+             
         }
+        .contentMarginsDisabled() 
         .configurationDisplayName("TwoCents Widget")
         .description("Displays content based on media type.")
     }

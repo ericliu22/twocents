@@ -35,6 +35,7 @@ struct LinkWidgetView: View {
                 .frame(height: 50)                // <--- Adjust as needed
                 .frame(maxWidth: .infinity)
                 .background(.ultraThinMaterial)   // blur effect         // space from the bottom edge
+                
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
