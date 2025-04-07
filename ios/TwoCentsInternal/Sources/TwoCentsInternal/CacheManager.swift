@@ -22,12 +22,12 @@ public struct CacheManager {
     // MARK: - Public Entry Points
     
     public static func fetchCachedImageURL(for remoteURL: URL) async throws -> URL {
-        let (url, didDownload) = try await fetchAndCacheData(for: remoteURL, type: .image)
+        let (url, _) = try await fetchAndCacheData(for: remoteURL, type: .image)
         return url
     }
     
     public static func fetchCachedVideoURL(for remoteURL: URL) async throws -> URL {
-        let (url, didDownload) = try await fetchAndCacheData(for: remoteURL, type: .video)
+        let (url, _) = try await fetchAndCacheData(for: remoteURL, type: .video)
         return url
     }
     

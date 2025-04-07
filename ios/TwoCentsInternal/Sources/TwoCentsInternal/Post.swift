@@ -82,16 +82,20 @@ public struct PostWithMedia: Identifiable, Decodable {
         post = try container.decode(Post.self, forKey: .post)
         
         // Dynamically decode the media based on post.media type
-        switch post.media {
-        case .IMAGE:
-            download = try container.decode([ImageDownload].self, forKey: .media)
-        case .VIDEO:
-            download = try container.decode([VideoDownload].self, forKey: .media)
-        case .LINK:
-            download = try container.decode([LinkDownload].self, forKey: .media)
-        case .TEXT:
-            download = try container.decode([TextDownload].self, forKey: .media)
-        case .OTHER:
+        do {
+            switch post.media {
+            case .IMAGE:
+                download = try container.decode([ImageDownload].self, forKey: .media)
+            case .VIDEO:
+                download = try container.decode([VideoDownload].self, forKey: .media)
+            case .LINK:
+                download = try container.decode([LinkDownload].self, forKey: .media)
+            case .TEXT:
+                download = try container.decode([TextDownload].self, forKey: .media)
+            case .OTHER:
+                download = []
+            }
+        } catch {
             download = []
         }
         self.id = post.id

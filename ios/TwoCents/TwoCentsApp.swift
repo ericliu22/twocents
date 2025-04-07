@@ -64,6 +64,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                      didFailToRegisterForRemoteNotificationsWithError
                      error: Error) {
         // Try again later.
+        print("FAILED TO REGISTER FOR NOTIFICATIONS")
     }
 
 }
