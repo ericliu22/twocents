@@ -280,7 +280,6 @@ struct ExploreDetailView: View {
                     Spacer()
                 }
                 .frame(width: UIScreen.main.bounds.width)
-                .background(Color.white)
                 .cornerRadius(12)
                 .scaleEffect(scale)
                 .offset(y: dragOffset)
@@ -303,13 +302,13 @@ struct ExploreDetailView: View {
                         }
                 )
             }
+            .background(Color(UIColor.systemBackground))
             .ignoresSafeArea()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
-                            .foregroundColor(.black)
                             
                     }
                 }
