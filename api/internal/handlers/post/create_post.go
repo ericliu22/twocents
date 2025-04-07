@@ -6,7 +6,6 @@ import (
 	"api/internal/core/score"
 	"api/internal/core/utils"
 	"api/internal/middleware"
-	"context"
 	"net/http"
 
 	"firebase.google.com/go/v4/messaging"
@@ -132,7 +131,9 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 				Title: "New post from " + user.Username,
 				Body:  body,
 			}
-			go notifications.SendNotification(&notification, messagingClient, context.Background())
+			go func() {
+				notifications.SendNotification(&notification, messagingClient)
+			}()
 		}
 	}
 }

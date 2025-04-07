@@ -37,9 +37,12 @@ func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
 
 func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 	//@TODO: Make an actual context for this bitch
-	posts, err := queries.ListPostsForGroup(context.Background(), groupId)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	posts, err := queries.ListPostsForGroup(ctx, groupId)
 	if err != nil {
 		log.Printf("Failed to fetch posts for calculation job")
+		cancel()
 		return
 	}
 	for _, post := range posts {
@@ -49,14 +52,16 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 		numeric, err := Float64ToPgNumeric(score)
 		if err != nil {
 			log.Printf("Failed to convert score to pgtype.Numeric: %v", err)
+			cancel()
 			return
 		}
 		updateScore := database.UpdatePostScoreParams{
 			PostID: post.Post.ID,
 			Score:  numeric,
 		}
-		if err := queries.UpdatePostScore(context.Background(), updateScore); err != nil {
+		if err := queries.UpdatePostScore(ctx, updateScore); err != nil {
 			log.Printf("Failed to update post score: %v", err)
+			cancel()
 			return
 		}
 	}
