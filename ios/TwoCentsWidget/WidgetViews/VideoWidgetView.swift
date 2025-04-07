@@ -57,7 +57,7 @@ struct VideoWidgetView: View {
                                             .fill(.ultraThinMaterial)
                                             .overlay(
                                                 Capsule()
-                                                    .fill(Color.black.opacity: 0.3)
+                                                    .fill(Color.black.opacity(0.3))
                                             )
                                     }
                                 }
