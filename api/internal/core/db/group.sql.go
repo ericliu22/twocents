@@ -157,9 +157,10 @@ func (q *Queries) DeleteFriendGroup(ctx context.Context, id uuid.UUID) error {
 }
 
 const getDeviceTokens = `-- name: GetDeviceTokens :many
-SELECT device_tokens FROM users
+SELECT device_tokens
+FROM users
 JOIN friend_group_members ON friend_group_members.user_id = users.id
-WHERE friend_group_members.group_id IN ($1::uuid[])
+WHERE friend_group_members.group_id = ANY($1::uuid[])
 `
 
 func (q *Queries) GetDeviceTokens(ctx context.Context, dollar_1 []uuid.UUID) ([][]string, error) {
