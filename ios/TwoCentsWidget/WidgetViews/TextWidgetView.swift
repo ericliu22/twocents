@@ -28,7 +28,7 @@ struct TextWidgetView: View {
             }
             
             VStack {
-                if let caption = entry.post.caption {
+                if let caption = entry.post.caption, !caption.isEmpty {
                     Text(caption)
                         .foregroundColor(.white)
                         .lineLimit(2)   // or however many lines you want

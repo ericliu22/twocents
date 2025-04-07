@@ -27,7 +27,7 @@ struct LinkWidgetView: View {
                 .scaledToFit()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            if let caption = entry.post.caption {
+            if let caption = entry.post.caption, !caption.isEmpty {
                     
                 VStack {
                     Text(caption)

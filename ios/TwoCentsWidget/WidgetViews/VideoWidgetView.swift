@@ -35,7 +35,7 @@ struct VideoWidgetView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Caption overlay remains unchanged
-            if let caption = entry.post.caption {
+            if let caption = entry.post.caption, !caption.isEmpty {
                 VStack {
                     Text(caption)
                 }
