@@ -32,7 +32,7 @@ CREATE TABLE users (
 	username  		TEXT	        NOT NULL,
 	hash	        TEXT,
 	salt	        TEXT,
-    device_tokens   TEXT[]
+    device_tokens   TEXT[]         DEFAULT '{}' NOT NULL 
 );
 
 CREATE TABLE user_profiles (

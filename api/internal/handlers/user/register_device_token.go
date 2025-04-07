@@ -40,7 +40,7 @@ func RegisterDeviceTokenHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		addToken := database.AddDeviceTokenParams{
-			ArrayAppend: []string{registerDeviceTokenRequest.DeviceToken},
+			Column1: []string{registerDeviceTokenRequest.DeviceToken},
 			ID:          user.ID,
 		}
 		err := queries.AddDeviceToken(ctx.Request.Context(), addToken)

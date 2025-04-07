@@ -14,17 +14,17 @@ import (
 
 const addDeviceToken = `-- name: AddDeviceToken :exec
 UPDATE users
-SET device_tokens = ARRAY_APPEND(device_tokens, $1)
+SET device_tokens = ARRAY_APPEND(device_tokens, $1::TEXT[])
 WHERE id = $2
 `
 
 type AddDeviceTokenParams struct {
-	ArrayAppend interface{} `json:"arrayAppend"`
-	ID          uuid.UUID   `json:"id"`
+	Column1 []string  `json:"column1"`
+	ID      uuid.UUID `json:"id"`
 }
 
 func (q *Queries) AddDeviceToken(ctx context.Context, arg AddDeviceTokenParams) error {
-	_, err := q.db.Exec(ctx, addDeviceToken, arg.ArrayAppend, arg.ID)
+	_, err := q.db.Exec(ctx, addDeviceToken, arg.Column1, arg.ID)
 	return err
 }
 

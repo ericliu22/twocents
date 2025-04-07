@@ -78,7 +78,7 @@ WHERE user_id = $1;
 
 -- name: AddDeviceToken :exec
 UPDATE users
-SET device_tokens = ARRAY_APPEND(device_tokens, $1)
+SET device_tokens = ARRAY_APPEND(device_tokens, $1::TEXT[])
 WHERE id = $2;
 
 -- name: RemoveDeviceToken :exec
