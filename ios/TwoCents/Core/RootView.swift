@@ -84,6 +84,27 @@ struct RootView: View {
             }
         }
         .tint(.green)
+//        .onChange(of: appModel.deepLinkPostID) { newPostID in
+//                    if let postID = newPostID {
+//                        print("got here")
+//                        print(appModel.selectedPostID)
+//                        print(appModel.deepLinkPostID)
+//                        // Propagate the deep link to the navigation state in ExploreView
+//                        appModel.selectedPostID = postID
+//                        // Optionally clear deepLinkPostID once handled
+//                        appModel.deepLinkPostID = nil
+//                    }
+//                }
+        .onOpenURL { url in
+                    print("onOpenURL received: \(url)")
+                    if url.scheme == "twocents", url.host == "post" {
+                        let postIDString = url.lastPathComponent
+                        if let postID = UUID(uuidString: postIDString) {
+                            appModel.deepLinkPostID = postID
+                            print("Navigating to post with ID: \(postID)")
+                        }
+                    }
+                }
     }
 }
 

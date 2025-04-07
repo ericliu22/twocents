@@ -27,10 +27,27 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     
     var appModel: AppModel?
     
+    //Deeplink Function:
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        print("deeplink application func reached")
+        // Check if the URL matches your custom scheme and host
+        if url.scheme == "twocents", url.host == "post" {
+            // Extract the post ID from the path
+            let postIDString = url.lastPathComponent
+            if let postID = UUID(uuidString: postIDString) {
+                appModel?.deepLinkPostID = postID
+                print("Navigating to post with ID: \(postID)")
+                return true
+            }
+        }
+        return false
+    }
+    
     func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
+        print("second application function reached")
         do {
             try Auth.auth().useUserAccessGroup("432WVK3797.com.twocentsapp.newcents.keychain-group")
         } catch let error as NSError {

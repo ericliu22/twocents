@@ -49,6 +49,7 @@ struct TwoCentsTimelineProvider: TimelineProvider {
                 let entries = [entry]
                 let nextUpdate = Calendar.current.date(byAdding: .second, value: 60, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
+                print("fetch works")
                 completion(timeline)
             } catch {
                 print("Error fetching data")
@@ -57,6 +58,17 @@ struct TwoCentsTimelineProvider: TimelineProvider {
     }
 }
 
+func generateDeepLinkURL(for post: Post) -> URL? {
+    print("got to deeplink generation")
+    var components = URLComponents()
+    components.scheme = "twocents"      // Your custom URL scheme
+    components.host = "post"            // Define the host (or path) to denote a post
+    components.path = "/\(post.id.uuidString)" // Use the post’s unique ID
+    print(components.url ?? "couldn't create URL")
+    return components.url
+}
+
+//IDK?????
 struct TwoCentsEntry: TimelineEntry {
     let date: Date
     let post: Post
@@ -91,6 +103,7 @@ struct TwoCentsWidgetEntryView: View {
         .containerBackground(for: .widget) {
             Color(.white)
         }
+        .widgetURL(generateDeepLinkURL(for: entry.post))
     }
 }
 

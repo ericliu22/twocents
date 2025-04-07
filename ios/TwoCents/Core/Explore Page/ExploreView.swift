@@ -11,6 +11,9 @@ struct ExploreView: View {
     @State private var offset: UUID?
     @State private var hasMore = true
     
+    //added this for deeplinking
+    @Environment(AppModel.self) var appModel
+    
     let columns = [
         GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5),
         GridItem(.flexible(minimum: 150, maximum: .infinity), spacing: 5)
@@ -18,74 +21,120 @@ struct ExploreView: View {
     
     
     var body: some View {
+        //added for deeplinking
+        @Bindable var appModel = appModel
         NavigationView {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 5) {
-                    ForEach(postsWithMedia, id: \.post.id) {     post in
-                        
-                        if let user = users[id: post.post.userId] {
-                            ExploreCard(post: post, user: user, selectedPost: $selectedPost)
-                                .onAppear {
-                                    // If we're nearing the end of the current posts, load more
-                                    if let lastPostId = postsWithMedia.last?.post.id,
-                                       post.post.id == lastPostId,
-                                       hasMore && !isLoading {
-                                        loadMoreContent()
-                                    }
-                                }
+            ZStack{
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 5) {
+                        ForEach(postsWithMedia, id: \.post.id) {     post in
                             
+                            if let user = users[id: post.post.userId] {
+                                ExploreCard(post: post, user: user, selectedPost: $selectedPost)
+                                    .onAppear {
+                                        // If we're nearing the end of the current posts, load more
+                                        if let lastPostId = postsWithMedia.last?.post.id,
+                                           post.post.id == lastPostId,
+                                           hasMore && !isLoading {
+                                            loadMoreContent()
+                                        }
+                                    }
+                                
+                            }
+                            
+                        }
+                        .padding(.bottom, 5)
+                    }
+                    .padding(.horizontal, 5)
+                    
+                    
+                    
+                    if isLoading {
+                        ProgressView()
+                            .padding(.bottom, 20)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                //            .navigationTitle("Explore")
+                //            .navigationBarTitleDisplayMode(.large)
+                // Hidden NavigationLink triggered by selectedPost
+                                NavigationLink(
+                                    destination: destinationView(),
+                                    isActive: Binding(
+                                        get: { selectedPost != nil },
+                                        set: { newValue in
+                                            if !newValue { selectedPost = nil }
+                                        }
+                                    )
+                                ) {
+                                    EmptyView()
+                                }
+                                .hidden()
+            }
+            .refreshable {
+                // Reset pagination and fetch first page
+                print("RAN REFRESH")
+                offset = nil
+                do {
+                    try await fetchInitialPosts()
+                } catch {
+                    print("Error refreshing posts: \(error)")
+                }
+            }
+            .task {
+                do {
+                    try await fetchInitialPosts()
+                } catch {
+                    print("Error fetching initial posts: \(error)")
+                }
+            }
+            .fullScreenCover(item: $selectedPost) { post in
+                if let user = users[id: post.post.userId] {
+                    
+                    ExploreDetailView(post: post, user: user) {
+                        withAnimation(.spring()) {
+                            selectedPost = nil
                         }
                         
                     }
-                    .padding(.bottom, 5)
-                }
-                .padding(.horizontal, 5)
-                
-                
-                
-                if isLoading {
-                    ProgressView()
-                        .padding(.bottom, 20)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            //            .navigationTitle("Explore")
-            //            .navigationBarTitleDisplayMode(.large)
-        }
-        .refreshable {
-            // Reset pagination and fetch first page
-            print("RAN REFRESH")
-            offset = nil
-            do {
-                try await fetchInitialPosts()
-            } catch {
-                print("Error refreshing posts: \(error)")
-            }
-        }
-        .task {
-            do {
-                try await fetchInitialPosts()
-            } catch {
-                print("Error fetching initial posts: \(error)")
-            }
-        }
-        .fullScreenCover(item: $selectedPost) { post in
-            if let user = users[id: post.post.userId] {
-                
-                ExploreDetailView(post: post, user: user) {
-                    withAnimation(.spring()) {
-                        selectedPost = nil
-                    }
+                    
+                    
                     
                 }
-                
-                
-                
             }
+            .onChange(of: appModel.deepLinkPostID) { newID in
+                if let newID = newID {
+                    print("Deep link detected in ExploreView with post ID: \(newID)")
+                    // Look for the matching post in the loaded posts
+                    if let matchingPost = postsWithMedia.first(where: { $0.post.id == newID }) {
+                        selectedPost = matchingPost  // This will trigger navigation
+                    } else {
+                        print("Deep link post not found among loaded posts")
+                        // Optionally: Fetch the post from the backend here.
+                    }
+                    // Clear the deep link after handling it.
+                    appModel.deepLinkPostID = nil
+                }
+            }
+            
         }
         
         
     }
+    
+    //Added this for navigation
+    @ViewBuilder
+        private func destinationView() -> some View {
+            if let post = selectedPost, let user = users[id: post.post.userId] {
+                ExploreDetailView(post: post, user: user) {
+                    withAnimation(.spring()) {
+                        selectedPost = nil
+                    }
+                }
+            } else {
+                EmptyView()
+            }
+        }
     
     private func fetchInitialPosts() async throws {
         // Fetch users first to display them properly with posts
