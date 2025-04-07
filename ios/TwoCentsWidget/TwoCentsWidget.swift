@@ -100,9 +100,6 @@ struct TwoCentsWidgetEntryView: View {
             }
             // Don't modify the padding below; it's needed for the caption.
         }
-        .containerBackground(for: .widget) {
-            Color(.white)
-        }
         .widgetURL(generateDeepLinkURL(for: entry.post))
     }
 }
