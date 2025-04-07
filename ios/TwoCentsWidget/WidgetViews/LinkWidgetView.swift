@@ -7,6 +7,7 @@
 import SwiftUI
 import LinkPresentation
 
+
 struct LinkWidgetView: View {
     let entry: TwoCentsEntry
     var linkMetadatas: [IdentifiableLink] = []
@@ -38,12 +39,32 @@ struct LinkWidgetView: View {
         
             if let caption = entry.post.caption {
                     
+//                
+//                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
+//                    .frame(height: 50)
+//                    .frame(maxWidth: .infinity)
+//                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+//                    .overlay(
+//                        Text(caption)
+//                            .font(.system(size: 14, weight: .medium))
+//                            .foregroundColor(.white)
+//                            .lineLimit(2)
+//                            .padding(.horizontal, 12)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                    )
+//                    .padding(6) // Add padding from image edges
+//                
+
                 VStack {
                     Text(caption)
                 }
                 .frame(height: 50)                // <--- Adjust as needed
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial)   // blur effect         // space from the bottom edge
+                .background(.ultraThinMaterial)
+                .preferredColorScheme(.dark)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(6)
+                
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -56,3 +77,5 @@ struct IdentifiableLink: Identifiable {
     let id = UUID()
     let linkMetadata: TwoCentsLinkMetadata
 }
+
+

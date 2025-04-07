@@ -152,3 +152,4 @@ struct TwoCentsWidget: Widget {
         .description("Displays content based on media type.")
     }
 }
+
