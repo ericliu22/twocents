@@ -1,6 +1,7 @@
 import SwiftUI
 import LinkPresentation
 
+
 struct LinkWidgetView: View {
     let entry: TwoCentsEntry
     var linkMetadatas: [IdentifiableLink] = []
@@ -74,3 +75,5 @@ struct IdentifiableLink: Identifiable {
     let id = UUID()
     let linkMetadata: TwoCentsLinkMetadata
 }
+
+
