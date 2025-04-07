@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
@@ -30,12 +31,12 @@ type Notification struct {
 	Data  map[string]string `json:"data"`            // Optional data
 }
 
-func SendNotification(notification *Notification, messagingClient *messaging.Client, ctx context.Context) {
-	sendFcmNotification(notification, messagingClient, ctx)
+func SendNotification(notification *Notification, messagingClient *messaging.Client) {
+	sendFcmNotification(notification, messagingClient)
 }
 
-func sendFcmNotification(notification *Notification, messagingClient *messaging.Client, ctx context.Context) {
-	sendSingleNotification(notification, messagingClient, ctx)
+func sendFcmNotification(notification *Notification, messagingClient *messaging.Client) {
+	sendSingleNotification(notification, messagingClient)
 }
 
 func sendApsNotification(deviceTokens []string, topic string, body APSBody) {
@@ -67,7 +68,7 @@ func sendApsNotification(deviceTokens []string, topic string, body APSBody) {
 
 }
 
-func sendSingleNotification(notification *Notification, messagingClient *messaging.Client, ctx context.Context) error {
+func sendSingleNotification(notification *Notification, messagingClient *messaging.Client) error {
 	// Build the FCM message
 	msg := &messaging.Message{
 		Token: notification.Token,
@@ -84,9 +85,12 @@ func sendSingleNotification(notification *Notification, messagingClient *messagi
 	}
 
 	// Send the message
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	response, err := messagingClient.Send(ctx, msg)
 	if err != nil {
 		log.Printf("Error sending single notification to token '%s': %v\n", notification.Token, err)
+		cancel()
 		return err
 	}
 

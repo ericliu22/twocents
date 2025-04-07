@@ -5,7 +5,9 @@ import (
 	database "api/internal/core/db"
 	"api/internal/middleware"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -60,17 +62,13 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		id := uuid.New()
-		mediaURL, uploadErr := aws.ObjectUpload("images/"+id.String()+".jpeg", &file, "image/jpeg")
-		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
-			return
-		}
+		filename := fmt.Sprintf("images/%s.jpeg", id.String())
+		mediaURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
 
 		imageParams := database.CreateImageParams{
 			ID:       id,
 			PostID:   post.ID,
-			MediaUrl: *mediaURL,
+			MediaUrl: mediaURL,
 		}
 
 		image, createErr := queries.CreateImage(ctx.Request.Context(), imageParams)
@@ -80,5 +78,13 @@ func UploadImagePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, image)
+		go func() {
+			uploadErr := aws.ObjectUpload(filename, &file, "image/jpeg")
+			if uploadErr != nil {
+				ctx.String(http.StatusInternalServerError, "Failed to upload image S3"+uploadErr.Error())
+				gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
+				return
+			}
+		}()
 	}
 }
