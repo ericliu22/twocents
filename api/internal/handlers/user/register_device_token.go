@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"slices"
 )
 
 type RegisterDeviceTokenRequest struct {
@@ -39,9 +40,15 @@ func RegisterDeviceTokenHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
+		if slices.Contains(user.DeviceTokens, registerDeviceTokenRequest.DeviceToken) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Device token already exists"})
+			gin.DefaultWriter.Write([]byte("Device token already exists"))
+			log.Println("Device token already exists")
+			return
+		}
 		addToken := database.AddDeviceTokenParams{
 			Column1: []string{registerDeviceTokenRequest.DeviceToken},
-			ID:          user.ID,
+			ID:      user.ID,
 		}
 		err := queries.AddDeviceToken(ctx.Request.Context(), addToken)
 		if err != nil {

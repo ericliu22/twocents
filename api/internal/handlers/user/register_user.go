@@ -71,7 +71,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse groupId"})
 			return
 		}
-		addUser := database.AddUserToGroupParams {
+		addUser := database.AddUserToGroupParams{
 			GroupID:  groupId,
 			UserID:   userId,
 			Role:     database.GroupRoleMEMBER,

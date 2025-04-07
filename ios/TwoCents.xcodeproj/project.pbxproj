@@ -20,6 +20,7 @@
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27B73BC2D90B1EF00BCD66C /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; };
 		A27B73BD2D90B1EF00BCD66C /* TwoCentsInternal in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A28DB3AD2DA439EE00F58730 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */; };
 		A2D44A792D9EE744009C024F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = A2D44A782D9EE744009C024F /* Kingfisher */; };
 		A2DF090B2D8DECD000A52147 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
@@ -212,6 +213,7 @@
 			files = (
 				A2D44A792D9EE744009C024F /* Kingfisher in Frameworks */,
 				A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */,
+				A28DB3AD2DA439EE00F58730 /* FirebaseMessaging in Frameworks */,
 				A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */,
 				ABF6A6AC2D7E03D40076DDD6 /* TOCropViewController in Frameworks */,
 				ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */,
@@ -367,6 +369,7 @@
 				ABF6A6AB2D7E03D40076DDD6 /* TOCropViewController */,
 				A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */,
 				A2D44A782D9EE744009C024F /* Kingfisher */,
+				A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */,
 			);
 			productName = TwoCents;
 			productReference = A2E84B382D6D2C15007B44F7 /* TwoCents.app */;
@@ -1102,6 +1105,11 @@
 		A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TwoCentsInternal;
+		};
+		A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		A2D44A782D9EE744009C024F /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

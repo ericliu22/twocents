@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+import FirebaseMessaging
 import TwoCentsInternal
 
 @main
@@ -22,13 +23,14 @@ struct TwoCentsApp: App {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     
     var appModel: AppModel?
     
     func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        Messaging.messaging().delegate = self
         do {
             try Auth.auth().useUserAccessGroup("432WVK3797.com.twocentsapp.newcents.keychain-group")
         } catch let error as NSError {
@@ -67,6 +69,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         print("FAILED TO REGISTER FOR NOTIFICATIONS")
     }
 
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        let deviceToken: [String: String] = ["token": fcmToken ?? ""]
+        Task {
+            try await UserManager.uploadDeviceToken(token: fcmToken ?? "")
+        }
+    }
 }
 extension AppDelegate {
     // This is called if a notification is delivered while the app is in the foreground.

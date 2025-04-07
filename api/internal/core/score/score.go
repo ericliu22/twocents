@@ -51,9 +51,9 @@ func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 			log.Printf("Failed to convert score to pgtype.Numeric: %v", err)
 			return
 		}
-		updateScore := database.UpdatePostScoreParams {
-			PostID:    post.Post.ID,
-			Score: numeric,
+		updateScore := database.UpdatePostScoreParams{
+			PostID: post.Post.ID,
+			Score:  numeric,
 		}
 		if err := queries.UpdatePostScore(context.Background(), updateScore); err != nil {
 			log.Printf("Failed to update post score: %v", err)

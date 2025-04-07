@@ -49,14 +49,14 @@ func GetTopPostHandler(queries *database.Queries) gin.HandlerFunc {
 			ctx.String(http.StatusUnauthorized, "Unauthorized")
 			return
 		}
-		postRow, fetchErr := queries.GetTopPost(ctx.Request.Context(), groupID) 
+		postRow, fetchErr := queries.GetTopPost(ctx.Request.Context(), groupID)
 		if fetchErr != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to fetch post: "+fetchErr.Error())
 			return
 		}
 		media := fetch.FetchMedia(ctx.Request.Context(), queries, postRow.Post)
 
-		response := PostWithMedia {
+		response := PostWithMedia{
 			Post:  postRow.Post,
 			Media: media,
 		}
@@ -70,7 +70,7 @@ func GetTopPostHandler(queries *database.Queries) gin.HandlerFunc {
 		if handled := utils.AttachCacheHeaders(ctx, responseJSON, 30); handled {
 			return
 		}
-		
+
 		ctx.JSON(http.StatusOK, response)
 	}
 }

@@ -16,15 +16,15 @@ import (
 
 // PaginatedPostsResponse represents the response structure for paginated posts
 type PaginatedPostsResponse struct {
-	Posts      []PostWithMedia `json:"posts"`
-	Offset	uuid.UUID		`json:"offset,omitempty"`
-	HasMore    bool            `json:"hasMore"`
+	Posts   []PostWithMedia `json:"posts"`
+	Offset  uuid.UUID       `json:"offset,omitempty"`
+	HasMore bool            `json:"hasMore"`
 }
 
 // PostWithMedia combines post metadata with its associated media
 type PostWithMedia struct {
 	Post  database.Post `json:"post"`
-	Media any   `json:"media,omitempty"`
+	Media any           `json:"media,omitempty"`
 }
 
 // GetGroupPostsHandler handles fetching paginated posts with media for a group

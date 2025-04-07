@@ -8,6 +8,7 @@ import (
 	"api/internal/middleware"
 	"net/http"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -18,7 +19,7 @@ type CreatePostRequest struct {
 	Groups  []uuid.UUID `json:"groups"`
 }
 
-func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
+func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Client) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//@TODO: Maybe add some permissions here
 		token, tokenErr := middleware.GetAuthToken(ctx)
@@ -97,14 +98,15 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 				return
 			}
 		}
-		alert := notifications.Alert{
-			Title: "New post from " + user.Username,
-			Body:  post.Caption,
-		}
-		body := notifications.APSBody{
-			APSAlert: alert,
-		}
-
+		/*
+			alert := notifications.Alert{
+				Title: "New post from " + user.Username,
+				Body:  post.Caption,
+			}
+			body := notifications.APSBody{
+				APSAlert: alert,
+			}
+		*/
 		ctx.JSON(http.StatusOK, post)
 		for _, groupID := range createRequest.Groups {
 			go score.RunScoreCalculation(groupID, queries)
@@ -117,10 +119,19 @@ func CreatePostHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 		tokens := utils.Flatten(deviceTokens)
-		notifications.SendNotification(tokens, "com.twocentsapp.newcents", body)
+		for _, token := range tokens {
+			var body string
+			if post.Caption != nil {
+				body = *post.Caption
+			} else {
+				body = ""
+			}
+			notification := notifications.Notification{
+				Token: token,
+				Title: "New post from " + user.Username,
+				Body:  body,
+			}
+			go notifications.SendNotification(&notification, messagingClient, ctx.Request.Context())
+		}
 	}
-}
-
-func sendNotifications(queries *database.Queries) {
-
 }

@@ -6,6 +6,7 @@ import (
 	"api/internal/middleware"
 
 	firebaseAuth "firebase.google.com/go/v4/auth"
+	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,12 +14,13 @@ func SetupPostRoutes(
 	router *gin.RouterGroup,
 	queries *database.Queries,
 	authClient *firebaseAuth.Client,
+	messagingClient *messaging.Client,
 ) {
 	r := router.Group("/post", middleware.AuthMiddleware(authClient))
 	r.GET("/get-group-posts", handlers.GetGroupPostsHandler(queries))
 	r.GET("/get-top-post", handlers.GetTopPostHandler(queries))
 	r.GET("/get-media", handlers.GetMediaHandler(queries))
-	r.POST("/create-post", handlers.CreatePostHandler(queries))
+	r.POST("/create-post", handlers.CreatePostHandler(queries, messagingClient))
 	r.POST("/upload-image-post", handlers.UploadImagePostHandler(queries))
 	r.POST("/upload-video-post", handlers.UploadVideoPostHandler(queries))
 	r.POST("/upload-link-post", handlers.UploadLinkPostHandler(queries))
