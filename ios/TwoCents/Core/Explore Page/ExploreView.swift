@@ -10,6 +10,24 @@ struct ExploreView: View {
     @State private var selectedPost: PostWithMedia? = nil    // For full screen detail
     @State private var offset: UUID?
     @State private var hasMore = true
+    private var postsGroupedByDate: [(date: Date, posts: [PostWithMedia])] {
+        // Group posts by their creation day.
+        let calendar = Calendar.current
+        let groups = Dictionary(grouping: postsWithMedia) { (post: PostWithMedia) -> Date in
+            calendar.startOfDay(for: post.post.dateCreated)
+        }
+        // Return sorted groups in descending order (most recent day first).
+        return groups
+            .map { (key: Date, value: [PostWithMedia]) in (date: key, posts: value) }
+            .sorted { $0.date > $1.date }
+    }
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium  // Customize as needed (e.g. "MMM d, yyyy")
+        return formatter
+    }
+
     
     //added this for deeplinking
     @Environment(AppModel.self) var appModel
@@ -26,50 +44,69 @@ struct ExploreView: View {
         NavigationView {
             ZStack{
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 5) {
-                        ForEach(postsWithMedia, id: \.post.id) {     post in
-                            
-                            if let user = users[id: post.post.userId] {
-                                ExploreCard(post: post, user: user, selectedPost: $selectedPost)
-                                    .onAppear {
-                                        // If we're nearing the end of the current posts, load more
-                                        if let lastPostId = postsWithMedia.last?.post.id,
-                                           post.post.id == lastPostId,
-                                           hasMore && !isLoading {
-                                            loadMoreContent()
+                    LazyVStack(alignment: .leading, spacing: 10) {
+                        ForEach(postsGroupedByDate, id: \.date) { group in
+                            // Date separator header.
+                            if group != postsGroupedByDate.first! {
+                                HStack {
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundColor(Color(UIColor.systemGray))
+                                        .padding(.horizontal, 2)
+                                    Text(dateFormatter.string(from: group.date))
+                                        .font(.caption)
+                                        .foregroundColor(Color(UIColor.systemGray))
+                                        .padding(.horizontal, 4)
+                                        .frame(maxWidth: .infinity)
+                                        .background(.clear)
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundColor(Color(UIColor.systemGray))
+                                        .padding(.horizontal, 2)
+                                }
+                                .padding(.vertical, 8)
+                            }
+
+                            // Day's posts in a grid.
+                            LazyVGrid(columns: columns, spacing: 5) {
+                                // To handle the potential single post on the last row,
+                                // iterate over the indices.
+                                ForEach(group.posts.indices, id: \.self) { index in
+                                    let post = group.posts[index]
+                                    
+                                    // Lookup user for the post.
+                                    if let user = users[id: post.post.userId] {
+                                        // If this is the last post in a group with an odd count,
+                                        // make it span two columns.
+                                        if group.posts.count % 2 != 0 && index == group.posts.count - 1 {
+                                            ExploreCard(post: post, user: user, selectedPost: $selectedPost)
+                                                .gridCellColumns(2)
+                                                .onAppear {
+                                                    if post.post.id == postsWithMedia.last?.post.id && hasMore && !isLoading {
+                                                        loadMoreContent()
+                                                    }
+                                                }
+                                        } else {
+                                            ExploreCard(post: post, user: user, selectedPost: $selectedPost)
+                                                .onAppear {
+                                                    if post.post.id == postsWithMedia.last?.post.id && hasMore && !isLoading {
+                                                        loadMoreContent()
+                                                    }
+                                                }
                                         }
                                     }
-                                
+                                }
                             }
-                            
                         }
-                        .padding(.bottom, 5)
+                        
+                        if isLoading {
+                            ProgressView()
+                                .padding(.bottom, 20)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
                     .padding(.horizontal, 5)
-                    
-                    
-                    
-                    if isLoading {
-                        ProgressView()
-                            .padding(.bottom, 20)
-                            .frame(maxWidth: .infinity)
-                    }
                 }
-                //            .navigationTitle("Explore")
-                //            .navigationBarTitleDisplayMode(.large)
-                // Hidden NavigationLink triggered by selectedPost
-                                NavigationLink(
-                                    destination: destinationView(),
-                                    isActive: Binding(
-                                        get: { selectedPost != nil },
-                                        set: { newValue in
-                                            if !newValue { selectedPost = nil }
-                                        }
-                                    )
-                                ) {
-                                    EmptyView()
-                                }
-                                .hidden()
             }
             .refreshable {
                 // Reset pagination and fetch first page
@@ -146,7 +183,6 @@ struct ExploreView: View {
         let response = try TwoCentsDecoder().decode(PaginatedPostsResponse.self, from: postsData)
         
         postsWithMedia = response.posts
-        print(postsWithMedia.first)
         offset = response.offset
         hasMore = response.hasMore
     }
@@ -343,7 +379,6 @@ struct ExploreDetailView: View {
                 .cornerRadius(12)
                 .scaleEffect(scale)
                 .offset(y: dragOffset)
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: dragOffset)
                 .gesture(
                     DragGesture()
                         .onChanged { value in

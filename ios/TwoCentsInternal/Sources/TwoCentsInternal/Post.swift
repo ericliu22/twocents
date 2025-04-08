@@ -67,7 +67,7 @@ public struct PaginatedPostsResponse: Decodable {
     public let hasMore: Bool
 }
 
-public struct PostWithMedia: Identifiable, Decodable {
+public struct PostWithMedia: Identifiable, Decodable, Hashable {
     public let post: Post
     public let download: [any Downloadable]
     public let id: UUID
@@ -100,7 +100,18 @@ public struct PostWithMedia: Identifiable, Decodable {
         }
         self.id = post.id
     }
+    
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    public static func == (lhs: PostWithMedia, rhs: PostWithMedia) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
+
 // Helper for dynamic key decoding
 public struct DynamicCodingKeys: CodingKey {
     public var stringValue: String

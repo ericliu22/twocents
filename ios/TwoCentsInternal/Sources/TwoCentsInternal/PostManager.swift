@@ -55,8 +55,6 @@ public struct PostManager: Sendable {
         ]
         
         if let offset = offset {
-            print("OFFSET")
-            print(offset.uuidString)
             queryItems.append(URLQueryItem(name: "offset", value: offset.uuidString))
         }
         
@@ -78,7 +76,7 @@ public struct PostManager: Sendable {
     
     public static func getTopPost(groupId: UUID) async throws -> Data {
         let baseURL = POST_URL.appendingPathComponent("get-top-post")
-        var queryItems = [
+        let queryItems = [
             URLQueryItem(name: "groupId", value: groupId.uuidString),
         ]
         
