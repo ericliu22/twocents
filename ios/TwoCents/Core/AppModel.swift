@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Combine
+import Foundation
 
 enum AppSheet: String, Hashable, Equatable, Identifiable {
     
@@ -17,8 +19,11 @@ enum AppSheet: String, Hashable, Equatable, Identifiable {
     
 }
 
+//added "Observable Object"
 @Observable @MainActor
 final class AppModel {
     var currentUser: User?
     var activeSheet: AppSheet?
+    var deepLinkPostID: UUID? = nil
+    var selectedPostID: UUID? = nil
 }

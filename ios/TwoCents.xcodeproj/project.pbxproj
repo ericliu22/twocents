@@ -842,6 +842,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
@@ -881,6 +882,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
