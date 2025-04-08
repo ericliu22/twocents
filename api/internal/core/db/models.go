@@ -256,6 +256,7 @@ type UserProfile struct {
 	ProfilePic *string   `json:"profilePic"`
 	Username   string    `json:"username"`
 	Name       *string   `json:"name"`
+	Posts      int32     `json:"posts"`
 }
 
 type Video struct {

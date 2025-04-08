@@ -107,6 +107,13 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 				APSAlert: alert,
 			}
 		*/
+		incrementErr := queries.IncrementPostCount(ctx.Request.Context(), user.ID)
+		if incrementErr != nil {
+			ctx.String(http.StatusInternalServerError, "Error: Failed to increment post count: "+incrementErr.Error())
+			gin.DefaultWriter.Write([]byte("Failed to increment post count: " + incrementErr.Error()))
+			return
+		}
+
 		ctx.JSON(http.StatusOK, post)
 		for _, groupID := range createRequest.Groups {
 			go score.RunScoreCalculation(groupID, queries)

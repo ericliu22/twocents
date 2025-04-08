@@ -86,3 +86,7 @@ UPDATE users
 SET device_tokens = ARRAY_REMOVE(device_tokens, $1)
 WHERE id = $2;
 
+-- name: IncrementPostCount :exec
+UPDATE user_profiles
+SET posts = posts + 1
+WHERE user_id = $1;

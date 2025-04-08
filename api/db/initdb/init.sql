@@ -41,7 +41,8 @@ CREATE TABLE user_profiles (
     user_id         UUID            PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
-    name            TEXT
+    name            TEXT,
+    posts           INTEGER         DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE images (

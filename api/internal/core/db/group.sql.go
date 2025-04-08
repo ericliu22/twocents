@@ -311,7 +311,7 @@ func (q *Queries) ListGroupMembers(ctx context.Context, groupID uuid.UUID) ([]Fr
 }
 
 const listGroupMembersWithProfiles = `-- name: ListGroupMembersWithProfiles :many
-SELECT friend_group_members.group_id, friend_group_members.user_id, friend_group_members.joined_at, friend_group_members.role, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+SELECT friend_group_members.group_id, friend_group_members.user_id, friend_group_members.joined_at, friend_group_members.role, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name, user_profiles.posts
 FROM friend_group_members
 JOIN user_profiles ON user_profiles.user_id = friend_group_members.user_id
 WHERE friend_group_members.group_id = $1
@@ -341,6 +341,7 @@ func (q *Queries) ListGroupMembersWithProfiles(ctx context.Context, groupID uuid
 			&i.UserProfile.ProfilePic,
 			&i.UserProfile.Username,
 			&i.UserProfile.Name,
+			&i.UserProfile.Posts,
 		); err != nil {
 			return nil, err
 		}
