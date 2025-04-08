@@ -11,6 +11,8 @@ public class User: Identifiable, Codable, Hashable, Equatable {
     public var username: String
     public var profilePic: String?
     public var name: String?
+    public var dateCreated: Date?
+    public var posts: Int?
     
     public var id: UUID {
         return userId
@@ -21,6 +23,8 @@ public class User: Identifiable, Codable, Hashable, Equatable {
         self.username = username
         self.profilePic = profilePic
         self.name = name
+        self.dateCreated = Date()
+        self.posts = 0
     }
     
     // Equatable conformance

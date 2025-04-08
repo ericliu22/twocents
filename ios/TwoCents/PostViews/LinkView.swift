@@ -221,7 +221,6 @@ struct LinkPreview: View {
            
         }
         .background(Color(UIColor.systemBackground))
-        .cornerRadius(10)
         .contentShape(Rectangle())
         .onChange(of: metadata) { newMetadata in
             // Load the preview image once metadata is available.

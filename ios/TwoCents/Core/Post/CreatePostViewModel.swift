@@ -36,9 +36,9 @@ class CreatePostViewModel {
         case .OTHER:
             await createLink()
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.isPosting = false
-        }
+        self.isPosting = false
+        self.caption = ""
+        self.selectedMedia = []
 
     }
 

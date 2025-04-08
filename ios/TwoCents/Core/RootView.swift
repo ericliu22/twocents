@@ -41,20 +41,6 @@ struct RootView: View {
                     Label("Create", systemImage: "plus.app")
                 }
             
-            ProfilePictureUploadView()
-                .tabItem {
-                    Label("ProfilePic", systemImage: "magnifyingglass")
-                }
-            
-            
-            
-            
-            //CameraPickerView()
-            SignOutView()
-                .tabItem{
-                    Image(systemName: "plus.app")
-                }
-            
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")

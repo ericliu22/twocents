@@ -31,7 +31,7 @@ struct UserManager {
             )
             
             let userData = try await request.sendRequest()
-            let user = try JSONDecoder().decode(User.self, from: userData)
+            let user = try TwoCentsDecoder().decode(User.self, from: userData)
             return user
             
         } catch let error {
@@ -57,7 +57,7 @@ struct UserManager {
             return nil
         }
         
-        guard let user = try? JSONDecoder().decode(User.self, from: userData) else {
+        guard let user = try? TwoCentsDecoder().decode(User.self, from: userData) else {
             print("Failed to decode user")
             return nil
         }

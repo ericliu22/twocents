@@ -28,7 +28,6 @@ struct CreatePostView: View {
         ("photo.fill", "Image", .IMAGE),
         ("video.fill", "Video", .VIDEO),
         ("textformat", "Text", .TEXT),
-        ("ellipsis", "Other", .OTHER)
     ]
     
     var body: some View {
@@ -36,8 +35,7 @@ struct CreatePostView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // Media option buttons
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 15) {
+                        HStack {
                             ForEach(mediaOptions, id: \.label) { option in
                                 mediaButton(icon: option.icon, label: option.label, isSelected: viewModel.mediaType == option.type)
                                 {
@@ -45,17 +43,14 @@ struct CreatePostView: View {
 //                                    if viewModel.mediaType == .IMAGE && viewModel.selectedMedia == [] { viewModel.showMediaPicker.toggle() }
                                 }
                             }
+                            .frame(maxWidth: .infinity)
                         }
-                    }
+                         
                     
                     Divider()
                     
                     // Use the newer TextField initializer if available (iOS 16+).
-                    TextField("Add a caption...", text: $viewModel.caption, axis: .vertical)
-                        .lineLimit(5, reservesSpace: true)
-                        .font(.body)
                     
-                    Divider()
                     
                     // Switch based on selected media type.
                     switch viewModel.mediaType {
@@ -174,6 +169,11 @@ struct CreatePostView: View {
                         EmptyView() // Handles other cases safely.
                     }
                     
+                    Divider()
+                    TextField("Add a caption...", text: $viewModel.caption, axis: .vertical)
+                        .lineLimit(5, reservesSpace: true)
+                        .font(.body)
+
                     Spacer()
                     
                     // Post button.
