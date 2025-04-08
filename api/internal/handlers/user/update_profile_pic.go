@@ -40,7 +40,7 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		filename := fmt.Sprintf("profilepic/%s.jpeg", user.ID.String())
+		filename := fmt.Sprintf("profilepics/%s.jpeg", user.ID.String())
 		mediaURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
 
 		profilepic := database.UpdateProfilePicParams{
