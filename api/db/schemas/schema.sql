@@ -40,7 +40,8 @@ CREATE TABLE user_profiles (
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
     name            TEXT,
-    posts           INTEGER         DEFAULT 0 NOT NULL
+    posts           INTEGER         DEFAULT 0 NOT NULL,
+    date_created   TIMESTAMPTZ       NOT NULL
 );
 
 CREATE TABLE images (

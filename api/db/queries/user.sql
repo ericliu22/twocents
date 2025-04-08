@@ -43,9 +43,10 @@ INSERT INTO user_profiles (
     user_id,
     profile_pic,
     username,
-    name
+    name,
+    date_created
 )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (user_id) DO NOTHING
 RETURNING *;
 

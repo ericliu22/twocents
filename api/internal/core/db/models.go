@@ -252,11 +252,12 @@ type User struct {
 }
 
 type UserProfile struct {
-	UserID     uuid.UUID `json:"userId"`
-	ProfilePic *string   `json:"profilePic"`
-	Username   string    `json:"username"`
-	Name       *string   `json:"name"`
-	Posts      int32     `json:"posts"`
+	UserID      uuid.UUID          `json:"userId"`
+	ProfilePic  *string            `json:"profilePic"`
+	Username    string             `json:"username"`
+	Name        *string            `json:"name"`
+	Posts       int32              `json:"posts"`
+	DateCreated pgtype.Timestamptz `json:"dateCreated"`
 }
 
 type Video struct {
