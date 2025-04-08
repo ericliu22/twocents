@@ -58,6 +58,7 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		newUserProfile = database.CreateUserProfileParams{
 			UserID:   userId,
 			Username: registerRequest.Username,
+			DateCreated: utils.PGTime(),
 		}
 		userProfile, insertErr := queries.CreateUserProfile(ctx.Request.Context(), newUserProfile)
 		if insertErr != nil {
