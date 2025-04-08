@@ -40,7 +40,7 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		filename := fmt.Sprintf("images/%s.jpeg", user.ID.String())
+		filename := fmt.Sprintf("profilepic/%s.jpeg", user.ID.String())
 		mediaURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
 
 		profilepic := database.UpdateProfilePicParams{
@@ -55,7 +55,7 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 		ctx.JSON(http.StatusOK, gin.H{"success": "updated profile picture"})
 		go func() {
-			uploadErr := aws.ObjectUpload("profilepics/"+user.ID.String()+".jpeg", &file, "image/jpeg")
+			uploadErr := aws.ObjectUpload(filename, &file, "image/jpeg")
 			if uploadErr != nil {
 				ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
 				gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
