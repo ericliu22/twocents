@@ -28,6 +28,7 @@ let requiresFetching: [Media] = [.IMAGE, .VIDEO, .LINK]
 
 struct TwoCentsTimelineProvider: TimelineProvider {
     let group: FriendGroup
+    
     func placeholder(in context: Context) -> TwoCentsEntry {
         return TwoCentsEntry.dummy
     }
@@ -96,30 +97,72 @@ struct TwoCentsWidgetEntryView: View {
 
 extension TwoCentsEntry {
     static var dummy: TwoCentsEntry {
+        // Use media type .OTHER so the default view is shown in placeholders.
         let dummyPost = Post(
             id: UUID(),
             userId: UUID(),
-            media: .TEXT,
+            media: .OTHER,
             dateCreated: Date(),
             caption: "Placeholder"
         )
         return TwoCentsEntry(
             date: Date(),
             post: dummyPost,
-            fetchedMedia: ["This widget shows the top post of the day"]
+            fetchedMedia: []
         )
     }
 }
 
+// Updated Default View: Display a placeholder image with "hihihi"
 struct DefaultWidgetView: View {
     let entry: TwoCentsEntry
-    @State var posts: [Post] = []
-    @State var users: IdentifiedCollection<User> = IdentifiedCollection()
-    
+    @Environment(\.widgetFamily) var widgetFamily
+
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Text("No post")
-                .font(.largeTitle)
+        GeometryReader { geometry in
+            ZStack {
+                // Background placeholder image. Ensure "placeholder" is added in your assets.
+                Image("placeholder")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                
+                // Overlay text ("hihihi") styled similarly to your ImageWidgetView.
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text("That is bonkers!")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .lineLimit(widgetFamily == .systemLarge ? 2 : 1)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Group {
+                                    if widgetFamily == .systemLarge {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .fill(.ultraThinMaterial)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                    .fill(Color.black.opacity(0.3))
+                                            )
+                                    } else {
+                                        Capsule()
+                                            .fill(.ultraThinMaterial)
+                                            .overlay(
+                                                Capsule()
+                                                    .fill(Color.black.opacity(0.3))
+                                            )
+                                    }
+                                }
+                            )
+                        Spacer()
+                    }
+                    .padding(.bottom, 12)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .containerBackground(.clear, for: .widget)
@@ -132,10 +175,11 @@ struct TwoCentsWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: TwoCentsTimelineProvider(group: HARDCODED_GROUP)) { entry in
             TwoCentsWidgetEntryView(entry: entry)
-             
         }
-        .contentMarginsDisabled() 
-        .configurationDisplayName("TwoCents Widget")
-        .description("Displays content based on media type.")
+        .contentMarginsDisabled()
+        .configurationDisplayName("Top Post")
+        .description("Your friend group’s daily highlight, front and center.")
+
+
     }
 }

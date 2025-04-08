@@ -207,6 +207,17 @@ struct ExploreCard: View {
                         .foregroundColor(Color(UIColor.systemGray))
                     
                     Spacer()
+                    
+                    
+                    Text(post.post.dateCreated.timeAgoShort())
+                        .font(.caption)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.leading, 8)
+                        .foregroundColor(Color(UIColor.systemGray))
+                    
+                    
+                    
                    
 //                    Label("\(100)", systemImage: "heart.fill")
 //                        .font(.caption)
@@ -346,4 +357,29 @@ struct VisualEffectBlur: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+}
+
+
+
+extension Date {
+    func timeAgoShort() -> String {
+        let secondsAgo = Int(Date().timeIntervalSince(self))
+
+        let minute = 60
+        let hour = 60 * minute
+        let day = 24 * hour
+        let week = 7 * day
+
+        if secondsAgo < 60 {
+            return "\(secondsAgo)s"
+        } else if secondsAgo < hour {
+            return "\(secondsAgo / minute)m"
+        } else if secondsAgo < day {
+            return "\(secondsAgo / hour)h"
+        } else if secondsAgo < week {
+            return "\(secondsAgo / day)d"
+        } else {
+            return "\(secondsAgo / week)w"
+        }
+    }
 }
