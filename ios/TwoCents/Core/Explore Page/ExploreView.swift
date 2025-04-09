@@ -131,6 +131,7 @@ struct ExploreView: View {
                 offset = nil
                 Task {
                     do {
+                        postsWithMedia = []
                         try await fetchInitialPosts()
                     } catch {
                         print("Error refreshing posts: \(error)")
