@@ -12,21 +12,7 @@ struct ExploreView: View {
     @State private var offset: UUID?
     @State private var hasMore = true
     @Environment(AppModel.self) var appModel
-    private var postsGroupedByDate: [(date: Date, posts: [PostWithMedia])] {
-        // Group posts by their creation day.
-        let calendar = Calendar.current
-        let groups = Dictionary(grouping: postsWithMedia) {
-            (post: PostWithMedia) -> Date in
-            calendar.startOfDay(for: post.post.dateCreated)
-        }
-        // Return sorted groups in descending order (most recent day first).
-        return
-            groups
-            .map { (key: Date, value: [PostWithMedia]) in
-                (date: key, posts: value)
-            }
-            .sorted { $0.date > $1.date }
-    }
+    @State private var postsGroupedByDate: [(date: Date, posts: [PostWithMedia])] = []
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -206,6 +192,15 @@ struct ExploreView: View {
             EmptyView()
         }
     }
+    private func updatePostsGroupedByDate() {
+        let calendar = Calendar.current
+        let groups = Dictionary(grouping: postsWithMedia) {
+            calendar.startOfDay(for: $0.post.dateCreated)
+        }
+        postsGroupedByDate = groups.map { (date: $0.key, posts: $0.value.sorted { $0.post.dateCreated > $1.post.dateCreated }) }
+                                   .sorted { $0.date > $1.date }
+    }
+
 
     private func fetchInitialPosts() async throws {
         // Fetch users first to display them properly with posts
@@ -219,6 +214,7 @@ struct ExploreView: View {
             PaginatedPostsResponse.self, from: postsData)
 
         postsWithMedia = response.posts
+        updatePostsGroupedByDate()
         offset = response.offset
         hasMore = response.hasMore
     }
@@ -238,6 +234,7 @@ struct ExploreView: View {
                 // Update state on the main thread
                 await MainActor.run {
                     postsWithMedia.append(contentsOf: response.posts)
+                    updatePostsGroupedByDate()
                     offset = response.offset
                     hasMore = response.hasMore
                     isLoading = false
@@ -410,6 +407,8 @@ struct ExploreDetailView: View {
                     // Show the post’s content using your media-aware factory.
                     // In ExploreDetailView's body:
                     makePostView(post: post, isDetail: true)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(UIColor.systemGray6))
 
                     // Optionally show the caption, if any.
                     if let caption = post.post.caption {
@@ -422,8 +421,9 @@ struct ExploreDetailView: View {
                     }
 
                     Spacer()
+                    
                 }
-                .frame(width: UIScreen.main.bounds.width)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .cornerRadius(12)
                 .scaleEffect(scale)
                 .offset(y: dragOffset)

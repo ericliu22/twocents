@@ -13,12 +13,14 @@ import WebKit
 
 struct LinkView: PostView {
     let post: PostWithMedia
-    @State var link: LinkDownload?
     let isDetail: Bool
+    
+    var link: LinkDownload? {
+        post.download.first as? LinkDownload
+    }
     
     init(post: PostWithMedia, isDetail: Bool = false) {
         self.post = post
-        self.link = post.download.first as? LinkDownload
         self.isDetail = isDetail
     }
     

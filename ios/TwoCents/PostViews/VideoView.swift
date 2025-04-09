@@ -10,18 +10,14 @@ import TwoCentsInternal
 struct VideoView: PostView {
 
     let post: PostWithMedia
-    @State var videos: [VideoDownload] = []
+
+    // Compute the videos directly from post.download.
+    var videos: [VideoDownload] {
+        post.download as? [VideoDownload] ?? []
+    }
 
     init(post: PostWithMedia) {
         self.post = post
-        if let downloadArray = post.download as? [Any] {
-            self._videos = State(initialValue: downloadArray.compactMap { $0 as? VideoDownload })
-        } else {
-            self._videos = State(initialValue: [])
-        }
-        if videos.isEmpty {
-            print("FUCKING EMPTY")
-        }
     }
 
     var body: some View {
@@ -42,9 +38,7 @@ struct VideoView: PostView {
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                
             }
         }
     }
 }
-

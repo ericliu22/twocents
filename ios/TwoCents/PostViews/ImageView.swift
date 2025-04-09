@@ -11,11 +11,14 @@ import Kingfisher
 struct ImageView: PostView {
     let post: PostWithMedia
     let isDetail: Bool
-    @State var images: [ImageDownload] = []
+
+    // Remove the state variable and compute images directly from post.download
+    var images: [ImageDownload] {
+        post.download as? [ImageDownload] ?? []
+    }
 
     init(post: PostWithMedia, isDetail: Bool = false) {
         self.post = post
-        self.images = post.download as? [ImageDownload] ?? []
         self.isDetail = isDetail
     }
 
@@ -42,17 +45,15 @@ struct ImageView: PostView {
                                     .resizable()
                                     .clipped()
                                     .scaledToFill() // fills the frame even if it means cropping.
-                                    .frame(maxWidth: .infinity, maxHeight:.infinity)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .aspectRatio(3/4, contentMode: .fill)
                                     .clipped()
                                     .background(Color(UIColor.systemGray6))
                             }
                         } else {
                             Rectangle()
-                            
                                 .fill(Color.gray.opacity(0.3))
-                                .frame(maxWidth: .infinity, maxHeight:.infinity)
-                            
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                     }
                 }
@@ -60,5 +61,4 @@ struct ImageView: PostView {
             }
         }
     }
-
 }

@@ -10,14 +10,14 @@ import TwoCentsInternal
 struct TextView: PostView {
     
     let post: PostWithMedia
-    let text: TextDownload?
-    var lines: [String]?
+    var lines: [String]? {
+        let texts = post.download as? [TextDownload]
+        let text = texts?.first
+        return text?.text.components(separatedBy: .newlines)
+    }
     
     init(post: PostWithMedia) {
         self.post = post
-        let texts = post.download as? [TextDownload]
-        text = texts?.first
-        self.lines = text?.text.components(separatedBy: .newlines)
     }
     
     var body: some View {
