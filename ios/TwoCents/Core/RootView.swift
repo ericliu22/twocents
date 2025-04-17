@@ -30,11 +30,19 @@ struct RootView: View {
 //                }
 //                //.tag(Tab.defaulthome)
 //            
+            
+            Feed()
+                .tabItem {
+                    Label("Feed", systemImage: "magnifyingglass")
+                }
+            
+            
             ExploreView(group: HARDCODED_GROUP)
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
             
+          
             
             CreatePostView()
                 .tabItem {
