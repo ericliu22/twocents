@@ -76,6 +76,7 @@ struct ProfilePictureUploadView: View {
                                 try? await UserManager.updateProfilePic(imageData: data)
                                  let newUser = await UserManager.fetchCurrentUser()
                                 if let newUser {
+                                    print("")
                                     appModel.currentUser = newUser
                                 }
                             }

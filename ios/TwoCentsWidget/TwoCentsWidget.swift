@@ -17,14 +17,19 @@ var HARDCODED_DATE: Date {
     return Calendar.current.date(from: dateComponents)!
 }
 
-let HARDCODED_GROUP = FriendGroup(
-    id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!,
-    name: "TwoCents",
-    dateCreated: HARDCODED_DATE,
-    ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!
-)
+let env = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
 
-let requiresFetching: [Media] = [.IMAGE, .VIDEO, .LINK]
+let HARDCODED_GROUP: FriendGroup = {
+    switch env.uppercased() {
+      case "DEBUG":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      case "PRODUCTION":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      default:
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+    }
+}()
+
 
 struct TwoCentsTimelineProvider: TimelineProvider {
     let group: FriendGroup
@@ -40,7 +45,6 @@ struct TwoCentsTimelineProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<TwoCentsEntry>) -> ()) {
         Task {
             do {
-                // @TODO: Make a route for fetching only the top post
                 let postData = try await PostManager.getTopPost(groupId: HARDCODED_GROUP.id)
                 let fetchedPost = try TwoCentsDecoder().decode(PostWithMedia.self, from: postData)
                 
