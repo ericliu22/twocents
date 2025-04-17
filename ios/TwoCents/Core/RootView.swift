@@ -44,7 +44,7 @@ struct RootView: View {
 //                //.tag(Tab.defaulthome)
 //            
             
-            Feed()
+            FeedView()
                 .tabItem {
                     Label("Feed", systemImage: "magnifyingglass")
                 }

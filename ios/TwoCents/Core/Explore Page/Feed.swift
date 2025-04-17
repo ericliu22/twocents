@@ -12,7 +12,7 @@ struct FeedItemView: View {
     }
 }
 
-struct Feed: View {
+struct FeedView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(spacing: 0) {
