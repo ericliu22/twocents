@@ -192,7 +192,7 @@ const getTopPost = `-- name: GetTopPost :one
 SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption, posts.status
 FROM friend_group_posts fgp
 JOIN posts on fgp.post_id = posts.id
-WHERE fgp.group_id = $1 AND fgp.status = 'PUBLISHED'
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED'
 ORDER BY fgp.score DESC
 LIMIT 1
 `
