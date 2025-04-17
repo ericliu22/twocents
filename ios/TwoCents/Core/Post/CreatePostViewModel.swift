@@ -5,8 +5,8 @@
 //  Created by Eric Liu on 2025/3/8.
 //
 import SwiftUI
-import UniformTypeIdentifiers
 import TwoCentsInternal
+import UniformTypeIdentifiers
 
 @MainActor @Observable
 class CreatePostViewModel {
@@ -22,124 +22,75 @@ class CreatePostViewModel {
     var fullScreenMedia: SelectedMedia? = nil  // For full screen preview
 
     func createPost() async {
+
         isPosting = true
+        defer { isPosting = false }
+
+        let caption = caption.isEmpty ? nil : caption
+        let request = PostRequest(
+            media: mediaType, caption: caption, groups: groups)
+
+        do {
+            let payload = try buildPayload()
+            _ = try await PostManager.createPostMultipart(
+                request: request, payload: payload)
+
+            // reset UI state
+            self.caption = ""
+            self.selectedMedia = []
+            self.mediaURL = ""
+
+        } catch {
+            print("❌ Post failed:", error)
+        }
+    }
+
+    // MARK: – Helpers
+
+    /// Converts the current UI state into the secondary multipart part.
+    private func buildPayload() throws -> PostPayload {
 
         switch mediaType {
+
         case .IMAGE:
-            await createImage()
+            guard let first = selectedMedia.first else { return .none }
+            guard
+                let data = UIImage(contentsOfFile: first.url.path)?
+                    .jpegData(compressionQuality: 0.95)
+            else {
+                throw APIError.noData
+            }
+            return .file(
+                data: data,
+                mimeType: "image/jpeg",
+                filename: first.url.lastPathComponent)
+
         case .VIDEO:
-            await createVideo()
-        case .TEXT:
-            await createText()
+            guard let first = selectedMedia.first else { return .none }
+            let data = try Data(contentsOf: first.url)
+            return .file(
+                data: data,
+                mimeType: "video/mp4",
+                filename: first.url.lastPathComponent)
+
         case .LINK:
-            await createLink()
+            let link = ["mediaUrl": mediaURL]  // <- no postId
+            let json = try TwoCentsEncoder().encode(link)
+            return .json(json)
+
+        case .TEXT:
+            let text = ["text": caption ?? ""]
+            let json = try TwoCentsEncoder().encode(text)
+            return .json(json)
+
         case .OTHER:
-            await createLink()
-        }
-        self.isPosting = false
-        self.caption = ""
-        self.selectedMedia = []
-
-    }
-
-    func createImage() async {
-        let postRequest = PostRequest(
-            media: .IMAGE, caption: caption.isEmpty ? nil : caption,
-            groups: groups)
-        do {
-            let post = try await PostManager.uploadPost(
-                    postRequest: postRequest)
-            for media in selectedMedia {
-                if let imageData = UIImage(contentsOfFile: media.url.path)?
-                    .jpegData(compressionQuality: 1.0)
-                {
-                    _ = try? await PostManager.uploadMediaPost(
-                        post: post, data: imageData)
-                }
-            }
-        } catch let error {
-            print(error)
-        }
-    }
-
-    func createVideo() async {
-        let postRequest = PostRequest(
-            media: .VIDEO, caption: caption.isEmpty ? nil : caption,
-            groups: groups)
-        guard
-            let post = try? await PostManager.uploadPost(
-                postRequest: postRequest)
-        else {
-            print("Failed to upload post")
-            return
-        }
-        for media in selectedMedia {
-            guard let resourceValues = try? media.url.resourceValues(forKeys: [.contentTypeKey]) else {
-                continue
-            }
-            if let contentType = resourceValues.contentType, contentType.conforms(to: .mpeg4Movie) {
-                guard let videoData = try? Data(contentsOf: media.url) else {
-                    continue
-                }
-                guard let _ = try? await PostManager.uploadMediaPost(
-                    post: post, data: videoData) else {
-                    print("Failed to upload video")
-                    continue
-                }
-            }
-        }
-    }
-    
-    func createLink() async {
-        let postRequest = PostRequest(
-            media: .LINK, caption: caption.isEmpty ? nil : caption,
-            groups: groups)
-        guard
-            let post = try? await PostManager.uploadPost(
-                postRequest: postRequest)
-        else {
-            print("Failed to upload post")
-            return
-        }
-        
-        let body = [
-            "mediaUrl": mediaURL,
-            "postId": post.id.uuidString
-        ]
-        guard let data = try? TwoCentsEncoder().encode(body) else {
-            print("Failed to encode body")
-            return
-        }
-        guard let _ = try? await PostManager.uploadMediaPost(post: post, data: data) else {
-            print("Failed to upload link")
-            return
-        }
-    }
-    
-    func createText() async {
-        let postRequest = PostRequest(
-            media: .TEXT, caption: nil,
-            groups: groups)
-        guard
-            let post = try? await PostManager.uploadPost(
-                postRequest: postRequest)
-        else {
-            print("Failed to upload post")
-            return
-        }
-        
-        //@TODO: Tentatively use the caption as text
-        let body = [
-            "postId": post.id.uuidString,
-            "text": caption
-        ]
-        guard let data = try? TwoCentsEncoder().encode(body) else {
-            print("Failed to encode body")
-            return
-        }
-        guard let _ = try? await PostManager.uploadMediaPost(post: post, data: data) else {
-            print("Failed to upload link")
-            return
+            // fall back to first file, treat as binary blob
+            guard let first = selectedMedia.first else { return .none }
+            let data = try Data(contentsOf: first.url)
+            return .file(
+                data: data,
+                mimeType: "application/octet-stream",
+                filename: first.url.lastPathComponent)
         }
     }
 }

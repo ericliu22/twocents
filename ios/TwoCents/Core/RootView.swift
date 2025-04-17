@@ -15,7 +15,20 @@ var HARDCODED_DATE: Date {
     dateComponents.day = 8
     return Calendar.current.date(from: dateComponents)!
 }
-let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+
+let env = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
+
+let HARDCODED_GROUP: FriendGroup = {
+    switch env.uppercased() {
+      case "DEBUG":
+        return FriendGroup(id: UUID(uuidString: "e16269de-b7a5-4916-8689-35e5787ad028")!, name: "Dev", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      case "PRODUCTION":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      default:
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+    }
+}()
+
 struct RootView: View {
     @Environment(AppModel.self) var appModel
     @AppStorage("didRequestNotifications") private var didRequestNotifications: Bool = false
@@ -53,7 +66,6 @@ struct RootView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-            
         }
         .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
@@ -62,6 +74,11 @@ struct RootView: View {
                 appModel.activeSheet = .signIn
             } else if appModel.currentUser == nil {
                 appModel.currentUser = await UserManager.fetchCurrentUser()
+                
+                if !didRequestNotifications {
+                    requestNotificationAuthorization()
+                    didRequestNotifications = true
+                }
             } else {
                 if !didRequestNotifications {
                     requestNotificationAuthorization()

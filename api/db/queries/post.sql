@@ -41,15 +41,15 @@ WHERE group_id = $1
 
 -- name: ListPostsForGroup :many
 SELECT sqlc.embed(posts)
-FROM friend_group_posts
-JOIN posts ON friend_group_posts.post_id = posts.id
-WHERE friend_group_posts.group_id = $1;
+FROM friend_group_posts fgp
+JOIN posts ON fgp.post_id = posts.id
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED';
 
 -- name: InitialPostsForGroup :many
 SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
-WHERE fgp.group_id = $1
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $2;
 
@@ -59,6 +59,7 @@ FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
 WHERE fgp.group_id = $1
   AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
+AND posts.status = 'PUBLISHED'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $4;
 
@@ -85,7 +86,7 @@ SELECT EXISTS (
 SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp
 JOIN posts on fgp.post_id = posts.id
-WHERE fgp.group_id = $1
+WHERE fgp.group_id = $1 AND fgp.status = 'PUBLISHED'
 ORDER BY fgp.score DESC
 LIMIT 1;
 
@@ -93,3 +94,8 @@ LIMIT 1;
 UPDATE friend_group_posts
 SET score = $2
 WHERE post_id = $1;
+
+-- name: UpdatePostStatus :exec
+UPDATE posts
+SET status = $2
+WHERE id = $1;
