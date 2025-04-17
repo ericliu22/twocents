@@ -9,10 +9,14 @@ import TwoCentsInternal
 
 struct VideoView: PostView {
 
-    let post: Post
-    @State var videos: [VideoDownload] = []
+    let post: PostWithMedia
 
-    init(post: Post) {
+    // Compute the videos directly from post.download.
+    var videos: [VideoDownload] {
+        post.download as? [VideoDownload] ?? []
+    }
+
+    init(post: PostWithMedia) {
         self.post = post
     }
 
@@ -36,17 +40,5 @@ struct VideoView: PostView {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             }
         }
-        .task {
-            guard let data = try? await PostManager.getMedia(post: post) else {
-                return
-            }
-            let newVideos = try? JSONDecoder().decode(
-                [VideoDownload].self, from: data)
-            if let newVideos {
-                videos = []
-                videos.append(contentsOf: newVideos)
-            }
-        }
     }
 }
-

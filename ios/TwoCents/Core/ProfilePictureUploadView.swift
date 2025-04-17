@@ -1,12 +1,15 @@
 import SwiftUI
+import Kingfisher
 import CropViewController  // Ensure TOCropViewController is added to your project
 
 struct ProfilePictureUploadView: View {
+    @Environment(AppModel.self) var appModel
     @State private var showImagePicker = false
     @State private var showCropper = false
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
     @State private var selectedImage: UIImage? = nil
     @State private var croppedImage: UIImage? = nil
+    @State private var currentProfilePic: String? = nil
     @State private var showActionSheet = false
 
     var body: some View {
@@ -33,21 +36,31 @@ struct ProfilePictureUploadView: View {
                     .padding(.bottom)
                 } else {
                     
-                    Color(UIColor.systemGray6)
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                        .padding()
-                        .overlay(
-                            Image(systemName: "person.crop.circle")
+                    if let profileUrl = currentProfilePic {
+                        if let url = URL(string: profileUrl) {
+                            KFImage(url)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 200, height: 200)
-                                .foregroundColor(  Color(UIColor.systemGray4))
-                                .padding()
-                        )
-                    
-//                    
-//                    
+                                .frame(width: 150, height: 150)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(style: StrokeStyle(lineWidth: 2)))
+                                .shadow(radius: 5)
+                        }
+                    } else {
+                        Color(UIColor.systemGray6)
+                            .frame(width: 200, height: 200)
+                            .clipShape(Circle())
+                            .padding()
+                            .overlay(
+                                Image(systemName: "person.crop.circle")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 150, height: 150)
+                                    .foregroundColor(  Color(UIColor.systemGray4))
+                                    .padding()
+                            )
+                    }
+//
                     
 //
 //                        .foregroundColor(.gray)
@@ -55,25 +68,42 @@ struct ProfilePictureUploadView: View {
                 }
 
                 // Button to trigger image selection.
-                Button(action: {
-                    self.showActionSheet = true
+                Button {
                     //Add functionality here
                     if let croppedImage {
                         if let data = croppedImage.jpegData(compressionQuality: 1.0) {
                             Task {
                                 try? await UserManager.updateProfilePic(imageData: data)
+                                 let newUser = await UserManager.fetchCurrentUser()
+                                if let newUser {
+                                    print("")
+                                    appModel.currentUser = newUser
+                                }
                             }
                         }
+                    } else {
+                        self.showActionSheet = true
                     }
-                }) {
-                    Text("Upload Profile Picture")
-                        .fontWeight(.semibold)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .padding(.horizontal)
+                } label: {
+                    if let croppedImage {
+                        Text("Upload Profile Picture")
+                            .fontWeight(.semibold)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .padding(.horizontal)
+                    } else {
+                        Text("Select Profile Picture")
+                            .fontWeight(.semibold)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .padding(.horizontal)
+                    }
                 }
                 Spacer()
             }
@@ -113,6 +143,11 @@ struct ProfilePictureUploadView: View {
                         self.selectedImage = nil  // Clear temporary image after cropping.
                     }
                 }
+            }
+        }
+        .onAppear {
+            if let user = appModel.currentUser, user.profilePic != nil {
+                croppedImage
             }
         }
     }

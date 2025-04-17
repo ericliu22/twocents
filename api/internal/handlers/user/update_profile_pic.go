@@ -4,7 +4,9 @@ import (
 	"api/internal/core/aws"
 	database "api/internal/core/db"
 	"api/internal/middleware"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,16 +40,12 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		mediaURL, uploadErr := aws.ObjectUpload("profilepics/"+user.ID.String()+".jpeg", &file, "image/jpeg")
-		if uploadErr != nil {
-			ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
-			return
-		}
+		filename := fmt.Sprintf("profilepics/%s.jpeg", user.ID.String())
+		mediaURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
 
 		profilepic := database.UpdateProfilePicParams{
 			UserID:     user.ID,
-			ProfilePic: mediaURL,
+			ProfilePic: &mediaURL,
 		}
 		err := queries.UpdateProfilePic(ctx.Request.Context(), profilepic)
 		if err != nil {
@@ -56,5 +54,13 @@ func UpdateProfilePicHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{"success": "updated profile picture"})
+		go func() {
+			uploadErr := aws.ObjectUpload(filename, &file, "image/jpeg")
+			if uploadErr != nil {
+				ctx.String(http.StatusInternalServerError, "Failed to upload video to S3"+uploadErr.Error())
+				gin.DefaultWriter.Write([]byte("Failed to upload to S3" + uploadErr.Error()))
+				return
+			}
+		}()
 	}
 }

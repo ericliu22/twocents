@@ -77,7 +77,7 @@ INSERT INTO posts (
     $1, $2, $3, $4, $5
 )
 ON CONFLICT (id) DO NOTHING
-RETURNING id, user_id, media, date_created, caption
+RETURNING id, user_id, media, date_created, caption, status
 `
 
 type CreatePostParams struct {
@@ -103,6 +103,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.Media,
 		&i.DateCreated,
 		&i.Caption,
+		&i.Status,
 	)
 	return i, err
 }
@@ -118,7 +119,7 @@ func (q *Queries) DeletePost(ctx context.Context, id uuid.UUID) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, user_id, media, date_created, caption FROM posts
+SELECT id, user_id, media, date_created, caption, status FROM posts
 WHERE id = $1 LIMIT 1
 `
 
@@ -131,12 +132,32 @@ func (q *Queries) GetPost(ctx context.Context, id uuid.UUID) (Post, error) {
 		&i.Media,
 		&i.DateCreated,
 		&i.Caption,
+		&i.Status,
 	)
 	return i, err
 }
 
+const getPostScore = `-- name: GetPostScore :one
+SELECT score
+FROM friend_group_posts
+WHERE group_id = $1
+  AND post_id = $2
+`
+
+type GetPostScoreParams struct {
+	GroupID uuid.UUID `json:"groupId"`
+	PostID  uuid.UUID `json:"postId"`
+}
+
+func (q *Queries) GetPostScore(ctx context.Context, arg GetPostScoreParams) (pgtype.Numeric, error) {
+	row := q.db.QueryRow(ctx, getPostScore, arg.GroupID, arg.PostID)
+	var score pgtype.Numeric
+	err := row.Scan(&score)
+	return score, err
+}
+
 const getPosts = `-- name: GetPosts :many
-SELECT id, user_id, media, date_created, caption FROM posts
+SELECT id, user_id, media, date_created, caption, status FROM posts
 ORDER BY date_created
 `
 
@@ -155,6 +176,133 @@ func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
 			&i.Media,
 			&i.DateCreated,
 			&i.Caption,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTopPost = `-- name: GetTopPost :one
+SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption, posts.status
+FROM friend_group_posts fgp
+JOIN posts on fgp.post_id = posts.id
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED'
+ORDER BY fgp.score DESC
+LIMIT 1
+`
+
+type GetTopPostRow struct {
+	Post Post `json:"post"`
+}
+
+func (q *Queries) GetTopPost(ctx context.Context, groupID uuid.UUID) (GetTopPostRow, error) {
+	row := q.db.QueryRow(ctx, getTopPost, groupID)
+	var i GetTopPostRow
+	err := row.Scan(
+		&i.Post.ID,
+		&i.Post.UserID,
+		&i.Post.Media,
+		&i.Post.DateCreated,
+		&i.Post.Caption,
+		&i.Post.Status,
+	)
+	return i, err
+}
+
+const initialPostsForGroup = `-- name: InitialPostsForGroup :many
+SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption, posts.status
+FROM friend_group_posts fgp
+JOIN posts ON posts.id = fgp.post_id
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED'
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $2
+`
+
+type InitialPostsForGroupParams struct {
+	GroupID uuid.UUID `json:"groupId"`
+	Limit   int32     `json:"limit"`
+}
+
+type InitialPostsForGroupRow struct {
+	Post Post `json:"post"`
+}
+
+func (q *Queries) InitialPostsForGroup(ctx context.Context, arg InitialPostsForGroupParams) ([]InitialPostsForGroupRow, error) {
+	rows, err := q.db.Query(ctx, initialPostsForGroup, arg.GroupID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []InitialPostsForGroupRow
+	for rows.Next() {
+		var i InitialPostsForGroupRow
+		if err := rows.Scan(
+			&i.Post.ID,
+			&i.Post.UserID,
+			&i.Post.Media,
+			&i.Post.DateCreated,
+			&i.Post.Caption,
+			&i.Post.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPaginatedPostsForGroup = `-- name: ListPaginatedPostsForGroup :many
+SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption, posts.status
+FROM friend_group_posts fgp
+JOIN posts ON posts.id = fgp.post_id
+WHERE fgp.group_id = $1
+  AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
+AND posts.status = 'PUBLISHED'
+ORDER BY fgp.score DESC, fgp.post_id DESC
+LIMIT $4
+`
+
+type ListPaginatedPostsForGroupParams struct {
+	GroupID uuid.UUID      `json:"groupId"`
+	Score   pgtype.Numeric `json:"score"`
+	Column3 uuid.UUID      `json:"column3"`
+	Limit   int32          `json:"limit"`
+}
+
+type ListPaginatedPostsForGroupRow struct {
+	Post Post `json:"post"`
+}
+
+func (q *Queries) ListPaginatedPostsForGroup(ctx context.Context, arg ListPaginatedPostsForGroupParams) ([]ListPaginatedPostsForGroupRow, error) {
+	rows, err := q.db.Query(ctx, listPaginatedPostsForGroup,
+		arg.GroupID,
+		arg.Score,
+		arg.Column3,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPaginatedPostsForGroupRow
+	for rows.Next() {
+		var i ListPaginatedPostsForGroupRow
+		if err := rows.Scan(
+			&i.Post.ID,
+			&i.Post.UserID,
+			&i.Post.Media,
+			&i.Post.DateCreated,
+			&i.Post.Caption,
+			&i.Post.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -167,10 +315,10 @@ func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
 }
 
 const listPostsForGroup = `-- name: ListPostsForGroup :many
-SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
-FROM friend_group_posts
-JOIN posts ON friend_group_posts.post_id = posts.id
-WHERE friend_group_posts.group_id = $1
+SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption, posts.status
+FROM friend_group_posts fgp
+JOIN posts ON fgp.post_id = posts.id
+WHERE fgp.group_id = $1 AND posts.status = 'PUBLISHED'
 `
 
 type ListPostsForGroupRow struct {
@@ -192,6 +340,7 @@ func (q *Queries) ListPostsForGroup(ctx context.Context, groupID uuid.UUID) ([]L
 			&i.Post.Media,
 			&i.Post.DateCreated,
 			&i.Post.Caption,
+			&i.Post.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -241,5 +390,37 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.DateCreated,
 		arg.Caption,
 	)
+	return err
+}
+
+const updatePostScore = `-- name: UpdatePostScore :exec
+UPDATE friend_group_posts
+SET score = $2
+WHERE post_id = $1
+`
+
+type UpdatePostScoreParams struct {
+	PostID uuid.UUID      `json:"postId"`
+	Score  pgtype.Numeric `json:"score"`
+}
+
+func (q *Queries) UpdatePostScore(ctx context.Context, arg UpdatePostScoreParams) error {
+	_, err := q.db.Exec(ctx, updatePostScore, arg.PostID, arg.Score)
+	return err
+}
+
+const updatePostStatus = `-- name: UpdatePostStatus :exec
+UPDATE posts
+SET status = $2
+WHERE id = $1
+`
+
+type UpdatePostStatusParams struct {
+	ID     uuid.UUID  `json:"id"`
+	Status PostStatus `json:"status"`
+}
+
+func (q *Queries) UpdatePostStatus(ctx context.Context, arg UpdatePostStatusParams) error {
+	_, err := q.db.Exec(ctx, updatePostStatus, arg.ID, arg.Status)
 	return err
 }

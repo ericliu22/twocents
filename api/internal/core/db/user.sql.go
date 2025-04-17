@@ -14,17 +14,17 @@ import (
 
 const addDeviceToken = `-- name: AddDeviceToken :exec
 UPDATE users
-SET device_tokens = ARRAY_APPEND(device_tokens, $1)
+SET device_tokens = ARRAY_CAT(device_tokens, $1::TEXT[])
 WHERE id = $2
 `
 
 type AddDeviceTokenParams struct {
-	ArrayAppend interface{} `json:"arrayAppend"`
-	ID          uuid.UUID   `json:"id"`
+	Column1 []string  `json:"column1"`
+	ID      uuid.UUID `json:"id"`
 }
 
 func (q *Queries) AddDeviceToken(ctx context.Context, arg AddDeviceTokenParams) error {
-	_, err := q.db.Exec(ctx, addDeviceToken, arg.ArrayAppend, arg.ID)
+	_, err := q.db.Exec(ctx, addDeviceToken, arg.Column1, arg.ID)
 	return err
 }
 
@@ -99,18 +99,20 @@ INSERT INTO user_profiles (
     user_id,
     profile_pic,
     username,
-    name
+    name,
+    date_created
 )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (user_id) DO NOTHING
-RETURNING user_id, profile_pic, username, name
+RETURNING user_id, profile_pic, username, name, posts, date_created
 `
 
 type CreateUserProfileParams struct {
-	UserID     uuid.UUID `json:"userId"`
-	ProfilePic *string   `json:"profilePic"`
-	Username   string    `json:"username"`
-	Name       *string   `json:"name"`
+	UserID      uuid.UUID          `json:"userId"`
+	ProfilePic  *string            `json:"profilePic"`
+	Username    string             `json:"username"`
+	Name        *string            `json:"name"`
+	DateCreated pgtype.Timestamptz `json:"dateCreated"`
 }
 
 func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfileParams) (UserProfile, error) {
@@ -119,6 +121,7 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 		arg.ProfilePic,
 		arg.Username,
 		arg.Name,
+		arg.DateCreated,
 	)
 	var i UserProfile
 	err := row.Scan(
@@ -126,6 +129,8 @@ func (q *Queries) CreateUserProfile(ctx context.Context, arg CreateUserProfilePa
 		&i.ProfilePic,
 		&i.Username,
 		&i.Name,
+		&i.Posts,
+		&i.DateCreated,
 	)
 	return i, err
 }
@@ -151,7 +156,7 @@ func (q *Queries) DeleteUserProfile(ctx context.Context, userID uuid.UUID) error
 }
 
 const getEntireUser = `-- name: GetEntireUser :one
-SELECT users.id, users.firebase_uid, users.provider, users.date_created, users.username, users.hash, users.salt, users.device_tokens, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name
+SELECT users.id, users.firebase_uid, users.provider, users.date_created, users.username, users.hash, users.salt, users.device_tokens, user_profiles.user_id, user_profiles.profile_pic, user_profiles.username, user_profiles.name, user_profiles.posts, user_profiles.date_created
 FROM users
 JOIN user_profiles ON users.id = user_profiles.user_id
 WHERE users.id = $1
@@ -178,6 +183,8 @@ func (q *Queries) GetEntireUser(ctx context.Context, id uuid.UUID) (GetEntireUse
 		&i.UserProfile.ProfilePic,
 		&i.UserProfile.Username,
 		&i.UserProfile.Name,
+		&i.UserProfile.Posts,
+		&i.UserProfile.DateCreated,
 	)
 	return i, err
 }
@@ -225,7 +232,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserProfile = `-- name: GetUserProfile :one
-SELECT user_id, profile_pic, username, name
+SELECT user_id, profile_pic, username, name, posts, date_created
 FROM user_profiles
 WHERE user_id = $1
 `
@@ -238,6 +245,8 @@ func (q *Queries) GetUserProfile(ctx context.Context, userID uuid.UUID) (UserPro
 		&i.ProfilePic,
 		&i.Username,
 		&i.Name,
+		&i.Posts,
+		&i.DateCreated,
 	)
 	return i, err
 }
@@ -274,6 +283,17 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const incrementPostCount = `-- name: IncrementPostCount :exec
+UPDATE user_profiles
+SET posts = posts + 1
+WHERE user_id = $1
+`
+
+func (q *Queries) IncrementPostCount(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, incrementPostCount, userID)
+	return err
 }
 
 const removeDeviceToken = `-- name: RemoveDeviceToken :exec

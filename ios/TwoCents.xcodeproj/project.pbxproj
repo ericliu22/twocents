@@ -20,6 +20,8 @@
 		A27A38F42D821C77007F9026 /* TwoCentsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 851F248C2D6E8C9500A08134 /* TwoCentsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A27B73BC2D90B1EF00BCD66C /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; };
 		A27B73BD2D90B1EF00BCD66C /* TwoCentsInternal in Embed Frameworks */ = {isa = PBXBuildFile; productRef = A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A28DB3AD2DA439EE00F58730 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */; };
+		A2D44A792D9EE744009C024F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = A2D44A782D9EE744009C024F /* Kingfisher */; };
 		A2DF090B2D8DECD000A52147 /* TwoCentsInternal in Frameworks */ = {isa = PBXBuildFile; productRef = A26D5DC52D864E5E008F990F /* TwoCentsInternal */; };
 		A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409452D6F8B8A00E26D73 /* FirebaseAuth */; };
 		A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A2E409472D6F8BC700E26D73 /* FirebaseCore */; };
@@ -209,7 +211,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2D44A792D9EE744009C024F /* Kingfisher in Frameworks */,
 				A2E409482D6F8BC700E26D73 /* FirebaseCore in Frameworks */,
+				A28DB3AD2DA439EE00F58730 /* FirebaseMessaging in Frameworks */,
 				A2E409462D6F8B8A00E26D73 /* FirebaseAuth in Frameworks */,
 				ABF6A6AC2D7E03D40076DDD6 /* TOCropViewController in Frameworks */,
 				ABF6A6AA2D7E03D40076DDD6 /* CropViewController in Frameworks */,
@@ -364,6 +368,8 @@
 				ABF6A6A92D7E03D40076DDD6 /* CropViewController */,
 				ABF6A6AB2D7E03D40076DDD6 /* TOCropViewController */,
 				A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */,
+				A2D44A782D9EE744009C024F /* Kingfisher */,
+				A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */,
 			);
 			productName = TwoCents;
 			productReference = A2E84B382D6D2C15007B44F7 /* TwoCents.app */;
@@ -456,6 +462,7 @@
 			packageReferences = (
 				A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				ABF6A6A82D7E03B90076DDD6 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				A2D44A772D9EE744009C024F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A2E84B392D6D2C15007B44F7 /* Products */;
@@ -835,6 +842,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
@@ -843,7 +851,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -874,6 +882,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TwoCents/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TwoCents;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture profile pictures.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Your friends want to hear your voice";
@@ -882,7 +891,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1032,6 +1041,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A2D44A772D9EE744009C024F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.1;
+			};
+		};
 		A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1090,6 +1107,16 @@
 		A27B73BB2D90B1EF00BCD66C /* TwoCentsInternal */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TwoCentsInternal;
+		};
+		A28DB3AC2DA439EE00F58730 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2E409442D6F8B8A00E26D73 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		A2D44A782D9EE744009C024F /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A2D44A772D9EE744009C024F /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		A2E409452D6F8B8A00E26D73 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

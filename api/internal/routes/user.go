@@ -6,6 +6,7 @@ import (
 	"api/internal/middleware"
 
 	firebaseAuth "firebase.google.com/go/v4/auth"
+	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,7 @@ func SetupUserRoutes(
 	router *gin.RouterGroup,
 	queries *database.Queries,
 	authClient *firebaseAuth.Client,
+	messagingClient *messaging.Client,
 ) {
 	r := router.Group("/user", middleware.AuthMiddleware(authClient))
 	r.GET("/get-user", handlers.GetUserHandler(queries))

@@ -1,6 +1,16 @@
 \connect api;
 
--- 1. Create the ENUM type for the media field
+--INDEXES:
+CREATE INDEX idx_fgp_group_score_post_desc
+  ON friend_group_posts (group_id, score DESC, post_id DESC);
+
+CREATE INDEX idx_posts_status
+  ON posts (status);
+
+CREATE INDEX idx_posts_published
+  ON posts (id)
+  WHERE status = 'PUBLISHED';
+
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
@@ -9,13 +19,19 @@ CREATE TYPE media_type AS ENUM (
     'OTHER'
 );
 
--- 2. Create the Post table
+CREATE TYPE post_status AS ENUM (
+    'PENDING',
+    'PUBLISHED',
+    'FAILED'
+);
+
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
     user_id         UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     media		    media_type  	NOT NULL,
-    date_created    TIMESTAMP       NOT NULL,
-    caption         TEXT
+    date_created    TIMESTAMPTZ       NOT NULL,
+    caption         TEXT,
+    status          post_status NOT NULL DEFAULT 'PENDING'
 );
 
 CREATE TYPE provider_type as ENUM (
@@ -30,18 +46,20 @@ CREATE TABLE users (
 	id         		UUID		    PRIMARY KEY,
     firebase_uid    TEXT            UNIQUE NOT NULL,
 	provider		provider_type   NOT NULL,
-	date_created    TIMESTAMP       NOT NULL,
+	date_created    TIMESTAMPTZ       NOT NULL,
 	username  		TEXT	        NOT NULL,
 	hash	        TEXT,
 	salt	        TEXT,
-    device_tokens   TEXT[]
+    device_tokens   TEXT[]         DEFAULT '{}' NOT NULL 
 );
 
 CREATE TABLE user_profiles (
     user_id         UUID            PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
-    name            TEXT
+    name            TEXT,
+    posts           INTEGER         DEFAULT 0 NOT NULL,
+    date_created   TIMESTAMPTZ       NOT NULL
 );
 
 CREATE TABLE images (
@@ -78,16 +96,16 @@ CREATE TABLE friendships (
     user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     friend_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status         friendship_status NOT NULL,
-    date_created   TIMESTAMP NOT NULL,
+    date_created   TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE friend_groups (
     id              UUID PRIMARY KEY,
     name            TEXT NOT NULL,
-    date_created    TIMESTAMP NOT NULL,
+    date_created    TIMESTAMPTZ NOT NULL,
     owner_id        UUID NOT NULL REFERENCES users(id)
-    -- Possibly an "owner_id" if you want to track a user who owns/created the group
+    -- Possibly an "owner_id" if you want to track a user who owns/created the grou
 );
 
 CREATE TYPE group_role AS ENUM (
@@ -98,7 +116,7 @@ CREATE TYPE group_role AS ENUM (
 CREATE TABLE friend_group_members (
     group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
     user_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    joined_at TIMESTAMP NOT NULL,
+    joined_at TIMESTAMPTZ NOT NULL,
     role     group_role NOT NULL,
     PRIMARY KEY (group_id, user_id)
 );
@@ -106,5 +124,6 @@ CREATE TABLE friend_group_members (
 CREATE TABLE friend_group_posts (
     group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
     post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    score   DECIMAL NOT NULL DEFAULT 0,
     PRIMARY KEY (group_id, post_id)
 );

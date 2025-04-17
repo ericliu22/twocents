@@ -5,7 +5,6 @@
 //  Created by Eric Liu on 2025/3/5.
 //
 import Foundation
-import TwoCentsInternal
 
 public struct GroupManager {
     

@@ -2,7 +2,6 @@ package aws
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 	"os"
 
@@ -11,12 +10,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func ObjectUpload(filename string, file *multipart.File, contentType string) (*string, error) {
+func ObjectUpload(filename string, file *multipart.File, contentType string) error {
 
 	cfg, configErr := config.LoadDefaultConfig(context.TODO())
 	// 4. Create AWS session
 	if configErr != nil {
-		return nil, configErr
+		return configErr
 	}
 
 	// 5. Create S3 service client
@@ -31,13 +30,11 @@ func ObjectUpload(filename string, file *multipart.File, contentType string) (*s
 		ContentType: aws.String(contentType),
 	})
 	if putErr != nil {
-		return nil, putErr
+		return putErr
 	}
 
 	// 7. Generate CloudFront URL
-	cloudFrontURL := fmt.Sprintf("https://%s/%s", os.Getenv("CLOUDFRONT_DOMAIN"), filename)
-
-	return &cloudFrontURL, nil
+	return nil
 }
 
 func ObjectGet(filename string) (*s3.GetObjectOutput, error) {

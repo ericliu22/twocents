@@ -102,6 +102,7 @@ ORDER BY user_profiles.username;  -- optional
 SELECT EXISTS(SELECT 1 FROM friend_group_members WHERE group_id = $1 and user_id = $2);
 
 -- name: GetDeviceTokens :many
-SELECT device_tokens FROM users
+SELECT device_tokens
+FROM users
 JOIN friend_group_members ON friend_group_members.user_id = users.id
-WHERE friend_group_members.group_id IN ($1::uuid[]);
+WHERE friend_group_members.group_id = ANY($1::uuid[]);

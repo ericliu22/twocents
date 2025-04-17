@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+import FirebaseMessaging
 import TwoCentsInternal
 
 @main
@@ -22,13 +23,31 @@ struct TwoCentsApp: App {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     
     var appModel: AppModel?
+    
+    //Deeplink Function:
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        print("deeplink application func reached")
+        // Check if the URL matches your custom scheme and host
+        if url.scheme == "twocents", url.host == "post" {
+            // Extract the post ID from the path
+            let postIDString = url.lastPathComponent
+            if let postID = UUID(uuidString: postIDString) {
+                appModel?.deepLinkPostID = postID
+                print("Navigating to post with ID: \(postID)")
+                return true
+            }
+        }
+        return false
+    }
     
     func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+        print("second application function reached")
         do {
             try Auth.auth().useUserAccessGroup("432WVK3797.com.twocentsapp.newcents.keychain-group")
         } catch let error as NSError {
@@ -64,8 +83,15 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                      didFailToRegisterForRemoteNotificationsWithError
                      error: Error) {
         // Try again later.
+        print("FAILED TO REGISTER FOR NOTIFICATIONS")
     }
 
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        let deviceToken: [String: String] = ["token": fcmToken ?? ""]
+        Task {
+            try await UserManager.uploadDeviceToken(token: fcmToken ?? "")
+        }
+    }
 }
 extension AppDelegate {
     // This is called if a notification is delivered while the app is in the foreground.

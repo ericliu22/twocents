@@ -60,3 +60,71 @@ public func makeUploadable(post: Post, data: Data) -> any Uploadable {
         return ImageUpload(post: post, data: data)
     }
 }
+
+public struct PaginatedPostsResponse: Decodable {
+    public let posts: [PostWithMedia]
+    public let offset: UUID?
+    public let hasMore: Bool
+}
+
+public struct PostWithMedia: Identifiable, Decodable, Hashable {
+    public let post: Post
+    public let download: [any Downloadable]
+    public let id: UUID
+    
+    public enum CodingKeys: String, CodingKey {
+        case post
+        case media
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        post = try container.decode(Post.self, forKey: .post)
+        
+        // Dynamically decode the media based on post.media type
+        do {
+            switch post.media {
+            case .IMAGE:
+                download = try container.decode([ImageDownload].self, forKey: .media)
+            case .VIDEO:
+                download = try container.decode([VideoDownload].self, forKey: .media)
+            case .LINK:
+                download = try container.decode([LinkDownload].self, forKey: .media)
+            case .TEXT:
+                download = try container.decode([TextDownload].self, forKey: .media)
+            case .OTHER:
+                download = []
+            }
+        } catch {
+            download = []
+        }
+        self.id = post.id
+    }
+    
+    // MARK: - Hashable Conformance
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    public static func == (lhs: PostWithMedia, rhs: PostWithMedia) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+// Helper for dynamic key decoding
+public struct DynamicCodingKeys: CodingKey {
+    public var stringValue: String
+    public var intValue: Int?
+    
+    public init?(stringValue: String) {
+        self.stringValue = stringValue
+        return nil
+    }
+    
+    public init?(intValue: Int) {
+        self.stringValue = "\(intValue)"
+        self.intValue = intValue
+        return nil
+    }
+}

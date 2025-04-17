@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TwoCentsInternal
 
 enum RegisterEmailError: Error {
     case emptyField, passwordNotEqual
@@ -24,7 +25,6 @@ extension RegisterEmailError: LocalizedError {
 @Observable @MainActor
 final class RegisterEmailViewModel {
     
-    var name = ""
     var username = ""
     var email = ""
     var password = ""
@@ -33,7 +33,7 @@ final class RegisterEmailViewModel {
   
     
     func signUp() async throws -> User? {
-        guard !email.isEmpty, !password.isEmpty, !name.isEmpty, /*!username.isEmpty,*/ !confirmPassword.isEmpty else {
+        guard !email.isEmpty, !password.isEmpty,  !username.isEmpty, !confirmPassword.isEmpty else {
             throw RegisterEmailError.emptyField
         }
         

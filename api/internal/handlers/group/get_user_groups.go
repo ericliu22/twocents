@@ -43,7 +43,7 @@ func GetUserGroupsHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		if handled := utils.AttachCacheHeaders(ctx, groupsJson, 60); handled {
+		if handled := utils.AttachCacheHeaders(ctx, groupsJson, 30); handled {
 			return
 		}
 		ctx.JSON(http.StatusOK, groups)

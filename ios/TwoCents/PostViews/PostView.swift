@@ -8,9 +8,9 @@ import SwiftUI
 import TwoCentsInternal
 
 struct EmptyPostView: PostView {
-    let post: Post
+    let post: PostWithMedia
 
-    init(post: Post) {
+    init(post: PostWithMedia) {
         self.post = post
     }
 
@@ -20,8 +20,8 @@ struct EmptyPostView: PostView {
 }
 
 @MainActor @ViewBuilder
-public func makePostView(post: Post, isDetail: Bool = false) -> some View {
-    switch post.media {
+public func makePostView(post: PostWithMedia, isDetail: Bool = false) -> some View {
+    switch post.post.media {
     case .IMAGE:
         ImageView(post: post, isDetail: isDetail)
     case .VIDEO:
@@ -36,5 +36,5 @@ public func makePostView(post: Post, isDetail: Bool = false) -> some View {
 }
 
 public protocol PostView: View {
-    var post: Post { get }
+    var post: PostWithMedia { get }
 }

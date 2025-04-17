@@ -58,7 +58,7 @@ struct PostContainer {
     static func savePosts(_ posts: [Post]) {
         guard let fileURL = postsFileURL else { return }
         do {
-            let data = try JSONEncoder().encode(posts)
+            let data = try TwoCentsEncoder().encode(posts)
             try data.write(to: fileURL)
             print("Posts saved successfully.")
         } catch {
@@ -70,7 +70,7 @@ struct PostContainer {
         guard let fileURL = postsFileURL else { return nil }
         do {
             let data = try Data(contentsOf: fileURL)
-            let posts = try JSONDecoder().decode([Post].self, from: data)
+            let posts = try TwoCentsDecoder().decode([Post].self, from: data)
             return posts
         } catch {
             print("Error loading posts: \(error)")

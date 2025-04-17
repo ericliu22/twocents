@@ -17,52 +17,60 @@ var HARDCODED_DATE: Date {
     return Calendar.current.date(from: dateComponents)!
 }
 
-let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+let env = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
 
-let requiresFetching: [Media] = [.IMAGE, .VIDEO, .LINK]
+let HARDCODED_GROUP: FriendGroup = {
+    switch env.uppercased() {
+      case "DEBUG":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      case "PRODUCTION":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      default:
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+    }
+}()
 
-struct TwoCentsTimelineProvider: TimelineProvider{
+
+struct TwoCentsTimelineProvider: TimelineProvider {
     let group: FriendGroup
+    
     func placeholder(in context: Context) -> TwoCentsEntry {
-//            TwoCentsEntry((date: Date(), id: UUID(), userId: UUID(), media: .OTHER, dateCreated: Date(), caption: "Placeholder"))
         return TwoCentsEntry.dummy
-        //replace with empty list
     }
 
     func getSnapshot(in context: Context, completion: @escaping (TwoCentsEntry) -> ()) {
         completion(TwoCentsEntry.dummy)
-        //empty view
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<TwoCentsEntry>) -> ()) {
-        Task{
+        Task {
             do {
-                //@TODO: Make a route for fetching only the top post
-                let postsData = try await PostManager.getGroupPosts(groupId: HARDCODED_GROUP.id) //Hardcoded also don't work
-                let fetchedPosts = try TwoCentsDecoder().decode([Post].self, from: postsData)
-                let posts = fetchedPosts.sorted { $0.dateCreated > $1.dateCreated }
-                print(fetchedPosts.count)
-                guard let post = posts.first else {
-                    return
-                }
+                let postData = try await PostManager.getTopPost(groupId: HARDCODED_GROUP.id)
+                let fetchedPost = try TwoCentsDecoder().decode(PostWithMedia.self, from: postData)
                 
-                print(post.id)
-                print(post.media)
-                var fetchedMedia: [FetchableMedia]
-                let download = try await PostManager.getMedia(post: post)
-                let entry: TwoCentsEntry
-                fetchedMedia = await fetchMedia(download: download, media: post.media)
-                entry = TwoCentsEntry.init(date: Date(), post: post, fetchedMedia: fetchedMedia)
+                let download = fetchedPost.download
+                let fetchedMedia = await fetchMedia(download: download, media: fetchedPost.post.media)
+                let entry = TwoCentsEntry(date: Date(), post: fetchedPost.post, fetchedMedia: fetchedMedia)
                 let entries = [entry]
-                let nextUpdate = Calendar.current.date(byAdding: .second, value: 10, to: Date())!
+                let nextUpdate = Calendar.current.date(byAdding: .second, value: 60, to: Date())!
                 let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
+                print("fetch works")
                 completion(timeline)
             } catch {
                 print("Error fetching data")
             }
         }
-        }
+    }
+}
 
+func generateDeepLinkURL(for post: Post) -> URL? {
+    print("got to deeplink generation")
+    var components = URLComponents()
+    components.scheme = "twocents"      // Your custom URL scheme
+    components.host = "post"            // Define the host (or path) to denote a post
+    components.path = "/\(post.id.uuidString)" // Use the post’s unique ID
+    print(components.url ?? "couldn't create URL")
+    return components.url
 }
 
 //IDK?????
@@ -78,8 +86,6 @@ struct TwoCentsEntry: TimelineEntry {
     }
 }
 
-
-//wtf going on with the UI
 struct TwoCentsWidgetEntryView: View {
     let entry: TwoCentsEntry
 
@@ -97,46 +103,82 @@ struct TwoCentsWidgetEntryView: View {
             case .OTHER:
                 DefaultWidgetView(entry: entry)
             }
-            //Don't touch this padding, otherwise caption breaks widget
-        }.padding(EdgeInsets(top: -16, leading: 0, bottom: -16, trailing: 0))
+            // Don't modify the padding below; it's needed for the caption.
+        }
+        .widgetURL(generateDeepLinkURL(for: entry.post))
     }
 }
 
 extension TwoCentsEntry {
     static var dummy: TwoCentsEntry {
-        // Create a dummy post for the sake of the dummy entry.
+        // Use media type .OTHER so the default view is shown in placeholders.
         let dummyPost = Post(
             id: UUID(),
             userId: UUID(),
-            media: .TEXT, // Use any Media type that fits
+            media: .OTHER,
             dateCreated: Date(),
             caption: "Placeholder"
         )
-        
-        // Build the dummy entry.
         return TwoCentsEntry(
             date: Date(),
             post: dummyPost,
-            fetchedMedia: ["This is widget shows the top post of the day"]
+            fetchedMedia: []
         )
     }
 }
 
-// Example subviews for different media types
-
+// Updated Default View: Display a placeholder image with "hihihi"
 struct DefaultWidgetView: View {
     let entry: TwoCentsEntry
-    @State var posts: [Post] = []
-    @State var users: IdentifiedCollection<User> = IdentifiedCollection()
-    
+    @Environment(\.widgetFamily) var widgetFamily
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-                Text("No post")
-                .font(.largeTitle)
+        GeometryReader { geometry in
+            ZStack {
+                // Background placeholder image. Ensure "placeholder" is added in your assets.
+                Image("placeholder")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                
+                // Overlay text ("hihihi") styled similarly to your ImageWidgetView.
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text("That is bonkers!")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .lineLimit(widgetFamily == .systemLarge ? 2 : 1)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Group {
+                                    if widgetFamily == .systemLarge {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .fill(.ultraThinMaterial)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                    .fill(Color.black.opacity(0.3))
+                                            )
+                                    } else {
+                                        Capsule()
+                                            .fill(.ultraThinMaterial)
+                                            .overlay(
+                                                Capsule()
+                                                    .fill(Color.black.opacity(0.3))
+                                            )
+                                    }
+                                }
+                            )
+                        Spacer()
+                    }
+                    .padding(.bottom, 12)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // Ensures the ZStack itself spans the widget
         .containerBackground(.clear, for: .widget)
     }
 }
@@ -148,8 +190,11 @@ struct TwoCentsWidget: Widget {
         StaticConfiguration(kind: kind, provider: TwoCentsTimelineProvider(group: HARDCODED_GROUP)) { entry in
             TwoCentsWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("TwoCents Widget")
-        .description("Displays content based on media type.")
+        .contentMarginsDisabled()
+        .configurationDisplayName("Top Post")
+        .description("Your friend group’s daily highlight, front and center.")
+
+
     }
 }
 

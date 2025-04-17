@@ -9,13 +9,17 @@ import TwoCentsInternal
 
 struct TextView: PostView {
     
-    let post: Post
-    @State var text: TextDownload?
+    let post: PostWithMedia
+    var lines: [String]? {
+        let texts = post.download as? [TextDownload]
+        let text = texts?.first
+        return text?.text.components(separatedBy: .newlines)
+    }
     
-    init(post: Post) {
+    init(post: PostWithMedia) {
         self.post = post
     }
-    @State var lines: [String]?
+    
     var body: some View {
         Group {
             if let lines {
@@ -31,14 +35,6 @@ struct TextView: PostView {
                 ProgressView().progressViewStyle(.circular)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }
-        .task {
-            guard let data = try? await PostManager.getMedia(post: post) else {
-                return
-            }
-            let texts = try? JSONDecoder().decode([TextDownload].self, from: data)
-            text = texts?.first
-            lines = text?.text.components(separatedBy: .newlines)
         }
     }
 }

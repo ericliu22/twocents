@@ -1,4 +1,3 @@
--- 1. Create the ENUM type for the media field
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
@@ -7,13 +6,19 @@ CREATE TYPE media_type AS ENUM (
     'OTHER'
 );
 
--- 2. Create the Post table
+CREATE TYPE post_status AS ENUM (
+    'PENDING',
+    'PUBLISHED',
+    'FAILED'
+);
+
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
     user_id         UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     media		    media_type  	NOT NULL,
     date_created    TIMESTAMPTZ       NOT NULL,
-    caption         TEXT
+    caption         TEXT,
+    status          post_status NOT NULL DEFAULT 'PENDING'
 );
 
 CREATE TYPE provider_type as ENUM (
@@ -32,14 +37,16 @@ CREATE TABLE users (
 	username  		TEXT	        NOT NULL,
 	hash	        TEXT,
 	salt	        TEXT,
-    device_tokens   TEXT[]
+    device_tokens   TEXT[]         DEFAULT '{}' NOT NULL 
 );
 
 CREATE TABLE user_profiles (
     user_id         UUID            PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
-    name            TEXT
+    name            TEXT,
+    posts           INTEGER         DEFAULT 0 NOT NULL,
+    date_created   TIMESTAMPTZ       NOT NULL
 );
 
 CREATE TABLE images (
@@ -85,7 +92,7 @@ CREATE TABLE friend_groups (
     name            TEXT NOT NULL,
     date_created    TIMESTAMPTZ NOT NULL,
     owner_id        UUID NOT NULL REFERENCES users(id)
-    -- Possibly an "owner_id" if you want to track a user who owns/created the group
+    -- Possibly an "owner_id" if you want to track a user who owns/created the grou
 );
 
 CREATE TYPE group_role AS ENUM (
@@ -104,5 +111,6 @@ CREATE TABLE friend_group_members (
 CREATE TABLE friend_group_posts (
     group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
     post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    score   DECIMAL NOT NULL DEFAULT 0,
     PRIMARY KEY (group_id, post_id)
 );

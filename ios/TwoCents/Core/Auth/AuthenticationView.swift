@@ -14,22 +14,22 @@ struct AuthenticationView: View {
     
     //@TODO: Change welcome messages
     private let welcomeMessages = [
-        "Prepare for some\nserious sass.",
-        "This is not a safe space.\nIt's TwoCents.",
-        "If you can’t handle\nthe heat, get out.",
-        "No softies allowed.",
-        "Leave your feelings\nat the door.",
-        "You think you’re safe?\nThink again.",
-        "This is where\nyour ego dies.",
-        "Bring your A-game\nor stay quiet.",
-        "We roast, you suffer.\nIt’s fun.",
-        "It's not personal,\nyou’re just easy to roast.",
-        "Tears are a sign\nof a good joke.",
-        "Your weakness is our\nfavorite target.",
-        "It’s not personal,\nit’s just brutal.",
-        "In this kitchen,\nwe serve only flames.",
-        "Don’t cry,\nit’s only your dignity.",
-        "You look delicate."
+        "The For Us Page",
+        "Share your world",
+        "Simple. Curated. Fun.",
+        "Keep up with the times!",
+        "Effortless connection",
+        "The ultimate brain dump",
+        "Your space to shine",
+        "Connect, Create, Celebrate",
+        "Curate your vibe",
+        "Express without limits",
+        "Stay inspired, stay connected",
+        "Your world in a snapshot",
+        "Share. Spark. Smile.",
+        "The heartbeat of your day",
+        "Moments made memorable",
+        "Where ideas come alive"
     ]
     
     @State private var shownMessages: [String] = []

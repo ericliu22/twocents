@@ -40,9 +40,9 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 		}
 
 		var newUser database.CreateUserParams
-		uuid := uuid.New()
+		userId := uuid.New()
 		newUser = database.CreateUserParams{
-			ID:          uuid,
+			ID:          userId,
 			FirebaseUid: token.UID,
 			Provider:    database.ProviderTypeEMAIL,
 			DateCreated: utils.PGTime(),
@@ -56,12 +56,32 @@ func RegisterUserHandler(queries *database.Queries) gin.HandlerFunc {
 
 		var newUserProfile database.CreateUserProfileParams
 		newUserProfile = database.CreateUserProfileParams{
-			UserID:   uuid,
+			UserID:   userId,
 			Username: registerRequest.Username,
+			DateCreated: utils.PGTime(),
 		}
 		userProfile, insertErr := queries.CreateUserProfile(ctx.Request.Context(), newUserProfile)
 		if insertErr != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert user"})
+			return
+		}
+
+		//TEMPORARILY
+		groupId, err := uuid.Parse("b343342a-d41b-4c79-a8a8-7e0b142be6da")
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse groupId"})
+			return
+		}
+		addUser := database.AddUserToGroupParams{
+			GroupID:  groupId,
+			UserID:   userId,
+			Role:     database.GroupRoleMEMBER,
+			JoinedAt: utils.PGTime(),
+		}
+
+		_, addErr := queries.AddUserToGroup(ctx.Request.Context(), addUser)
+		if addErr != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user to group"})
 			return
 		}
 

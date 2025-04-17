@@ -15,7 +15,20 @@ var HARDCODED_DATE: Date {
     dateComponents.day = 8
     return Calendar.current.date(from: dateComponents)!
 }
-let HARDCODED_GROUP = FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+
+let env = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
+
+let HARDCODED_GROUP: FriendGroup = {
+    switch env.uppercased() {
+      case "DEBUG":
+        return FriendGroup(id: UUID(uuidString: "e16269de-b7a5-4916-8689-35e5787ad028")!, name: "Dev", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      case "PRODUCTION":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      default:
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+    }
+}()
+
 struct RootView: View {
     @Environment(AppModel.self) var appModel
     @AppStorage("didRequestNotifications") private var didRequestNotifications: Bool = false
@@ -30,29 +43,23 @@ struct RootView: View {
 //                }
 //                //.tag(Tab.defaulthome)
 //            
+            
+            Feed()
+                .tabItem {
+                    Label("Feed", systemImage: "magnifyingglass")
+                }
+            
+            
             ExploreView(group: HARDCODED_GROUP)
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
             
+          
             
             CreatePostView()
                 .tabItem {
                     Label("Create", systemImage: "plus.app")
-                }
-            
-            ProfilePictureUploadView()
-                .tabItem {
-                    Label("ProfilePic", systemImage: "magnifyingglass")
-                }
-            
-            
-            
-            
-            //CameraPickerView()
-            SignOutView()
-                .tabItem{
-                    Image(systemName: "plus.app")
                 }
             
             ProfileView()
@@ -60,6 +67,10 @@ struct RootView: View {
                     Label("Profile", systemImage: "person.fill")
                 }
             
+            AutoFaceRecorderView()
+                .tabItem {
+                    Label("Record", systemImage: "camera.fill")
+                }
         }
         .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
@@ -68,6 +79,11 @@ struct RootView: View {
                 appModel.activeSheet = .signIn
             } else if appModel.currentUser == nil {
                 appModel.currentUser = await UserManager.fetchCurrentUser()
+                
+                if !didRequestNotifications {
+                    requestNotificationAuthorization()
+                    didRequestNotifications = true
+                }
             } else {
                 if !didRequestNotifications {
                     requestNotificationAuthorization()
@@ -84,6 +100,27 @@ struct RootView: View {
             }
         }
         .tint(.green)
+//        .onChange(of: appModel.deepLinkPostID) { newPostID in
+//                    if let postID = newPostID {
+//                        print("got here")
+//                        print(appModel.selectedPostID)
+//                        print(appModel.deepLinkPostID)
+//                        // Propagate the deep link to the navigation state in ExploreView
+//                        appModel.selectedPostID = postID
+//                        // Optionally clear deepLinkPostID once handled
+//                        appModel.deepLinkPostID = nil
+//                    }
+//                }
+        .onOpenURL { url in
+                    print("onOpenURL received: \(url)")
+                    if url.scheme == "twocents", url.host == "post" {
+                        let postIDString = url.lastPathComponent
+                        if let postID = UUID(uuidString: postIDString) {
+                            appModel.deepLinkPostID = postID
+                            print("Navigating to post with ID: \(postID)")
+                        }
+                    }
+                }
     }
 }
 

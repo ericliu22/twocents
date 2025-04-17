@@ -43,9 +43,10 @@ INSERT INTO user_profiles (
     user_id,
     profile_pic,
     username,
-    name
+    name,
+    date_created
 )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (user_id) DO NOTHING
 RETURNING *;
 
@@ -78,7 +79,7 @@ WHERE user_id = $1;
 
 -- name: AddDeviceToken :exec
 UPDATE users
-SET device_tokens = ARRAY_APPEND(device_tokens, $1)
+SET device_tokens = ARRAY_CAT(device_tokens, $1::TEXT[])
 WHERE id = $2;
 
 -- name: RemoveDeviceToken :exec
@@ -86,3 +87,7 @@ UPDATE users
 SET device_tokens = ARRAY_REMOVE(device_tokens, $1)
 WHERE id = $2;
 
+-- name: IncrementPostCount :exec
+UPDATE user_profiles
+SET posts = posts + 1
+WHERE user_id = $1;

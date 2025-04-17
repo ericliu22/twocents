@@ -100,4 +100,6 @@ twocents-82a02-firebase-adminsdk-fbsvc-e7391780d6.json
 *.pem
 *.p12
 
+build/
+
 *.log

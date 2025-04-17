@@ -118,7 +118,6 @@ public struct Request<T: Encodable> {
         
         guard let httpResponse = response as? HTTPURLResponse else {
             print("Invalid response")
-            print(data)
             throw APIError.invalidResponse
         }
         

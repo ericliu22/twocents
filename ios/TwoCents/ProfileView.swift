@@ -5,10 +5,6 @@ struct ProfileView: View {
     // Hard-coded profile data
     @Environment(AppModel.self) var appModel
 
-    let adventureDays: Int = 100
-    let friendCount: Int = 50
-    let friendRequestsCount: Int = 2
-
     // Two-column grid layout
     private let columns = [
         GridItem(.flexible()),
@@ -22,18 +18,22 @@ struct ProfileView: View {
                     // Profile Header
                     HStack(spacing: 16) {
                         // Profile Image
-                        if let url = URL(string: user.profilePic ?? "") {
-                            CachedImage(url: url) {
+                        NavigationLink {
+                            ProfilePictureUploadView()
+                        } label: {
+                            if let url = URL(string: user.profilePic ?? "") {
+                                CachedImage(url: url) {
+                                    Circle()
+                                        .fill(Color.accentColor)
+                                        .frame(width: 128, height: 128)
+                                }
+                                .clipShape(Circle())
+                                .frame(width: 128, height: 128)
+                            } else {
                                 Circle()
                                     .fill(Color.accentColor)
                                     .frame(width: 128, height: 128)
                             }
-                            .clipShape(Circle())
-                            .frame(width: 128, height: 128)
-                        } else {
-                            Circle()
-                                .fill(Color.accentColor)
-                                .frame(width: 128, height: 128)
                         }
 
                         // Profile Name
@@ -55,38 +55,48 @@ struct ProfileView: View {
                     // Profile Details Grid
                     LazyVGrid(columns: columns, spacing: nil) {
                         // Adventure Days Card
-                        VStack {
-                            Text("\(adventureDays) days")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.secondary)
-                            Text("of adventure")
-                                .font(.headline)
-                                .fontWeight(.regular)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
+                        // Inside your LazyVGrid or similar view code
+                        if let dateCreated = user.dateCreated {
+                            // Calculate the difference in days between now and the account's creation date.
+                            let daysSinceCreation = Calendar.current.dateComponents([.day], from: dateCreated, to: Date()).day ?? 0
+
+                            VStack {
+                                Text("\(daysSinceCreation) days")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.secondary)
+                                Text("on TwoCents")
+                                    .font(.headline)
+                                    .fontWeight(.regular)
+                                    .foregroundStyle(.tertiary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .aspectRatio(1, contentMode: .fit)
+                            .background(.thickMaterial)
+                            .cornerRadius(20)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fit)
-                        .background(.thickMaterial)
-                        .cornerRadius(20)
+
 
                         // Friends Count Card
-                        VStack {
-                            Text("\(friendCount)")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.accentColor)
-                            Text(friendCount == 1 ? "Friend" : "Friends")
-                                .font(.headline)
-                                .fontWeight(.regular)
+                        if let posts = user.posts {
+                            VStack {
+                                Text("\(posts)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color.accentColor)
+                                Text(posts == 1 ? "Post" : "Posts")
+                                    .font(.headline)
+                                    .fontWeight(.regular)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .aspectRatio(1, contentMode: .fit)
+                            .background(.thickMaterial)
+                            .cornerRadius(20)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fit)
-                        .background(.thickMaterial)
-                        .cornerRadius(20)
 
                         // Friend Requests Card
+                        /*
                         VStack {
                             if friendRequestsCount == 0 {
                                 Label(
@@ -106,19 +116,28 @@ struct ProfileView: View {
                                 .foregroundColor(Color.accentColor)
                             }
                         }
+                        .onAppear {
+                            print(user.userId)
+                            print(user.profilePic)
+                            print(user.username)
+                            print(user.dateCreated)
+                            print(user.posts)
+                        }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .aspectRatio(1, contentMode: .fit)
                         .background(.thickMaterial)
                         .cornerRadius(20)
-
+                         */
                         // Placeholder Card for Additional Actions
                         ZStack {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(.thickMaterial)
-                            Image(systemName: "plus")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .aspectRatio(1, contentMode: .fit)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(.thickMaterial)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .aspectRatio(1, contentMode: .fit)
@@ -126,6 +145,15 @@ struct ProfileView: View {
                     .padding(.horizontal)
 
                     Spacer()
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        NavigationLink {
+                            SignOutView()
+                        } label: {
+                            Image(systemName: "gear")
+                        }
+                    }
                 }
                 .navigationTitle("Profile 🤠")
             }

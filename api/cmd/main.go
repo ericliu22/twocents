@@ -9,6 +9,7 @@ import (
 	"api/internal/core/db"
 	"api/internal/core/message"
 	"api/internal/core/notifications"
+	"api/internal/core/score"
 	"api/internal/middleware"
 	"api/internal/routes"
 
@@ -49,6 +50,10 @@ func main() {
 	if err := notifications.InitCertificate("aps_cert.pem"); err != nil {
 		log.Fatalf("Could not initialize APNS certificate: %v", err)
 	}
+	messagingClient, err := app.Messaging(context.Background())
+	if err != nil {
+		log.Fatalf("Error intializing Firebase Messing Client: %v", err)
+	}
 
 	var logFile *os.File
 	defer logFile.Close()
@@ -57,10 +62,13 @@ func main() {
 
 	hub := message.NewHub()
 
+	go score.InitialScore(queries)
+
 	routes.SetupCoreRouter(
 		router,
 		queries,
 		authClient,
+		messagingClient,
 		hub,
 	)
 	router.SetTrustedProxies([]string{"192.168.100.0/24"})

@@ -48,4 +48,3 @@ func RemoveDeviceTokenHandler(queries *database.Queries) gin.HandlerFunc {
 		ctx.String(http.StatusOK, "Device token removed")
 	}
 }
-

@@ -20,17 +20,15 @@ struct TextWidgetView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
 
-            ScrollView(.vertical) {
-                LazyVStack(alignment: .leading) {
-                    ForEach(lines, id: \.self) { line in
-                        Text(line)
-                            .padding(.vertical, 2)
-                    }
+            LazyVStack(alignment: .leading) {
+                ForEach(lines, id: \.self) { line in
+                    Text(line)
+                        .padding(.vertical, 2)
                 }
             }
             
             VStack {
-                if let caption = entry.post.caption {
+                if let caption = entry.post.caption, !caption.isEmpty {
                     Text(caption)
                         .foregroundColor(.white)
                         .lineLimit(2)   // or however many lines you want

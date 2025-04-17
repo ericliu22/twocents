@@ -81,7 +81,7 @@ func GetMediaHandler(queries *database.Queries) gin.HandlerFunc {
 			return
 		}
 
-		if handled := utils.AttachCacheHeaders(ctx, mediaJson, 60); handled {
+		if handled := utils.AttachCacheHeaders(ctx, mediaJson, 30); handled {
 			return
 		}
 
