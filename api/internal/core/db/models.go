@@ -248,7 +248,6 @@ type FriendGroupPost struct {
 	GroupID uuid.UUID      `json:"groupId"`
 	PostID  uuid.UUID      `json:"postId"`
 	Score   pgtype.Numeric `json:"score"`
-	Status  PostStatus     `json:"status"`
 }
 
 type Friendship struct {
@@ -276,6 +275,7 @@ type Post struct {
 	Media       MediaType          `json:"media"`
 	DateCreated pgtype.Timestamptz `json:"dateCreated"`
 	Caption     *string            `json:"caption"`
+	Status      PostStatus         `json:"status"`
 }
 
 type Text struct {

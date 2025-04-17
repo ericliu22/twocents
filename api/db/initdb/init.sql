@@ -5,7 +5,6 @@ CREATE INDEX idx_friend_group_posts_active
   ON friend_group_posts (group_id, score DESC, post_id DESC)
   WHERE status = 'ACTIVE';
 
--- 1. Create the ENUM type for the media field
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
@@ -20,14 +19,13 @@ CREATE TYPE post_status AS ENUM (
     'FAILED'
 );
 
--- 2. Create the Post table
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
     user_id         UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     media		    media_type  	NOT NULL,
     date_created    TIMESTAMPTZ       NOT NULL,
-    caption         TEXT
-    status          post_status NOT NULL DEFAULT 'PENDING',
+    caption         TEXT,
+    status          post_status NOT NULL DEFAULT 'PENDING'
 );
 
 CREATE TYPE provider_type as ENUM (

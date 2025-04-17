@@ -1,4 +1,3 @@
--- 1. Create the ENUM type for the media field
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
     'VIDEO',
@@ -13,13 +12,13 @@ CREATE TYPE post_status AS ENUM (
     'FAILED'
 );
 
--- 2. Create the Post table
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
     user_id         UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     media		    media_type  	NOT NULL,
     date_created    TIMESTAMPTZ       NOT NULL,
-    caption         TEXT
+    caption         TEXT,
+    status          post_status NOT NULL DEFAULT 'PENDING'
 );
 
 CREATE TYPE provider_type as ENUM (
@@ -113,6 +112,5 @@ CREATE TABLE friend_group_posts (
     group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
     post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     score   DECIMAL NOT NULL DEFAULT 0,
-    status          post_status NOT NULL DEFAULT 'PENDING',
     PRIMARY KEY (group_id, post_id)
 );
