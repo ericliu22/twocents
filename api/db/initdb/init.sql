@@ -1,9 +1,15 @@
 \connect api;
 
 --INDEXES:
-CREATE INDEX idx_friend_group_posts_active
-  ON friend_group_posts (group_id, score DESC, post_id DESC)
-  WHERE status = 'ACTIVE';
+CREATE INDEX idx_fgp_group_score_post_desc
+  ON friend_group_posts (group_id, score DESC, post_id DESC);
+
+CREATE INDEX idx_posts_status
+  ON posts (status);
+
+CREATE INDEX idx_posts_published
+  ON posts (id)
+  WHERE status = 'PUBLISHED';
 
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
