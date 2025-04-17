@@ -189,7 +189,7 @@ const getTopPost = `-- name: GetTopPost :one
 SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
 FROM friend_group_posts fgp
 JOIN posts on fgp.post_id = posts.id
-WHERE fgp.group_id = $1
+WHERE fgp.group_id = $1 AND fgp.status = 'ACTIVE'
 ORDER BY fgp.score DESC
 LIMIT 1
 `
@@ -215,7 +215,7 @@ const initialPostsForGroup = `-- name: InitialPostsForGroup :many
 SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
 FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
-WHERE fgp.group_id = $1
+WHERE fgp.group_id = $1 AND fgp.status = 'ACTIVE'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $2
 `
@@ -261,6 +261,7 @@ FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
 WHERE fgp.group_id = $1
   AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
+AND fgp.status = 'ACTIVE'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $4
 `
@@ -309,9 +310,9 @@ func (q *Queries) ListPaginatedPostsForGroup(ctx context.Context, arg ListPagina
 
 const listPostsForGroup = `-- name: ListPostsForGroup :many
 SELECT posts.id, posts.user_id, posts.media, posts.date_created, posts.caption
-FROM friend_group_posts
-JOIN posts ON friend_group_posts.post_id = posts.id
-WHERE friend_group_posts.group_id = $1
+FROM friend_group_posts fgp
+JOIN posts ON fgp.post_id = posts.id
+WHERE fgp.group_id = $1 AND fgp.status = 'ACTIVE'
 `
 
 type ListPostsForGroupRow struct {
@@ -398,5 +399,21 @@ type UpdatePostScoreParams struct {
 
 func (q *Queries) UpdatePostScore(ctx context.Context, arg UpdatePostScoreParams) error {
 	_, err := q.db.Exec(ctx, updatePostScore, arg.PostID, arg.Score)
+	return err
+}
+
+const updatePostStatus = `-- name: UpdatePostStatus :exec
+UPDATE friend_group_posts
+SET status = $2
+WHERE post_id = $1
+`
+
+type UpdatePostStatusParams struct {
+	PostID uuid.UUID  `json:"postId"`
+	Status PostStatus `json:"status"`
+}
+
+func (q *Queries) UpdatePostStatus(ctx context.Context, arg UpdatePostStatusParams) error {
+	_, err := q.db.Exec(ctx, updatePostStatus, arg.PostID, arg.Status)
 	return err
 }

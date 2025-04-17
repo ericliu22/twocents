@@ -7,6 +7,12 @@ CREATE TYPE media_type AS ENUM (
     'OTHER'
 );
 
+CREATE TYPE post_status AS ENUM (
+    'PENDING',
+    'PUBLISHED',
+    'FAILED'
+);
+
 -- 2. Create the Post table
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
@@ -87,7 +93,7 @@ CREATE TABLE friend_groups (
     name            TEXT NOT NULL,
     date_created    TIMESTAMPTZ NOT NULL,
     owner_id        UUID NOT NULL REFERENCES users(id)
-    -- Possibly an "owner_id" if you want to track a user who owns/created the group
+    -- Possibly an "owner_id" if you want to track a user who owns/created the grou
 );
 
 CREATE TYPE group_role AS ENUM (
@@ -107,5 +113,6 @@ CREATE TABLE friend_group_posts (
     group_id UUID NOT NULL REFERENCES friend_groups(id) ON DELETE CASCADE,
     post_id  UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     score   DECIMAL NOT NULL DEFAULT 0,
+    status          post_status NOT NULL DEFAULT 'PENDING',
     PRIMARY KEY (group_id, post_id)
 );

@@ -37,7 +37,7 @@ func RoutineScoreCalculator(groupId uuid.UUID, queries *database.Queries) {
 
 func RunScoreCalculation(groupId uuid.UUID, queries *database.Queries) {
 	//@TODO: Make an actual context for this bitch
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
 	defer cancel()
 	posts, err := queries.ListPostsForGroup(ctx, groupId)
 	if err != nil {

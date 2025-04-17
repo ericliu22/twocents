@@ -1,5 +1,10 @@
 \connect api;
 
+--INDEXES:
+CREATE INDEX idx_friend_group_posts_active
+  ON friend_group_posts (group_id, score DESC, post_id DESC)
+  WHERE status = 'ACTIVE';
+
 -- 1. Create the ENUM type for the media field
 CREATE TYPE media_type AS ENUM (
     'IMAGE',
@@ -9,6 +14,12 @@ CREATE TYPE media_type AS ENUM (
     'OTHER'
 );
 
+CREATE TYPE post_status AS ENUM (
+    'PENDING',
+    'PUBLISHED',
+    'FAILED'
+);
+
 -- 2. Create the Post table
 CREATE TABLE posts (
     id         		UUID		    PRIMARY KEY,
@@ -16,6 +27,7 @@ CREATE TABLE posts (
     media		    media_type  	NOT NULL,
     date_created    TIMESTAMPTZ       NOT NULL,
     caption         TEXT
+    status          post_status NOT NULL DEFAULT 'PENDING',
 );
 
 CREATE TYPE provider_type as ENUM (
@@ -42,7 +54,8 @@ CREATE TABLE user_profiles (
     profile_pic     TEXT,
     username        TEXT            NOT NULL,
     name            TEXT,
-    posts           INTEGER         DEFAULT 0 NOT NULL
+    posts           INTEGER         DEFAULT 0 NOT NULL,
+    date_created   TIMESTAMPTZ       NOT NULL
 );
 
 CREATE TABLE images (
@@ -88,7 +101,7 @@ CREATE TABLE friend_groups (
     name            TEXT NOT NULL,
     date_created    TIMESTAMPTZ NOT NULL,
     owner_id        UUID NOT NULL REFERENCES users(id)
-    -- Possibly an "owner_id" if you want to track a user who owns/created the group
+    -- Possibly an "owner_id" if you want to track a user who owns/created the grou
 );
 
 CREATE TYPE group_role AS ENUM (

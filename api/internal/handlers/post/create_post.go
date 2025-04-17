@@ -2,10 +2,12 @@ package handlers
 
 import (
 	database "api/internal/core/db"
+	"api/internal/core/media"
 	"api/internal/core/notifications"
 	"api/internal/core/score"
 	"api/internal/core/utils"
 	"api/internal/middleware"
+	"encoding/json"
 	"net/http"
 
 	"firebase.google.com/go/v4/messaging"
@@ -34,33 +36,43 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 			gin.DefaultWriter.Write([]byte("Failed to fetch user: " + userErr.Error()))
 			return
 		}
+		if err := ctx.Request.ParseMultipartForm(32 << 20); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to parse multipart form: " + err.Error()})
+		return
+		}
 
-		var createRequest CreatePostRequest
-		if bindErr := ctx.ShouldBindJSON(&createRequest); bindErr != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body not as specified"})
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + bindErr.Error()))
-			gin.DefaultWriter.Write([]byte("Request body not as specified: " + ctx.ContentType()))
+		postValues, exists := ctx.Request.MultipartForm.Value["post"]
+		if !exists || len(postValues) == 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "missing post JSON data"})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: missing post JSON data"))
 			return
 		}
 
-		var media database.MediaType
+		var createRequest CreatePostRequest
+		if err := json.Unmarshal([]byte(postValues[0]), &createRequest); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid post JSON data: " + err.Error()})
+			gin.DefaultWriter.Write([]byte("Request body not as specified: " + err.Error()))
+			return
+		}
+
+		var postMedia database.MediaType
 		switch createRequest.Media {
 		case "IMAGE":
-			media = database.MediaTypeIMAGE
+			postMedia = database.MediaTypeIMAGE
 		case "VIDEO":
-			media = database.MediaTypeVIDEO
+			postMedia = database.MediaTypeVIDEO
 		case "LINK":
-			media = database.MediaTypeLINK
+			postMedia = database.MediaTypeLINK
 		case "TEXT":
-			media = database.MediaTypeTEXT
+			postMedia = database.MediaTypeTEXT
 		case "OTHER":
-			media = database.MediaTypeOTHER
+			postMedia = database.MediaTypeOTHER
 		}
-		gin.DefaultWriter.Write([]byte("USERID: " + user.ID.String()))
+
 		postParams := database.CreatePostParams{
 			ID:          uuid.New(),
 			UserID:      user.ID,
-			Media:       media,
+			Media:       postMedia,
 			DateCreated: utils.PGTime(),
 			Caption:     createRequest.Caption,
 		}
@@ -71,6 +83,7 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
 			return
 		}
+		go media.CreateMedia(queries, &post, ctx)
 
 		checkMembership := database.CheckUserMembershipForGroupsParams{
 			UserID:  user.ID,
@@ -98,49 +111,18 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 				return
 			}
 		}
-		/*
-			alert := notifications.Alert{
-				Title: "New post from " + user.Username,
-				Body:  post.Caption,
-			}
-			body := notifications.APSBody{
-				APSAlert: alert,
-			}
-		*/
-		incrementErr := queries.IncrementPostCount(ctx.Request.Context(), user.ID)
-		if incrementErr != nil {
-			ctx.String(http.StatusInternalServerError, "Error: Failed to increment post count: "+incrementErr.Error())
-			gin.DefaultWriter.Write([]byte("Failed to increment post count: " + incrementErr.Error()))
-			return
-		}
+		go notifications.SendPostNotification(
+			queries,
+			&post,
+			createRequest.Groups,
+			&user,
+			messagingClient,
+		)
 
-		ctx.JSON(http.StatusOK, post)
 		for _, groupID := range createRequest.Groups {
 			go score.RunScoreCalculation(groupID, queries)
 		}
 
-		deviceTokens, err := queries.GetDeviceTokens(ctx.Request.Context(), createRequest.Groups)
-		if err != nil {
-			ctx.JSON(http.StatusOK, post)
-			gin.DefaultWriter.Write([]byte("Failed to get device tokens: " + err.Error()))
-			return
-		}
-		tokens := utils.Flatten(deviceTokens)
-		for _, token := range tokens {
-			var body string
-			if post.Caption != nil {
-				body = *post.Caption
-			} else {
-				body = ""
-			}
-			notification := notifications.Notification{
-				Token: token,
-				Title: "New post from " + user.Username,
-				Body:  body,
-			}
-			go func() {
-				notifications.SendNotification(&notification, messagingClient)
-			}()
-		}
+		ctx.JSON(http.StatusOK, post)
 	}
 }
