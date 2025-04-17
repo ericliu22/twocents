@@ -83,6 +83,7 @@ func CreatePostHandler(queries *database.Queries, messagingClient *messaging.Cli
 			gin.DefaultWriter.Write([]byte("Failed to create post: " + createErr.Error()))
 			return
 		}
+
 		go media.CreateMedia(queries, &post, ctx)
 
 		checkMembership := database.CheckUserMembershipForGroupsParams{
