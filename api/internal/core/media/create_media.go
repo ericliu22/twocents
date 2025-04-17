@@ -12,7 +12,7 @@ func uploadMedia(queries *database.Queries, post *database.Post, ctx *gin.Contex
 	uploader := getUploader(post.Media)
 	uploadErr := uploader.upload(queries, post, ctx)
 	if uploadErr != nil {
-		gin.DefaultWriter.Write([]byte("Failed to upload media: " + uploadErr.Error()))
+		gin.DefaultWriter.Write([]byte("Failed to upload media: " + uploadErr.Error() + "\n"))
 		return uploadErr
 	}
 	return nil
