@@ -19,7 +19,7 @@ func uploadMedia(queries *database.Queries, post *database.Post, ctx *gin.Contex
 func CreateMedia(queries *database.Queries, post *database.Post, ctx *gin.Context) error {
 
 	postStatus := database.UpdatePostStatusParams{
-		PostID: post.ID,
+		ID: post.ID,
 	}
 	err := uploadMedia(queries, post, ctx)
 	if err != nil {
