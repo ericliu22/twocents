@@ -110,11 +110,11 @@ public struct Request<T: Encodable> {
         let urlRequest = try await self.asURLRequest()
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
 
-//        if let responseString = String(data: data, encoding: .utf8) {
-//            print("Response:\n\(responseString)")
-//        } else {
-//            print("Could not convert response data to a string.")
-//        }
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("Response:\n\(responseString)")
+        } else {
+            print("Could not convert response data to a string.")
+        }
         
         guard let httpResponse = response as? HTTPURLResponse else {
             print("Invalid response")
