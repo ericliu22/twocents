@@ -9,20 +9,27 @@ import FirebaseAuth
 // MARK: – Constants  ────────────────────────────────────────────────
 
 let APP_GROUP       = "432WVK3797.com.twocentsapp.newcents.keychain-group"
-let env             = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
 
-private var HARDCODED_DATE: Date {
-    DateComponents(calendar: .current,
-                   year: 2025, month: 3, day: 8).date!
+
+var HARDCODED_DATE: Date {
+    var dateComponents = DateComponents()
+    dateComponents.year = 2025
+    dateComponents.month = 3
+    dateComponents.day = 8
+    return Calendar.current.date(from: dateComponents)!
 }
 
+let env = ProcessInfo.processInfo.environment["ENVIRONMENT"] ?? "PRODUCTION"
+
 let HARDCODED_GROUP: FriendGroup = {
-    FriendGroup(
-        id:   UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!,
-        name: "TwoCents",
-        dateCreated: HARDCODED_DATE,
-        ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!
-    )
+    switch env.uppercased() {
+      case "DEBUG":
+        return FriendGroup(id: UUID(uuidString: "e16269de-b7a5-4916-8689-35e5787ad028")!, name: "Dev", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      case "PRODUCTION":
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+      default:
+        return FriendGroup(id: UUID(uuidString: "b343342a-d41b-4c79-a8a8-7e0b142be6da")!, name: "TwoCents", dateCreated: HARDCODED_DATE, ownerId: UUID(uuidString: "bb444367-e219-41e0-bfe5-ccc2038d0492")!)
+    }
 }()
 
 // MARK: – Share extension VC  ───────────────────────────────────────
