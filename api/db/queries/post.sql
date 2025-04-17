@@ -43,13 +43,13 @@ WHERE group_id = $1
 SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp
 JOIN posts ON fgp.post_id = posts.id
-WHERE fgp.group_id = $1 AND fgp.status = 'ACTIVE';
+WHERE fgp.group_id = $1 AND posts.status = 'ACTIVE';
 
 -- name: InitialPostsForGroup :many
 SELECT sqlc.embed(posts)
 FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
-WHERE fgp.group_id = $1 AND fgp.status = 'ACTIVE'
+WHERE fgp.group_id = $1 AND posts.status = 'ACTIVE'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $2;
 
@@ -59,7 +59,7 @@ FROM friend_group_posts fgp
 JOIN posts ON posts.id = fgp.post_id
 WHERE fgp.group_id = $1
   AND (fgp.score, fgp.post_id) < ($2, $3::uuid)
-AND fgp.status = 'ACTIVE'
+AND posts.status = 'ACTIVE'
 ORDER BY fgp.score DESC, fgp.post_id DESC
 LIMIT $4;
 
