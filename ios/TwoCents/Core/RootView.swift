@@ -66,6 +66,11 @@ struct RootView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
+            
+            AutoFaceRecorderView()
+                .tabItem {
+                    Label("Record", systemImage: "camera.fill")
+                }
         }
         .task {
             let authUser = try? AuthenticationManager.getAuthenticatedUser()
