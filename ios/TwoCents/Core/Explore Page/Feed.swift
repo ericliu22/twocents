@@ -16,16 +16,23 @@ class VideoPlayerManager: ObservableObject {
     func setupPlayer(url: URL) {
         player = AVPlayer(url: url)
         
-        // Add time observer to update progress
-        timeObserver = player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { [weak self] time in
+        // fire ~30×/sec
+        let interval = CMTime(seconds: 1/30, preferredTimescale: 600)
+        timeObserver = player?.addPeriodicTimeObserver(
+            forInterval: interval,
+            queue: .main
+        ) { [weak self] time in
             guard let self = self,
                   let duration = self.player?.currentItem?.duration.seconds,
                   !duration.isNaN, duration > 0 else { return }
             
-            self.progress = time.seconds / duration
+            let newProgress = time.seconds / duration
+            // animate each small jump
+            withAnimation(.linear(duration: 1/30)) {
+                self.progress = newProgress
+            }
         }
         
-        // Add observer for when video ends
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(playerDidFinishPlaying),
@@ -159,7 +166,7 @@ struct FeedItemView: View {
                     .foregroundColor(.white)
                     .padding(.trailing)
                 }
-                .padding(.bottom, 50) // Extra padding to stay above safe area
+                .padding(.bottom, 10) // Extra padding to stay above safe area
                 
                 // Progress bar
                 ZStack(alignment: .leading) {
@@ -172,10 +179,10 @@ struct FeedItemView: View {
                         .foregroundColor(.white)
                 }
                
-                .padding(.bottom, 8)
+           
                 
                 Spacer()
-                    .frame(height:80)
+                    .frame(height:84)
             }
         }
         .onAppear {

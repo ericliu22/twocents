@@ -122,6 +122,7 @@ struct RootView: View {
                     }
                 }
     }
+    
 }
 
 #Preview {
@@ -145,6 +146,7 @@ struct HomeView: View {
             }
         }
         .padding()
+        
     }
 }
 //

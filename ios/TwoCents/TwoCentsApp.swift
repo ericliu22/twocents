@@ -19,6 +19,7 @@ struct TwoCentsApp: App {
         WindowGroup {
             RootView()
                 .environment(delegate.appModel!)
+                .preferredColorScheme(.dark)
         }
     }
 }
