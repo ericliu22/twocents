@@ -171,8 +171,11 @@ struct FeedItemView: View {
                         .frame(width: UIScreen.main.bounds.width * playerManager.progress, height: 3)
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal)
+               
                 .padding(.bottom, 8)
+                
+                Spacer()
+                    .frame(height:80)
             }
         }
         .onAppear {
