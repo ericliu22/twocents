@@ -21,8 +21,4 @@ func SetupPostRoutes(
 	r.GET("/get-top-post", handlers.GetTopPostHandler(queries))
 	r.GET("/get-media", handlers.GetMediaHandler(queries))
 	r.POST("/create-post", handlers.CreatePostHandler(queries, messagingClient))
-	r.POST("/upload-image-post", handlers.UploadImagePostHandler(queries))
-	r.POST("/upload-video-post", handlers.UploadVideoPostHandler(queries))
-	r.POST("/upload-link-post", handlers.UploadLinkPostHandler(queries))
-	r.POST("/upload-text-post", handlers.UploadTextPostHandler(queries))
 }

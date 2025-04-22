@@ -15,7 +15,6 @@ type LinkUploader struct {}
 
 type Link struct {
 	MediaUrl string    `json:"mediaUrl"`
-	PostId   uuid.UUID `json:"postId"`
 }
 
 func (l LinkUploader) upload(
@@ -36,7 +35,7 @@ func (l LinkUploader) upload(
 	}
 	linkParams := database.CreateLinkParams{
 		ID:       uuid.New(),
-		PostID:   linkUpload.PostId,
+		PostID:   post.ID,
 		MediaUrl: linkUpload.MediaUrl,
 	}
 
