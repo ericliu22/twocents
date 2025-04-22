@@ -35,7 +35,7 @@ func (t TextUploader) upload(
 	}
 	textParams := database.CreateTextParams{
 		ID:       uuid.New(),
-		PostID:   textUpload.PostId,
+		PostID:   post.ID,
 		Text:	textUpload.Text,
 	}
 
